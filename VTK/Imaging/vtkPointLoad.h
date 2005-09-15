@@ -1,0 +1,100 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    $RCSfile: vtkPointLoad.h,v $
+  Language:  C++
+  Date:      $Date: 2002/08/05 17:29:13 $
+  Version:   $Revision: 1.36 $
+
+  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even 
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkPointLoad - compute stress tensors given point load on semi-infinite domain
+// .SECTION Description
+// vtkPointLoad is a source object that computes stress tensors on a volume. 
+// The tensors are computed from the application of a point load on a 
+// semi-infinite domain. (The analytical results are adapted from Saada - see 
+// text.) It also is possible to compute effective stress scalars if desired.
+// This object serves as a specialized data generator for some of the examples
+// in the text.
+
+// .SECTION See Also
+// vtkTensorGlyph, vtkHyperStreamline
+
+#ifndef __vtkPointLoad_h
+#define __vtkPointLoad_h
+
+#include "vtkImageSource.h"
+
+class VTK_IMAGING_EXPORT vtkPointLoad :  public vtkImageSource
+{
+public:
+  vtkTypeRevisionMacro(vtkPointLoad,vtkImageSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
+  // and LoadValue = 1.
+  static vtkPointLoad *New();
+
+  // Description:
+  // Set/Get value of applied load.
+  vtkSetMacro(LoadValue,float);
+  vtkGetMacro(LoadValue,float);
+
+  // Description:
+  // Specify the dimensions of the volume. A stress tensor will be computed for
+  // each point in the volume.
+  void SetSampleDimensions(int i, int j, int k);
+
+  // Description:
+  // Specify the dimensions of the volume. A stress tensor will be computed for
+  // each point in the volume.
+  void SetSampleDimensions(int dim[3]);
+  vtkGetVectorMacro(SampleDimensions,int,3);
+
+  // Description:
+  // Specify the region in space over which the tensors are computed. The point
+  // load is assumed to be applied at top center of the volume.
+  vtkSetVector6Macro(ModelBounds,float);
+  vtkGetVectorMacro(ModelBounds,float,6);
+
+  // Description:
+  // Set/Get Poisson's ratio.
+  vtkSetMacro(PoissonsRatio,float);
+  vtkGetMacro(PoissonsRatio,float);
+
+  // Description:
+  // Turn on/off computation of effective stress scalar. These methods do 
+  // nothing. The effective stress is always computed.
+  void SetComputeEffectiveStress(int) {};
+  int GetComputeEffectiveStress() {return 1;};
+  void ComputeEffectiveStressOn() {};
+  void ComputeEffectiveStressOff() {};
+
+protected:
+  vtkPointLoad();
+  ~vtkPointLoad() {};
+
+  virtual void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *);
+
+  float LoadValue;
+  float PoissonsRatio;
+  int SampleDimensions[3];
+  float ModelBounds[6];
+
+private:
+  vtkPointLoad(const vtkPointLoad&);  // Not implemented.
+  void operator=(const vtkPointLoad&);  // Not implemented.
+};
+
+#endif
+
+

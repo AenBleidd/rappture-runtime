@@ -1,0 +1,907 @@
+# Features covered: domDoc and docObj command
+#
+# This file contains a collection of tests for the two interfaces to
+# DOM docs, the token interface (the domDoc command) and the tcl
+# command interface ([$docObj method ...]).
+#
+#    domDoc-1.*:  asXML, asHTML
+#    domDoc-2.*:  publicId, systemId
+#    domDoc-3.*:  toXSLTcmd
+#    domDoc-4.*:  asText
+#    domDoc-5.*:  normalize
+#    domDoc-6.*:  nodetype
+#    domDoc-7.*:  insertBefore
+#    domDoc-8.*:  insertBeforeFromScript
+#    domDoc-9.*:  replaceChild
+#    domDoc-10.*: getElementById
+#    domDoc-11.*: firstChild
+#    domDoc-12.*: lastChild
+#    domDoc-13.*: appendChild
+#    domDoc-14.*: removeChild
+#    domDoc-15.*: hasChildNodes
+#    domDoc-16.*: childNodes
+#    domDoc-17.*: ownerDocument
+#    domDoc-18.*: appendFromList
+#    domDoc-19.*: appendXML
+#    domDoc-20.*: selectNodes
+#    domDoc-21.*: baseURI
+#    domDoc-22.*: appendFromScript
+#
+# Copyright (c) 2004 Rolf Ade.
+
+source [file join [file dir [info script]] loadtdom.tcl]
+
+test domDoc-1.1 {asXML -escapeNonASCII} {need_i18n} {
+    set doc [dom parse [tDOM::xmlReadFile \
+            [file join [file dir [info script]] data/i18n_1.xml]]]
+    set result [$doc asXML -escapeNonASCII]
+    $doc delete
+    set result
+} {<test>&#1072;&#1073;&#1074;&#1075;&#1076;&#1077;&#1078;&#1079;&#1080;&#1081;</test>
+}
+
+test domDoc-1.2 {asXML -escapeNonASCII; comments and PI's are not altered} {need_i18n} {
+    set doc [dom parse [tDOM::xmlReadFile \
+            [file join [file dir [info script]] data/i18n_2.xml]]]
+    set result [$doc asXML -indent none -escapeNonASCII]
+    $doc delete
+    set result
+} {<root withUmlauts="&#228;&#246;&#252;&#223;"><!-- A comment with german umlauts: äöüß --><?äöüß A processing node with german umlauts?>
+german umlauts: &#228;&#246;&#252;&#223;
+</root>}
+
+test domDoc-1.3 {asHTML -escapeNonASCII -htmlEntities} {need_i18n} {
+    set doc [dom parse {<html><body>&#228;&#xfc;&#8222;&#8223;&#8224;</body></html>}]
+    set result [$doc asHTML -escapeNonASCII -htmlEntities]
+    $doc delete
+    set result
+} {<html><body>&auml;&uuml;&bdquo;&#8223;&dagger;</body></html>}
+
+
+set doc [dom parse <root/>]
+
+test domDoc-1.4 {asXML -doctypeDeclaration} {
+    $doc asXML -doctypeDeclaration 1
+} {<!DOCTYPE root>
+<root/>
+}
+
+test domDoc-1.5 {asXML -doctypeDeclaration without boolean value (error)} {
+    set errMsg ""
+    catch {$doc asXML -doctypeDeclaration} errMsg
+    set errMsg
+} {-doctypeDeclaration must have a boolean value as argument}
+
+test domDoc-1.6 {asXML -doctypeDeclaration 0} {
+    $doc asXML -doctypeDeclaration 0
+} {<root/>
+}
+
+$doc delete
+
+test domDoc-1.7 {asXML -doctypeDeclaration} {
+    set doc [dom parse {<!DOCTYPE root PUBLIC "-//foo//DTD bar x.y//EN" 
+                                       "file:///boo.baz"><root/>}]
+    set result [$doc asXML -doctypeDeclaration 1]
+    $doc delete
+    set result
+} {<!DOCTYPE root PUBLIC "-//foo//DTD bar x.y//EN" "file:///boo.baz">
+<root/>
+}
+
+test domDoc-1.8 {asXML -doctypeDeclaration} {
+    set doc [dom parse {<!DOCTYPE root SYSTEM "file:///boo.baz"><root/>}]
+    set result [$doc asXML -doctypeDeclaration 1]
+    $doc delete
+    set result
+} {<!DOCTYPE root SYSTEM "file:///boo.baz">
+<root/>
+}   
+
+test domDoc-1.9 {asXML -doctypeDeclaration} {
+    set doc [dom parse {<!DOCTYPE root SYSTEM "file:///boo.baz"><root/>}]
+    set result [$doc asXML -doctypeDeclaration true]
+    $doc delete
+    set result
+} {<!DOCTYPE root SYSTEM "file:///boo.baz">
+<root/>
+}   
+
+test domDoc-1.10 {asXML - unknown option} {
+    set doc [dom parse {<!DOCTYPE root SYSTEM "file:///boo.baz"><root/>}]
+    set errMsg ""
+    catch {$doc asXML -fooOption 1} errMsg
+    $doc delete
+    set errMsg
+} {bad option "-fooOption": must be -indent, -channel, -escapeNonASCII, or -doctypeDeclaration}
+
+test domDoc-1.11 {asXML - non boolean value to -doctypeDeclaration} {
+    set doc [dom parse {<!DOCTYPE root SYSTEM "file:///boo.baz"><root/>}]
+    set errMsg ""
+    catch {$doc asXML -doctypeDeclaration foo} errMsg
+    $doc delete
+    set errMsg
+} {expected boolean value but got "foo"}
+
+test domDoc-1.12 {asXML - shortened option} {
+    set doc [dom parse {<!DOCTYPE root SYSTEM "file:///boo.baz"><root/>}]
+    set result [$doc asXML -doctype 1]
+    $doc delete
+    set result
+} {<!DOCTYPE root SYSTEM "file:///boo.baz">
+<root/>
+}   
+
+test domDoc-1.13 {asHTML -doctypeDeclaration} {
+    set doc [dom createDocument HTML]
+    set result [$doc asHTML -doctypeDeclaration 1]
+    $doc delete
+    set result
+} {<!DOCTYPE HTML>
+<html></html>}
+
+test domDoc-1.14 {asHTML -doctypeDeclaration} {
+    set doc [dom parse {<!DOCTYPE HTML 
+    PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+    "http://www.w3.org/TR/REC-html40/loose.dtd">
+    <html><body><p>boo</p></body></html>}]
+    set result [$doc asHTML -doctypeDeclaration 1]
+    $doc delete
+    set result
+} {<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body><p>boo</p></body></html>}
+
+test domDoc-1.15 {asXML - processing-instruction without pi value} {
+    set doc [dom parse {<doc><?p?></doc>}]
+    set result [$doc asXML -indent none]
+    $doc delete
+    set result
+} {<doc><?p ?></doc>}
+
+test domDoc-1.16 {asXML - processing-instruction without pi value} {
+    set doc [dom parse {<doc><?p ?></doc>}]
+    set result [$doc asXML -indent none]
+    $doc delete
+    set result
+} {<doc><?p ?></doc>}
+
+set doc [dom parse <root/>]
+
+test domDoc-2.1 {publicId - no publicId there} {
+    $doc publicId
+} {}
+
+test domDoc-2.2 {systemId - no systemId there} {
+    $doc systemId
+} {}
+
+$doc delete
+set doc [dom parse {<!DOCTYPE root PUBLIC "-//foo//DTD bar x.y//EN" "file:///boo.baz"><root/>}]
+
+test domDoc-2.3 {publicId from parsed document} {
+    $doc publicId
+} {-//foo//DTD bar x.y//EN}
+
+test domDoc-2.4 {systemId from parsed document} {
+    $doc systemId
+} {file:///boo.baz}
+
+$doc delete
+set doc [dom parse {<!DOCTYPE root SYSTEM "file:///boo.baz"><root/>}]
+
+test domDoc-2.5 {publicId but document has only SYSTEM} {
+    $doc publicId
+} {}
+
+test domDoc-2.6 {systemId, document has only SYSTEM} {
+    $doc systemId
+} {file:///boo.baz}
+
+test domDoc-2.7 {publicId - set public identifier} {
+    set result [$doc publicId "file:///woo.hoo"]
+    append result " [$doc publicId]"
+} { file:///woo.hoo} 
+
+test domDoc-2.8 {publicId - set public identifier} {
+    $doc publicId "http://www.tdom.org"
+    $doc asXML -indent no -doctypeDeclaration 1
+} {<!DOCTYPE root PUBLIC "http://www.tdom.org" "file:///boo.baz">
+<root/>}
+
+test domDoc-2.9 {systemId - set system identifier} {
+    set result [$doc systemId "file:///woo.hoo"]
+    append result " [$doc systemId]"
+} {file:///boo.baz file:///woo.hoo}
+
+test domDoc-2.10 {systemId - set system identifier} {
+    $doc systemId "file:///whooze.moo"
+    $doc asXML -indent no -doctypeDeclaration 1
+} {<!DOCTYPE root PUBLIC "http://www.tdom.org" "file:///whooze.moo">
+<root/>}
+
+test domDoc-2.11 {publicId - set to empty string} {
+    $doc publicId ""
+    $doc asXML -indent no -doctypeDeclaration 1
+} {<!DOCTYPE root SYSTEM "file:///whooze.moo">
+<root/>}
+
+test domDoc-2.12 {systemId - set to empty string} {
+    $doc systemId ""
+    $doc asXML -indent no -doctypeDeclaration 1
+} {<!DOCTYPE root>
+<root/>}
+
+$doc delete
+
+
+set doc [dom parse <root/>]
+
+set xslt1 {
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    <xsl:param name="param1" select="'param1Default'"/>
+    <xsl:param name="param2" select="'param2Default'"/>
+    <xsl:param name="param3" select="'param3Default'"/>
+    <xsl:template match="/">
+        <xsl:value-of select="$param1"/>
+        <xsl:text> </xsl:text>
+        <xsl:value-of select="$param2"/>
+        <xsl:text> </xsl:text>
+        <xsl:value-of select="$param3"/>
+        <xsl:text> </xsl:text>
+    </xsl:template>
+</xsl:stylesheet>}
+
+test domDoc-3.1 {toXSLTcmd} {
+    set xslt [dom parse -keepEmpties $xslt1]
+    set xsltCmd [$xslt toXSLTcmd]
+    
+    $xsltCmd -parameters {param2 newValue param3 "this Value"} $doc resultDoc
+    set result [$resultDoc asXML -indent none]
+    $resultDoc delete
+    $xsltCmd -parameters {param1 "that Value"} $doc resultDoc
+    append result [$resultDoc asXML -indent none]
+    $resultDoc delete
+    $xsltCmd -parameters {param3 "another" param1 "and this"} $doc resultDoc
+    append result [$resultDoc asXML -indent none]
+    $resultDoc delete
+    rename $xsltCmd {}
+    set result
+} {param1Default newValue this Value that Value param2Default param3Default and this param2Default another }
+
+set xslt2 {
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    <xsl:template match="/">
+        <xsl:text>dummy result</xsl:text>
+        <xsl:message>This is from xsl:message</xsl:message>
+    </xsl:template>
+</xsl:stylesheet>}
+
+proc msgCmd1 {msg terminate} {
+    global result
+    append result "msgCmd1: $msg "
+}
+
+proc msgCmd2 {msg terminate} {
+    global result
+    append result "msgCmd2: $msg"
+}
+
+test domDoc-3.2 {toXSLTcmd} {
+    set xslt [dom parse -keepEmpties $xslt2]
+    set xsltCmd [$xslt toXSLTcmd]
+
+    set result ""
+    $xsltCmd -xsltmessagecmd msgCmd1 $doc resultDoc
+    $resultDoc delete
+    $xsltCmd -xsltmessagecmd msgCmd2 $doc resultDoc
+    $resultDoc delete
+    rename $xsltCmd {}
+    set result
+} {msgCmd1: This is from xsl:message msgCmd2: This is from xsl:message}
+
+test domDoc-3.3 {toXSLTcmd} {
+    set xslt [dom parse -keepEmpties $xslt1]
+    set xsltCmd [$xslt toXSLTcmd]
+
+    set result [catch {$xsltCmd -bogusOption foo $doc resultDoc} errMsg]
+    lappend result $errMsg
+    lappend result [catch {$xsltCmd $doc resultDoc}]
+    lappend result [$resultDoc asXML -indent none]
+    $resultDoc delete
+    rename $xsltCmd {}
+    set result
+} {1 {bad option "-bogusOption": must be -parameters, -ignoreUndeclaredParameters, or -xsltmessagecmd} 0 {param1Default param2Default param3Default }}
+
+test domDoc-3.4 {toXSLTcmd} {
+    set xslt [dom parse -keepEmpties $xslt1]
+    set xsltCmd [$xslt toXSLTcmd]
+
+    set result [catch {$xsltCmd -xsltmessagecmd msgCmd1} errMsg]
+    rename $xsltCmd {}
+    lappend result $errMsg
+} {1 {wrong # args: should be "?-parameters parameterList? ?-ignoreUndeclaredParameters? ?-xsltmessagecmd cmd? <xmlDocObj> ?objVar?"}}
+
+test domDoc-3.5 {toXSLTcmd} {
+    set xslt [dom parse -keepEmpties $xslt1]
+    set xsltCmd [$xslt toXSLTcmd]
+
+    set result [catch {$xsltCmd $doc resultDoc bogus} errMsg]
+    rename $xsltCmd {}
+    lappend result $errMsg
+} {1 {wrong # args: should be "?-parameters parameterList? ?-ignoreUndeclaredParameters? ?-xsltmessagecmd cmd? <xmlDocObj> ?objVar?"}}
+
+test domDoc-3.6 {toXSLTcmd} {
+    set xslt [dom parse -keepEmpties $xslt1]
+    set xsltCmd [$xslt toXSLTcmd]
+
+    set result [catch {$xsltCmd -parameters {param1 foo} -parameters {param2 foo} $doc resultDoc} errMsg]
+    rename $xsltCmd {}
+    lappend result $errMsg
+} {1 {only one -parameters option allowed}}
+
+$doc delete
+
+test domDoc-4.1 {asText - syntax check} {
+    dom parse <root/> doc
+    set result [catch {$doc asText foo}]
+    $doc delete
+    set result
+} {1}
+
+test domDoc-4.2 {asText} {
+    dom parse {<root>pcdata <child>foo bar grill</child></root>} doc
+    set result [$doc asText]
+    $doc delete
+    set result
+} {pcdata foo bar grill}
+
+test domDoc-4.3 {asText} {
+    dom parse {<root>pcdata <![CDATA[<greeting>Hello, world!</greeting>]]>
+        more pcdata</root>} doc
+    set result [$doc asText]
+    $doc delete
+    set result
+} {pcdata <greeting>Hello, world!</greeting>
+        more pcdata}
+
+test domDoc-4.4 {asText} {
+    dom parse {<root>pcdata</root>} doc
+    $doc documentElement root
+    set newCDATAnode \
+        [$doc createCDATASection "<greeting>Hello, world!</greeting>"]
+    $root appendChild $newCDATAnode
+    set result [$doc asText]
+    $doc delete
+    set result
+} {pcdata}
+
+test domDoc-4.5 {asText} {
+    dom parse {<root>encoded chars: &gt; &lt; &amp; &quot; &apos;</root>} doc
+    set result [$doc asText]
+    $doc delete
+    set result
+} {encoded chars: > < & " '} 
+# emacs: "
+
+test domDoc-5.1 {normalize} {
+    set doc [dom parse <root><child>text</child></root>]
+    $doc documentElement root
+    set cdataNode [$doc createCDATASection "cdata section text"]
+    set child [$root firstChild]
+    $child appendChild $cdataNode
+    $doc normalize
+    set result [llength [$child childNodes]]
+    lappend result [[$child firstChild] data]
+    $doc delete
+    set result
+} {2 text}
+
+test domDoc-5.2 {normalize} {
+    set doc [dom parse <root><child>text</child></root>]
+    $doc documentElement root
+    set cdataNode [$doc createCDATASection "cdata section text"]
+    set child [$root firstChild]
+    $child appendChild $cdataNode
+    $doc normalize -forXPath
+    set result [llength [$child childNodes]]
+    lappend result [[$child firstChild] data]
+    $doc delete
+    set result
+} {1 {textcdata section text}}
+
+test domDoc-5.3 {normalize} {
+    set doc [dom parse <root><child/></root>]
+    $doc documentElement root
+    set cdataNode [$doc createCDATASection "cdata section text"]
+    set textNode [$doc createTextNode text]
+    set child [$root firstChild]
+    $child appendChild $cdataNode
+    $child appendChild $textNode
+    set result [llength [$child childNodes]]
+    $doc normalize -forXPath
+    lappend result [llength [$child childNodes]]
+    lappend result [[$child firstChild] data]
+    $doc delete
+    set result
+} {2 1 {cdata section texttext}}
+
+test domDoc-5.4 {normalize} {
+    set doc [dom parse <root><child/></root>]
+    $doc documentElement root
+    set cdataNode [$doc createCDATASection "cdata section text"]
+    set child [$root firstChild]
+    $child appendChild $cdataNode
+    $doc normalize
+    set result [$cdataNode nodeType]
+    $doc normalize -forXPath
+    lappend result [$cdataNode nodeType]
+    $doc delete
+    set result
+} {CDATA_SECTION_NODE TEXT_NODE}
+
+test domDoc-5.5 {normalize} {
+    set doc [dom parse <root><child/></root>]
+    $doc documentElement root
+    set textNode [$doc createTextNode ""]
+    set child [$root firstChild]
+    $child appendChild $textNode
+    set result [llength [$child childNodes]]
+    $doc normalize
+    lappend result [llength [$child childNodes]]
+    $doc delete
+    set result
+} {1 0}
+
+test domDoc-5.6 {normalize} {
+    set doc [dom parse <root><child/></root>]
+    $doc documentElement root
+    set cdataNode [$doc createCDATASection ""]
+    set child [$root firstChild]
+    $child appendChild $cdataNode
+    $doc normalize
+    set result [llength [$child childNodes]]
+    $doc normalize -forXPath
+    lappend result [llength [$child childNodes]]
+    $doc delete
+    set result
+} {1 0}
+
+test domDoc-6.1 {nodeType} {
+    set doc [dom parse <root/>]
+    set result [$doc nodeType]
+    $doc delete
+    set result
+} {DOCUMENT_NODE}
+
+test domDoc-6.2 {nodeType} {
+    set doc [dom parse <root/>]
+    set result [catch {$doc nodeType foo}]
+    $doc delete
+    set result
+} {1}
+
+test domDoc-7.1 {insertBefore} {
+    set doc [dom parse {<!-- Comment --><root/>}]
+    set root [$doc documentElement]
+    set newPI [$doc createProcessingInstruction myPI pivalue]
+    $doc insertBefore $newPI $root
+    set result [$doc asXML -indent none]
+    $doc delete
+    set result
+} {<!-- Comment --><?myPI pivalue?><root/>}
+
+test domDoc-7.2 {insertBefore} {
+    set doc [dom parse {<!-- Comment --><root/>}]
+    set newPI [$doc createProcessingInstruction myPI pivalue]
+    $doc insertBefore $newPI ""
+    set result [$doc asXML -indent none]
+    $doc delete
+    set result
+} {<!-- Comment --><root/><?myPI pivalue?>}
+
+test domDoc-7.3 {insertBefore} {
+    set doc [dom parse {<!-- Comment --><root><child/></root>}]
+    set newPI [$doc createProcessingInstruction myPI pivalue]
+    set root [$doc documentElement]
+    set child [$root firstChild]
+    set result [catch {$doc insertBefore $newPI $child} errMsg]
+    lappend result $errMsg
+    $doc delete
+    set result
+} {1 NOT_FOUND_ERR}
+
+namespace eval nodeCmds {
+    dom createNodeCmd elementNode e1
+    dom createNodeCmd elementNode e2
+    dom createNodeCmd commentNode c
+    dom createNodeCmd textNode    t
+    dom createNodeCmd cdataNode   cdata
+    dom createNodeCmd piNode      pi
+    dom createNodeCmd parserNode  parser
+}
+
+test domDoc-8.1 {insertBeforeFromScript} {
+    set doc [dom parse {<root><child/></root>}]
+    $doc documentElement root
+    $doc insertBeforeFromScript {
+        nodeCmds::e1
+    } $root
+    set result [$doc asXML -indent none]
+    $doc delete
+    set result
+} {<e1/><root><child/></root>}
+
+test domDoc-8.2 {insertBeforeFromScript} {
+    set doc [dom parse {<root><child/></root>}]
+    $doc insertBeforeFromScript {
+        nodeCmds::e1
+    } ""
+    set result [$doc asXML -indent none]
+    $doc delete
+    set result
+} {<root><child/></root><e1/>}
+
+test domDoc-8.3 {insertBeforeFromScript} {
+    set doc [dom parse {<root><child/></root>}]
+    $doc documentElement root
+    set result [catch {$root insertBeforeFromScript {
+        nodeCmds::e1
+        nodeCmds::e1 {
+            # This is intentionally wrong
+            set foo 1 + 1
+        }
+    } $root}]
+    lappend result [$doc asXML -indent none]
+    $doc delete
+    set result
+} {1 <root><child/></root>}
+
+test domDoc-9.1 {replaceChild} {
+    set doc [dom parse {<!-- Comment --><root><child/></root>}]
+    set root [$doc documentElement]
+    set newNode [$doc createElement newNode]
+    $doc replaceChild $newNode $root
+    set result [$doc asXML -indent none]
+    lappend result [[$doc documentElement] nodeName]
+    $doc delete
+    set result
+} {<!-- Comment --><newNode/> newNode}
+
+set getElementByIdSetup {    
+    set doc [dom parse {
+        <!DOCTYPE root [
+                        <!ELEMENT root (elem*)>
+                        <!ELEMENT elem ANY>
+                        <!ATTLIST elem
+                        id      ID      #IMPLIED
+                        name    CDATA   #IMPLIED>
+                       ]>
+        <root>
+        <elem id="7" name="this"/>
+        <elem id="4a" name="that"/>
+        <elem name="and"/>
+        <elem id="a2" name="this"/>
+        </root>}]
+}
+
+test domDoc-10.1 {getElementById} -setup $getElementByIdSetup -body {
+    set result [[$doc getElementById "4a"] @name]
+    lappend result [$doc getElementById "dontexists"]
+} -cleanup {
+    $doc delete
+} -result {that {}}
+
+test domDoc-10.2 {getElementById - only IDs at parsing time will be found} \
+    -setup $getElementByIdSetup -body {
+        set root [$doc documentElement]
+        set elemNode [$root selectNodes {elem[3]}]
+        if {[$elemNode hasAttribute id]} {
+            error "error in the test code"
+        }
+        $elemNode setAttribute id "new"
+        $doc getElementById "new"
+    } -cleanup {
+        $doc delete
+    } -result {}
+
+test domDoc-10.3 {getElementById} -setup $getElementByIdSetup -body {
+    set root [$doc documentElement]
+    set elemNode [$root selectNodes {elem[2]}]
+    if {![$elemNode hasAttribute id]} {
+        error "error in the test code"
+    }
+    $elemNode setAttribute id "new"
+    [$doc getElementById "new"] getAttribute name
+} -cleanup {
+    $doc delete
+} -result that
+
+test domDoc-10.3 {getElementById} -setup $getElementByIdSetup -body {
+    set root [$doc documentElement]
+    set elemNode [$root selectNodes {elem[2]}]
+    if {![$elemNode hasAttribute id]} {
+        error "error in the test code"
+    }
+    $elemNode setAttribute id "new"
+    [$doc getElementById "new"] getAttribute name
+} -cleanup {
+    $doc delete
+} -result that
+
+test domDoc-10.4 {getElementById} -setup $getElementByIdSetup -body {
+    set root [$doc documentElement]
+    set elemNode [$root selectNodes {elem[2]}]
+    if {![$elemNode hasAttribute id]} {
+        error "error in the test code"
+    }
+    $root removeChild $elemNode
+    [$doc getElementById "4a"] getAttribute name
+} -cleanup {
+    $doc delete
+} -result that
+
+test domDoc-10.5 {getElementById} -setup $getElementByIdSetup -body {
+    set root [$doc documentElement]
+    set elemNode [$root selectNodes {elem[2]}]
+    if {![$elemNode hasAttribute id]} {
+        error "error in the test code"
+    }
+    $elemNode removeAttribute id
+    $doc getElementById "4a"
+} -cleanup {
+    $doc delete
+} -result {}
+
+test domDoc-11.1 {firstChild} {
+    set doc [dom createDocumentNode]
+    set result [$doc firstChild]
+    $doc delete
+    set result
+} {}
+
+test domDoc-11.2 {firstChild} {
+    set doc [dom parse <root/>]
+    set result [[$doc firstChild] nodeName]
+    $doc delete
+    set result
+} {root}
+
+test domDoc-11.3 {firstChild} {
+    set doc [dom parse {<?beforeRoot this?><root/><?afterRoot that?>}]
+    set result [[$doc firstChild] nodeName]
+    $doc delete
+    set result
+} {beforeRoot}
+
+test domDoc-11.4 {firstChild} {
+    set doc [dom parse {<root/>}]
+    set node [$doc firstChild]
+    set newNode [$doc createElement newNode]
+    $doc insertBefore $newNode $node
+    set result [[$doc firstChild] nodeName]
+    $doc delete
+    set result
+} {newNode}
+
+test domDoc-12.1 {lastChild} {
+    set doc [dom createDocumentNode]
+    set result [$doc lastChild]
+    $doc delete
+    set result
+} {}
+
+test domDoc-12.2 {lastChild} {
+    set doc [dom parse <root/>]
+    set result [[$doc lastChild] nodeName]
+    $doc delete
+    set result
+} {root}
+
+test domDoc-12.3 {lastChild} {
+    set doc [dom parse {<?beforeRoot this?><root/><?afterRoot that?>}]
+    set result [[$doc lastChild] nodeName]
+    $doc delete
+    set result
+} {afterRoot}
+
+test domDoc-12.4 {lastChild} {
+    set doc [dom parse {<root/>}]
+    set newNode [$doc createElement newNode]
+    $doc appendChild $newNode
+    set result [[$doc lastChild] nodeName]
+    lappend result [[$doc lastChild] parentNode]
+    $doc delete
+    set result
+} {newNode {}}
+
+test domDoc-13.1 {appendChild} {
+    set doc [dom parse {<root/>}]
+    set newNode [$doc createElement newNode]
+    $doc appendChild $newNode
+    set newNode [$doc createComment "a comment"]
+    $doc appendChild $newNode
+    set newNode [$doc createProcessingInstruction this that]
+    $doc appendChild $newNode
+    set newNode [$doc createTextNode "text"]
+    $doc appendChild $newNode
+    set result [$doc asXML -indent none]
+    $doc delete
+    set result
+} {<root/><newNode/><!--a comment--><?this that?>text}
+
+test domDoc-13.2 {appendChild} {
+    set doc [dom createDocumentNode]
+    set newNode [$doc createElement newNode]
+    $doc appendChild $newNode
+    set result [[$doc documentElement] nodeName]
+    $doc delete
+    set result
+} {newNode}
+
+test domDoc-13.3 {appendChild} {
+    set doc [dom createDocumentNode]
+    set newNode [$doc createElement newNode]
+    $doc appendChild $newNode
+    set result [[$doc documentElement] parentNode]
+    $doc delete
+    set result
+} {}
+
+test domDoc-14.1 {removeChild} {
+    set doc [dom parse {<root/>}]
+    $doc removeChild [$doc firstChild]
+    set result [$doc documentElement]
+    $doc delete
+    set result
+} {}
+
+test domDoc-15.1 {hasChildNodes} {
+    set doc [dom createDocumentNode]
+    set result [$doc hasChildNodes]
+    set newNode [$doc createElement newNode]
+    $doc appendChild $newNode
+    lappend result [$doc hasChildNodes]
+    $doc delete
+    set result
+} {0 1}
+
+test domDoc-16.1 {childNodes} {
+    set doc [dom parse {<?beforeRoot this?><root/><?afterRoot that?>}]
+    set result {}
+    foreach node [$doc childNodes] {
+        lappend result [$node nodeName]
+    }
+    $doc delete
+    set result
+} {beforeRoot root afterRoot}
+
+test domDoc-17.1 {ownerDocument} {
+    set doc [dom parse <root/>]
+    set result [expr {$doc == [$doc ownerDocument]}]
+    $doc delete
+    set result
+} {1}
+
+test domDoc-18.1 {appendFromList} {
+    set doc [dom createDocumentNode]
+    $doc appendFromList {elem {} {}}
+    set node [$doc documentElement]
+    set result [list [$node nodeName] [$node parentNode]]
+    $doc delete
+    set result
+} {elem {}}
+
+test domDoc-19.1 {appendXML} {
+    set doc [dom createDocumentNode]
+    $doc appendXML <test>foo<child><childchild>text</childchild></child></test>
+    set result [$doc asXML -indent none]
+    $doc delete
+    set result
+} {<test>foo<child><childchild>text</childchild></child></test>}
+
+test domDoc-19.2 {appendXML} {
+    set doc [dom createDocumentNode]
+    $doc appendXML <test>foo<child><childchild>text</childchild></child></test>
+    set result [[$doc documentElement] nodeName]
+    lappend result [[$doc documentElement] parentNode]
+    lappend result [expr {$doc == [[$doc documentElement] ownerDocument]}]
+    $doc delete
+    set result
+} {test {} 1}
+
+test domDoc-19.3 {appendXML} {
+    set doc [dom createDocument foo]
+    $doc appendXML <test>foo<child><childchild>text</childchild></child></test>
+    set result [[$doc documentElement] nodeName]
+    set result [$doc asXML -indent none]
+    $doc delete
+    set result
+} {<foo/><test>foo<child><childchild>text</childchild></child></test>}
+    
+
+test domDoc-20.1 {selectNodes} {
+    set doc [dom parse {<root><child id="1"/><child id="2"/></root>}]
+    set result [[$doc selectNodes {root/child[2]}] getAttribute id]
+    $doc delete
+    set result
+} {2}
+
+test domDoc-20.2 {selectNodes} {
+    set doc [dom parse {<root><child id="1"/><child id="2"/></root>}]
+    set result [[$doc selectNodes {/root/child[2]}] getAttribute id]
+    $doc delete
+    set result
+} {2}
+
+test domDoc-20.3 {selectNodes} {
+    set doc [dom parse {<!-- Comment --><root/><?piAfterRoot value?>}]
+    set result [list]
+    foreach node [$doc selectNodes *] {
+        lappend result [$node nodeName]
+    }
+    set result
+} {root}
+
+test domDoc-20.4 {selectNodes} {
+    set doc [dom parse {<!-- Comment --><root/><?piAfterRoot value?>}]
+    set result [list]
+    foreach node [$doc selectNodes node()] {
+        lappend result [$node nodeType]
+    }
+    set result
+} {COMMENT_NODE ELEMENT_NODE PROCESSING_INSTRUCTION_NODE}
+
+test domDoc-21.1 {baseURI} {
+    set doc [dom createDocumentNode]
+    set result [$doc baseURI]
+    $doc delete
+    set result
+} {}
+
+test domDoc-21.2 {baseURI} {
+    set doc [dom parse -baseurl file://foo <root/>]
+    set result [$doc baseURI]
+    $doc baseURI http://that.this
+    lappend result [$doc baseURI]
+    $doc delete
+    set result
+} {file://foo http://that.this}
+
+namespace eval nodeCmds {
+    dom createNodeCmd elementNode e1
+    dom createNodeCmd elementNode e2
+    dom createNodeCmd commentNode c
+    dom createNodeCmd textNode    t
+    dom createNodeCmd cdataNode   cdata
+    dom createNodeCmd piNode      pi
+    dom createNodeCmd parserNode  parser
+}
+test domDoc-22.1 {appendFromScript} {
+    set doc [dom createDocumentNode]
+    $doc appendFromScript nodeCmds::e1
+    set result [$doc asXML -indent none]
+    lappend result [[$doc documentElement] nodeName]
+    $doc delete
+    set result
+} {<e1/> e1}
+
+test domDoc-22.2 {appendFromScript} {
+    set doc [dom parse <root/>]
+    namespace eval nodeCmds {
+        $doc appendFromScript {
+            e1
+            e2
+        }
+    }
+    set result [$doc asXML -indent none]
+    foreach node [$doc selectNodes *] {
+        lappend result [$node parentNode]
+        lappend result [expr {$doc == [$node ownerDocument]}]
+    }
+    $doc delete
+    set result
+} {<root/><e1/><e2/> {} 1 {} 1 {} 1}
+    
+# cleanup
+::tcltest::cleanupTests
+return

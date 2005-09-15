@@ -1,0 +1,62 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    $RCSfile: vtkPointPicker.h,v $
+  Language:  C++
+  Date:      $Date: 2002/01/22 15:39:05 $
+  Version:   $Revision: 1.35 $
+
+  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even 
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkPointPicker - select a point by shooting a ray into a graphics window
+// .SECTION Description
+// vtkPointPicker is used to select a point by shooting a ray into a graphics
+// window and intersecting with actor's defining geometry - specifically 
+// its points. Beside returning coordinates, actor, and mapper, vtkPointPicker
+// returns the id of the closest point within the tolerance along the pick ray.
+
+// .SECTION See Also
+// vtkPicker vtkCellPicker.
+
+#ifndef __vtkPointPicker_h
+#define __vtkPointPicker_h
+
+#include "vtkPicker.h"
+
+class VTK_RENDERING_EXPORT vtkPointPicker : public vtkPicker
+{
+public:
+  static vtkPointPicker *New();
+  vtkTypeRevisionMacro(vtkPointPicker,vtkPicker);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Get the id of the picked point. If PointId = -1, nothing was picked.
+  vtkGetMacro(PointId, vtkIdType);
+
+protected:
+  vtkPointPicker();
+  ~vtkPointPicker() {};
+
+  vtkIdType PointId; //picked point
+
+  float IntersectWithLine(float p1[3], float p2[3], float tol, 
+                          vtkAssemblyPath *path, vtkProp3D *p, 
+                          vtkAbstractMapper3D *m);
+  void Initialize();
+
+private:
+  vtkPointPicker(const vtkPointPicker&);  // Not implemented.
+  void operator=(const vtkPointPicker&);  // Not implemented.
+};
+
+#endif
+
+
