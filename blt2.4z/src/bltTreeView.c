@@ -2319,7 +2319,12 @@ GetValueSize(
 	    }
 	    valuePtr->stylePtr = newStylePtr;
 	    valuePtr->string = (objc > 1) ? Tcl_GetString(objv[1]) : NULL;
-	}
+	} else {
+            if (valuePtr->stylePtr != NULL) {
+		Blt_TreeViewFreeStyle(tvPtr, valuePtr->stylePtr);
+                valuePtr->stylePtr = NULL;
+            }
+        }
     }
  handleString:
     stylePtr = CHOOSE(columnPtr->stylePtr, valuePtr->stylePtr);
