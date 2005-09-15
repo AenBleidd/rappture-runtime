@@ -326,7 +326,7 @@ SetAxisRange(AxisRange *rangePtr, double min, double max)
     rangePtr->min = min;
     rangePtr->max = max;
     rangePtr->range = max - min;
-    if (FABS(rangePtr->range) < DBL_EPSILON) {
+    if (min + DBL_EPSILON == max) {
 	rangePtr->range = 1.0;
     }
     rangePtr->scale = 1.0 / rangePtr->range;
@@ -357,6 +357,7 @@ InRange(x, rangePtr)
     register double x;
     AxisRange *rangePtr;
 {
+/***** HACK THIS OUT -- mmc
     if (rangePtr->range < DBL_EPSILON) {
 #ifdef notdef
 	return (((rangePtr->max - x) >= (FABS(x) * DBL_EPSILON)) &&
@@ -364,11 +365,14 @@ InRange(x, rangePtr)
 #endif
 	return (FABS(rangePtr->max - x) >= DBL_EPSILON);
     } else {
+*****/
 	double norm;
 
 	norm = (x - rangePtr->min) * rangePtr->scale;
 	return ((norm >= -DBL_EPSILON) && ((norm - 1.0) < DBL_EPSILON));
+/*****
     }
+*****/
 }
 
 INLINE static int
