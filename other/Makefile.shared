@@ -18,6 +18,7 @@
 # change the $(LIB_HOME) variable.
 
 LIB_HOME        = /opt/rappture/lib
+INCL_HOME       = /opt/rappture/include
 
 PROGS           = libscew
 
@@ -34,6 +35,11 @@ DEPS            = attribute.o element.o error.o parser.o str.o \
                   tree.o writer.o xattribute.o xerror.o xhandler.o \
                   xparser.o xprint.o
 
+SCEW_HEADERS    = attribute.h element.h error.h parser.h scew.h str.h \
+                  tree.h types.h writer.h
+
+EXTRA_HEADERS   = xelement.h xattribute.h xerror.h
+
 #### dependencies ########################################################
 
 .c.o:
@@ -43,10 +49,18 @@ libscew: $(DEPS)
 	$(CC) $(DEGUG) -shared -Wl,-rpath,./ \
 	-Wl,-soname,$@.so -o $@.so.0.0 $^ -lexpat -lpthread
 
+
+install: all
 	/sbin/ldconfig -n ./
 	cp -d libscew.so* $(LIB_HOME)
+#	if ! test -d $(INCL_HOME)/scew
+#		then
+#			mkdir $(INCL_HOME)/scew
+#	fi
+	mkdir $(INCL_HOME)/scew
+	cp $(SCEW_HEADERS) $(EXTRA_HEADERS) $(INCL_HOME)/scew
 
 #### CLEAN UP ############################################################
 clean: 
-	- rm -f *.o ${PROGS}
+	- rm -f *.o *.so* ${PROGS}
 
