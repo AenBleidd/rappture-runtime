@@ -43,11 +43,11 @@ EXTRA_HEADERS   = xelement.h xattribute.h xerror.h
 #### dependencies ########################################################
 
 .c.o:
-	$(CC) -g -Wall -fPIC -c -o $@ $< 
+	$(CC) -g -Wall -fPIC -c -I$(INCL_HOME) -o $@ $< 
 
 libscew: $(DEPS)
 	$(CC) $(DEGUG) -shared -Wl,-rpath,./ \
-	-Wl,-soname,$@.so -o $@.so.0.0 $^ -lexpat -lpthread
+	-Wl,-soname,$@.so -o $@.so.0.0 $^ -L$(LIB_HOME) -lexpat -lpthread
 
 
 install: all
