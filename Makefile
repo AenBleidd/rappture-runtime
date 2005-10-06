@@ -24,9 +24,10 @@
 #############################################################################
 basedir=/opt/rappture-runtime
 Rappture=/opt/rappture
+RP_SRC=$(basedir)/rappture
 
 
-all: tcl tk itcl tdom blt shape python expat scew install-rp rplib
+all: tcl tk itcl tdom blt shape python expat scew install-rp rplib examples
 
 pkgs: tcl tk itcl tdom blt shape python expat scew
 
@@ -118,16 +119,20 @@ scew:
 # 	- install rappture apps (driver, rappture, rerun) in $(Rappture) dir
 #############################################################################
 install-rp:
-	if test -d $(basedir)/rappture; then \
+	if test -d $(RP_SRC); then \
 		: ;\
 	else \
 		cd $(basedir); \
 		svn checkout https://repo.nanohub.org/svn/rappture/trunk rappture; \
 	fi; \
-	$(Rappture)/bin/tclsh $(basedir)/rappture/tcl/install.tcl ; \
-	cd $(basedir)/rappture/python; \
+	$(Rappture)/bin/tclsh $(RP_SRC)/tcl/install.tcl ; \
+	cd $(RP_SRC)/python; \
 	$(Rappture)/bin/python setup.py install ; \
-	cp $(basedir)/rappture/gui/apps/* $(Rappture)/bin
+	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin ;\
+	cp -r $(RP_SRC)/include/cee $(Rappture)/include ;\
+	cp -r $(RP_SRC)/include/core $(Rappture)/include ;\
+	cp -r $(RP_SRC)/include/fortran $(Rappture)/include; \
+	find $(Rappture)/include -name .svn -exec rm -rf "{}" \;
 
 
 #############################################################################
@@ -138,7 +143,7 @@ install-rp:
 # 	- install rappture libs in $(Rappture) dir 
 #############################################################################
 rplib: install-rp
-	cd $(basedir)/rappture/src; \
+	cd $(RP_SRC)/src; \
 	make clean >& $(basedir)/output.rp 2>&1; \
 	make all >& $(basedir)/output.rp 2>&1; \
 	make install >& $(basedir)/output.rp 2>&1
@@ -151,10 +156,13 @@ rplib: install-rp
 # 	- install rappture examples in $(Rappture)/examples
 #############################################################################
 examples:
-	cd $(basedir)/examples/app-fermi/fortran; make clean; make; \
-	cd $(basedir)/examples/app-fermi/fortran; make clean; make; \
+	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make; \
+	cd $(RP_SRC)/examples/c-example; make clean; make; \
+	cd $(RP_SRC)/examples/fermi_fortran; make clean; make; \
+	cp -r $(RP_SRC)/examples $(Rappture)
+#	find $(Rappture)/examples -name .svn -exec rm -rf "{}" \;
 
 
-
+#############################################################################
 clean:
 	rm -f output.*
