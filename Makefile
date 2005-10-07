@@ -31,13 +31,13 @@ all: tcl tk itcl tdom blt shape python expat scew install-rp rplib examples
 
 pkgs: tcl tk itcl tdom blt shape python expat scew
 
-rappture: install-rp rplib
+rappture: install-rp rplib examples
 
 #################################################
 tcl:
 	echo "BUIDING TCL8.4.11...." 
 	cd $(basedir)/tcl8.4.11/unix; make clean; make distclean; \
-	./configure --enable-shared --enable-threads --prefix=$(Rappture) >& $(basedir)/output.tcl; \
+	./configure --enable-shared --disable-threads --prefix=$(Rappture) >& $(basedir)/output.tcl; \
 	make >> $(basedir)/output.tcl 2>&1; \
 	make install >> $(basedir)/output.tcl 2>&1; \
 	ln -s $(Rappture)/bin/tclsh8.4 $(Rappture)/bin/tclsh
@@ -47,7 +47,7 @@ tcl:
 tk:
 	echo "BUIDING Tk8.4.11...." 
 	cd $(basedir)/tk8.4.11/unix; make clean; make distclean; \
-	./configure --enable-shared --enable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib >& $(basedir)/output.tk 2>&1; \
+	./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib >& $(basedir)/output.tk 2>&1; \
 	make >> $(basedir)/output.tk 2>& 1; \
 	make install >> $(basedir)/output.tk 2>& 1; \
 	ln -s $(Rappture)/bin/wish8.4 $(Rappture)/bin/wish
@@ -57,7 +57,7 @@ tk:
 itcl:
 	echo "BUIDING itcl3.2.1...." 
 	cd $(basedir)/itcl3.2.1; make clean; make distclean; \
-	./configure --enable-shared --enable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib >& $(basedir)/output.itk 2>&1; \
+	./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib >& $(basedir)/output.itk 2>&1; \
 	make all  >> $(basedir)/output.itk 2>& 1; \
 	make install >> $(basedir)/output.itk 2>& 1;
 
@@ -65,7 +65,7 @@ itcl:
 tdom:
 	echo "BUIDING tdom-0.8.0..."
 	cd $(basedir)/tDOM-0.8.0/unix; make clean; make distclean; \
-	../configure --enable-shared --enable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib >& $(basedir)/output.tdom 2>&1; \
+	../configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib >& $(basedir)/output.tdom 2>&1; \
 	make >> $(basedir)/output.tdom 2>&1; \
 	make install >> $(basedir)/output.tdom 2>&1
 
@@ -90,7 +90,7 @@ shape:
 python:
 	echo "BUIDING python2.4.1..."
 	cd $(basedir)/Python-2.4.1; make clean; make distclean; \
-	./configure --enable-shared --enable-threads --prefix=$(Rappture) >& $(basedir)/output.py 2>&1 ; \
+	./configure --enable-shared --prefix=$(Rappture) >& $(basedir)/output.py 2>&1 ; \
 	make >> $(basedir)/output.py 2>&1; \
 	make install >> $(basedir)/output.py 2>&1
 
@@ -128,11 +128,12 @@ install-rp:
 	$(Rappture)/bin/tclsh $(RP_SRC)/tcl/install.tcl ; \
 	cd $(RP_SRC)/python; \
 	$(Rappture)/bin/python setup.py install ; \
+	cd $(RP_SRC)/src/python; $(Rappture)/bin/python setup.py install; \
 	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin ;\
 	cp -r $(RP_SRC)/include/cee $(Rappture)/include ;\
 	cp -r $(RP_SRC)/include/core $(Rappture)/include ;\
 	cp -r $(RP_SRC)/include/fortran $(Rappture)/include; \
-	find $(Rappture)/include -name .svn -exec rm -rf "{}" \;
+#	find $(Rappture)/include -name .svn -exec rm -rf "{}"
 
 
 #############################################################################
