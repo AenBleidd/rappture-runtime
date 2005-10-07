@@ -27,9 +27,9 @@ Rappture=/opt/rappture
 RP_SRC=$(basedir)/rappture
 
 
-all: tcl tk itcl tdom blt shape python expat scew install-rp rplib examples
+all: tcl tk itcl tdom blt shape python expat scew vtk install-rp rplib examples
 
-pkgs: tcl tk itcl tdom blt shape python expat scew
+pkgs: tcl tk itcl tdom blt shape python expat scew vtk
 
 rappture: install-rp rplib examples
 
@@ -110,6 +110,13 @@ scew:
 	make clean; \
 	make >& $(basedir)/output.scew 2>&1; \
 	make install >> $(basedir)/output.scew 2>&1
+
+#############################################################################
+vtk:
+	echo "copying VTK binaries... ..."
+	cp -rp $(basedir)/VTK4.4-binaries/libvtk* $(Rappture)/lib ;\
+	cp -rp $(basedir)/VTK4.4-binaries/vtk $(Rappture)/lib ;\
+	cp -rp $(basedir)/VTK4.4-binaries/vtk.exe $(Rappture)/bin/vtk
 
 #############################################################################
 # install-rp:
