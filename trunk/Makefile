@@ -135,7 +135,7 @@ install-rp:
 	$(Rappture)/bin/tclsh $(RP_SRC)/tcl/install.tcl ; \
 	cd $(RP_SRC)/python; \
 	$(Rappture)/bin/python setup.py install ; \
-	cd $(RP_SRC)/src/python; $(Rappture)/bin/python setup.py install; \
+	cd $(RP_SRC)/src; $(Rappture)/bin/python python/setup.py install; \
 	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin ;\
 	cp -r $(RP_SRC)/include/cee $(Rappture)/include ;\
 	cp -r $(RP_SRC)/include/core $(Rappture)/include ;\
