@@ -126,6 +126,8 @@ vtk:
 # 	- install rappture apps (driver, rappture, rerun) in $(Rappture) dir
 #############################################################################
 install-rp:
+	cp -d /usr/lib/libstdc++.so.6* $(Rappture)/lib
+	cp -d /usr/lib/libtiff.so.4* $(Rappture)/lib
 	if test -d $(RP_SRC); then \
 		: ;\
 	else \
