@@ -1,0 +1,70 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    $RCSfile: vtkXMLPUnstructuredDataWriter.cxx,v $
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#include "vtkXMLPUnstructuredDataWriter.h"
+#include "vtkXMLUnstructuredDataWriter.h"
+#include "vtkErrorCode.h"
+#include "vtkPointSet.h"
+
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataWriter, "$Revision: 1.3 $");
+
+//----------------------------------------------------------------------------
+vtkXMLPUnstructuredDataWriter::vtkXMLPUnstructuredDataWriter()
+{
+}
+
+//----------------------------------------------------------------------------
+vtkXMLPUnstructuredDataWriter::~vtkXMLPUnstructuredDataWriter()
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPUnstructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
+
+//----------------------------------------------------------------------------
+vtkPointSet* vtkXMLPUnstructuredDataWriter::GetInputAsPointSet()
+{
+  if(this->NumberOfInputs < 1)
+    {
+    return 0;
+    }
+  
+  return static_cast<vtkPointSet*>(this->Inputs[0]);
+}
+
+//----------------------------------------------------------------------------
+vtkXMLWriter* vtkXMLPUnstructuredDataWriter::CreatePieceWriter(int index)
+{
+  vtkXMLUnstructuredDataWriter* pWriter = this->CreateUnstructuredPieceWriter();
+  pWriter->SetNumberOfPieces(this->NumberOfPieces);
+  pWriter->SetWritePiece(index);
+  pWriter->SetGhostLevel(this->GhostLevel);
+  
+  return pWriter;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPUnstructuredDataWriter::WritePData(vtkIndent indent)
+{
+  this->Superclass::WritePData(indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
+  vtkPointSet* input = this->GetInputAsPointSet();  
+  this->WritePPoints(input->GetPoints(), indent);
+}
