@@ -1,3 +1,0 @@
-IF (VTK_USE_PARALLEL)
-   SUBDIRS(ParallelProcessing)
-ENDIF (VTK_USE_PARALLEL)
