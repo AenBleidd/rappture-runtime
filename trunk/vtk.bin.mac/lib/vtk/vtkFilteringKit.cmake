@@ -1,0 +1,125 @@
+# Directory containing class headers.
+SET(VTK_FILTERING_HEADER_DIR "/opt/rappture-runtime/VTK4.4/build/include/vtk")
+
+# Classes in vtkFiltering.
+SET(VTK_FILTERING_CLASSES
+  "vtkApplyFilterCommand"
+  "vtkCardinalSpline"
+  "vtkCastToConcrete"
+  "vtkCellLocator"
+  "vtkColorTransferFunction"
+  "vtkCone"
+  "vtkCylinder"
+  "vtkDataObjectSource"
+  "vtkDataSetSource"
+  "vtkDataSetToDataSetFilter"
+  "vtkDataSetToImageFilter"
+  "vtkDataSetToPolyDataFilter"
+  "vtkDataSetToStructuredGridFilter"
+  "vtkDataSetToStructuredPointsFilter"
+  "vtkDataSetToUnstructuredGridFilter"
+  "vtkHierarchicalBoxApplyFilterCommand"
+  "vtkHierarchicalBoxSource"
+  "vtkHierarchicalBoxToHierarchicalBoxFilter"
+  "vtkHierarchicalBoxToPolyDataFilter"
+  "vtkImageInPlaceFilter"
+  "vtkImageMultipleInputFilter"
+  "vtkImageMultipleInputOutputFilter"
+  "vtkImageSource"
+  "vtkImageToImageFilter"
+  "vtkImageToStructuredPoints"
+  "vtkImageTwoInputFilter"
+  "vtkImplicitBoolean"
+  "vtkImplicitDataSet"
+  "vtkImplicitSelectionLoop"
+  "vtkImplicitSum"
+  "vtkImplicitVolume"
+  "vtkImplicitWindowFunction"
+  "vtkKochanekSpline"
+  "vtkMergePoints"
+  "vtkMultiBlockApplyFilterCommand"
+  "vtkPerlinNoise"
+  "vtkPiecewiseFunction"
+  "vtkPiecewiseFunctionShiftScale"
+  "vtkPiecewiseFunctionSource"
+  "vtkPiecewiseFunctionToPiecewiseFunctionFilter"
+  "vtkPointSetSource"
+  "vtkPointSetToPointSetFilter"
+  "vtkPolyDataCollection"
+  "vtkPolyDataSource"
+  "vtkPolyDataToPolyDataFilter"
+  "vtkRectilinearGridSource"
+  "vtkRectilinearGridToPolyDataFilter"
+  "vtkScalarTree"
+  "vtkSimpleImageToImageFilter"
+  "vtkSimpleScalarTree"
+  "vtkSphere"
+  "vtkSpline"
+  "vtkStructuredGridSource"
+  "vtkStructuredGridToPolyDataFilter"
+  "vtkStructuredGridToStructuredGridFilter"
+  "vtkStructuredPointsCollection"
+  "vtkStructuredPointsSource"
+  "vtkStructuredPointsToPolyDataFilter"
+  "vtkStructuredPointsToStructuredPointsFilter"
+  "vtkStructuredPointsToUnstructuredGridFilter"
+  "vtkSuperquadric"
+  "vtkUnstructuredGridSource"
+  "vtkUnstructuredGridToPolyDataFilter"
+  "vtkUnstructuredGridToUnstructuredGridFilter")
+
+# Abstract classes in vtkFiltering.
+SET(VTK_FILTERING_CLASSES_ABSTRACT
+  "vtkApplyFilterCommand"
+  "vtkDataObjectSource"
+  "vtkDataSetSource"
+  "vtkDataSetToDataSetFilter"
+  "vtkDataSetToImageFilter"
+  "vtkDataSetToPolyDataFilter"
+  "vtkDataSetToStructuredGridFilter"
+  "vtkDataSetToStructuredPointsFilter"
+  "vtkDataSetToUnstructuredGridFilter"
+  "vtkHierarchicalBoxSource"
+  "vtkHierarchicalBoxToHierarchicalBoxFilter"
+  "vtkHierarchicalBoxToPolyDataFilter"
+  "vtkImageInPlaceFilter"
+  "vtkImageMultipleInputFilter"
+  "vtkImageMultipleInputOutputFilter"
+  "vtkImageSource"
+  "vtkImageToImageFilter"
+  "vtkImageTwoInputFilter"
+  "vtkPiecewiseFunctionSource"
+  "vtkPiecewiseFunctionToPiecewiseFunctionFilter"
+  "vtkPointSetSource"
+  "vtkPointSetToPointSetFilter"
+  "vtkPolyDataSource"
+  "vtkPolyDataToPolyDataFilter"
+  "vtkRectilinearGridSource"
+  "vtkRectilinearGridToPolyDataFilter"
+  "vtkScalarTree"
+  "vtkSimpleImageToImageFilter"
+  "vtkSpline"
+  "vtkStructuredGridSource"
+  "vtkStructuredGridToPolyDataFilter"
+  "vtkStructuredGridToStructuredGridFilter"
+  "vtkStructuredPointsSource"
+  "vtkStructuredPointsToPolyDataFilter"
+  "vtkStructuredPointsToStructuredPointsFilter"
+  "vtkStructuredPointsToUnstructuredGridFilter"
+  "vtkUnstructuredGridSource"
+  "vtkUnstructuredGridToPolyDataFilter"
+  "vtkUnstructuredGridToUnstructuredGridFilter")
+
+# Wrap-exclude classes in vtkFiltering.
+SET(VTK_FILTERING_CLASSES_WRAP_EXCLUDE)
+
+# Set convenient variables to test each class.
+FOREACH(class ${VTK_FILTERING_CLASSES})
+  SET(VTK_CLASS_EXISTS_${class} 1)
+ENDFOREACH(class)
+FOREACH(class ${VTK_FILTERING_CLASSES_ABSTRACT})
+  SET(VTK_CLASS_ABSTRACT_${class} 1)
+ENDFOREACH(class)
+FOREACH(class ${VTK_FILTERING_CLASSES_WRAP_EXCLUDE})
+  SET(VTK_CLASS_WRAP_EXCLUDE_${class} 1)
+ENDFOREACH(class)
