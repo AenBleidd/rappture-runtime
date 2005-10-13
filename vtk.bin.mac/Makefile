@@ -16,4 +16,7 @@ install_bin:
 	cp bin/vtk $(RAPPTURE)/bin
 
 install_include:
+	if test -d $(VTK_INC); then \
+		rm -rf $(VTK_INC); \
+	fi; \
 	cp -R include/vtk $(RAPPTURE)/include
