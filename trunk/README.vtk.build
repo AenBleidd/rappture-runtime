@@ -1,0 +1,46 @@
+Procedure to build VTK4.4:
+
+- Must have "cmake" installed already.
+
+- Assumes Tcl/Tk installed in /opt/rappture (if you have them in a different 
+location, you need to change accordingly in no.3).
+
+1. Go to vtk4.4 source dir:
+	% cd VTK4.4
+
+2. Create a local build directory:
+	% mkdir build
+
+3. Run cmake in interactive mode to set up a few parameters (last arg 
+   is the dir where VTK source is):
+	% cmake -i ..
+
+   Set each parameter as follows:
+       BUILD_EXAMPLES		ON
+       BUILD_SHARED_LIBS	ON
+       CMAKE_BACKWARDS_COMPATIBILITY	(leave default)
+       CMAKE_BUILD_TYPE		(leave default)
+       CMAKE_INSTALL_PREFIX	/opt/rappture-runtime/VTK4.4/build
+       TCL_INCLUDE_PATH		/opt/rappture/include
+       TCL_LIBRARY		/opt/rappture/lib/libtcl8.4.so
+       TK_INCLUDE_PATH		/opt/rappture/include
+       TK_LIBRARY		/opt/rappture/lib/libtk8.4.so
+       VTK_DATA_ROOT		/opt/rappture
+       VTK_USE_HYBRID		ON
+       VTK_USE_PARALLEL		ON
+       VTK_USE_PATENTED		OFF
+       VTK_USE_RENDERING	ON
+       VTK_WRAP_JAVA		OFF
+       VTK_WRAP_PYTHON		OFF
+       VTK_WRAP_TCL		ON
+
+4. type:
+	% make
+
+5. Install, type:
+	% make install
+
+6. Prepare for install on rappture:
+	% cp -rp include lib bin ../../vtk.bin.linux
+
+
