@@ -139,10 +139,12 @@ install-rp:
 	$(Rappture)/bin/python setup.py install ; \
 	cd $(RP_SRC)/src; $(Rappture)/bin/python python/setup.py install; \
 	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin ;\
+	rm -rf $(Rappture)/include/cee; \
+	rm -rf $(Rappture)/include/core; \
+	rm -rf $(Rappture)/include/fortran; \
 	cp -r $(RP_SRC)/include/cee $(Rappture)/include ;\
 	cp -r $(RP_SRC)/include/core $(Rappture)/include ;\
 	cp -r $(RP_SRC)/include/fortran $(Rappture)/include; \
-#	find $(Rappture)/include -name .svn -exec rm -rf "{}"
 
 
 #############################################################################
@@ -169,10 +171,11 @@ examples:
 	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make; \
 	cd $(RP_SRC)/examples/c-example; make clean; make; \
 	cd $(RP_SRC)/examples/fermi_fortran; make clean; make; \
+	rm -rf $(Rappture)/examples; \
 	cp -r $(RP_SRC)/examples $(Rappture)
-#	find $(Rappture)/examples -name .svn -exec rm -rf "{}" \;
 
 
 #############################################################################
 clean:
-	rm -f output.*
+	find $(Rappture) -name .svn -exec rm -rf "{}" \;
+#	rm -f output.*
