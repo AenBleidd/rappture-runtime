@@ -149,12 +149,11 @@ install-rp:
 # 	- build rappture libs in rappture/src dir
 # 	- install rappture libs in $(Rappture) dir 
 #############################################################################
-rplib: install-rp
+rplib:
 	cd $(RP_SRC)/src; \
 	make clean >& $(basedir)/output.rp 2>&1; \
 	make all >& $(basedir)/output.rp 2>&1; \
 	make install >& $(basedir)/output.rp 2>&1
-
 
 #############################################################################
 # build rappture examples
@@ -163,12 +162,11 @@ rplib: install-rp
 # 	- install rappture examples in $(Rappture)/examples
 #############################################################################
 examples:
-	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make; \
-	cd $(RP_SRC)/examples/c-example; make clean; make; \
-	cd $(RP_SRC)/examples/fermi_fortran; make clean; make; \
-	rm -rf $(Rappture)/examples; \
+	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make
+	cd $(RP_SRC)/examples/c-example; make clean; make
+	cd $(RP_SRC)/examples/fermi_fortran; make clean; make
+	rm -rf $(Rappture)/examples
 	cp -r $(RP_SRC)/examples $(Rappture)
-
 
 #############################################################################
 clean:
