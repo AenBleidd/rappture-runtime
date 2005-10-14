@@ -166,9 +166,9 @@ rplib:
 # 	- install rappture examples in $(Rappture)/examples
 #############################################################################
 examples:
-	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make
-	cd $(RP_SRC)/examples/c-example; make clean; make
-	cd $(RP_SRC)/examples/fermi_fortran; make clean; make
+	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make mac
+	cd $(RP_SRC)/examples/c-example; make clean; make mac mac-plotc
+	cd $(RP_SRC)/examples/fermi_fortran; make clean; make mac
 	rm -rf $(Rappture)/examples
 	cp -r $(RP_SRC)/examples $(Rappture)
 
