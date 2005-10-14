@@ -1,27 +1,36 @@
 RAPPTURE = /opt/rappture
 VTK_DIR = $(RAPPTURE)/lib/vtk
 VTK_INC = $(RAPPTURE)/include/vtk
-bin_dir_mac = `pwd`/mac
-bin_dir_linux = `pwd`/linux
-from_dir = $(bin_dir_linux)
+bindir_mac = `pwd`/mac
+bindir_linux = `pwd`/linux
 
-default: setdir install_bin install_lib install_include
-
-setdir:
-	if test "`uname`" == "Darwin"; then \
-		from_dir = $(bin_dir_mac); \
-	fi;
-	echo "Installing vtk binaries from $(from_dir)..."
+default: install_bin install_lib install_include
 
 install_bin:
-	cp $(from_dir)/bin/vtk $(RAPPTURE)/bin
+	if test "`uname`" == "Darwin"; then \
+		echo "copying vtk from $(bindir_mac)/bin/vtk to $(RAPPTURE)/bin"; \
+		cp $(bindir_mac)/bin/vtk $(RAPPTURE)/bin; \
+	else \
+		echo "copying vtk from $(bindir_linux)/bin/vtk to $(RAPPTURE)/bin"; \
+		cp $(bindir_linux)/bin/vtk $(RAPPTURE)/bin; \
+	fi
 
 install_lib:
-	rm -rf $(VTK_DIR); \
-	cd $(from_dir)/lib/vtk; \
-	cp libvtk* $(RAPPTURE)/lib; \
-	cp -R tcl $(VTK_DIR)
+	rm -rf $(VTK_DIR)
+	if test "`uname`" == "Darwin"; then \
+		echo "copying libs from $(bindir_mac)/lib/vtk to $(RAPPTURE)/lib"; \
+		cd $(bindir_mac)/lib/vtk; cp libvtk* $(RAPPTURE)/lib; cp -R tcl $(VTK_DIR); \
+	else \
+		echo "copying libs from $(bindir_linux)/lib/vtk to $(RAPPTURE)/lib"; \
+		cd $(bindir_linux)/lib/vtk; cp libvtk* $(RAPPTURE)/lib; cp -R tcl $(VTK_DIR); \
+	fi
 
 install_include:
-	rm -rf $(VTK_INC); \
-	cp -R $(from_dir)/include/vtk $(RAPPTURE)/include
+	rm -rf $(VTK_INC)
+	if test "`uname`" == "Darwin"; then \
+		echo "copying inc from $(bindir_mac)/include/vtk to $(RAPPTURE)/include"; \
+		cp -R $(bindir_mac)/include/vtk $(RAPPTURE)/include; \
+	else \
+		echo "copying inc from $(bindir_linux)/include/vtk to $(RAPPTURE)/include"; \
+		cp -R $(bindir_linux)/include/vtk $(RAPPTURE)/include; \
+	fi
