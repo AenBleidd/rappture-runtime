@@ -28,7 +28,7 @@ RP_SRC=$(basedir)/rappture
 #CPP=/usr/bin/cpp
 MKFILE_DIR=$(basedir)/other
 
-all: tcl tk itcl tdom blt shape python expat scew vtk install-rp rplib examples clean
+all: pkgs rappture clean
 
 pkgs: tcl tk itcl tdom blt shape python expat scew vtk
 
@@ -116,7 +116,7 @@ scew:
 # Install vtk 4.4 from binary
 #############################################################################
 vtk:
-	cd $(basedir)/vtk.bin; $(MAKE) >& $(basedir)/output.vtk 2>&1
+	cd $(basedir)/vtk.bin; make >& $(basedir)/output.vtk 2>&1
 
 #############################################################################
 # install-rp:
@@ -133,18 +133,14 @@ install-rp:
 	else \
 		cd $(basedir); \
 		svn checkout https://repo.nanohub.org/svn/rappture/trunk rappture; \
-	fi; \
-	$(Rappture)/bin/tclsh $(RP_SRC)/tcl/install.tcl ; \
-	cd $(RP_SRC)/python; \
-	$(Rappture)/bin/python setup.py install; \
-	cd $(RP_SRC)/src; \
-	$(Rappture)/bin/python python/setup.py install; \
-	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin ;\
-	rm -rf $(Rappture)/include/cee $(Rappture)/include/core $(Rappture)/include/fortran; \
-	cp -r $(RP_SRC)/include/cee $(Rappture)/include ;\
-	cp -r $(RP_SRC)/include/core $(Rappture)/include ;\
-	cp -r $(RP_SRC)/include/fortran $(Rappture)/include; \
-
+	fi
+	$(Rappture)/bin/tclsh $(RP_SRC)/tcl/install.tcl
+	cd $(RP_SRC)/python; $(Rappture)/bin/python setup.py install
+	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin
+	rm -rf $(Rappture)/include/cee $(Rappture)/include/core $(Rappture)/include/fortran
+	cp -r $(RP_SRC)/include/cee $(Rappture)/include
+	cp -r $(RP_SRC)/include/core $(Rappture)/include
+	cp -r $(RP_SRC)/include/fortran $(Rappture)/include
 
 #############################################################################
 # build rappture libs - assuming "rappture" dir was checked out from 
