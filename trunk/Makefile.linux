@@ -30,7 +30,7 @@ MKFILE_DIR=$(basedir)/other
 
 all: pkgs rappture clean
 
-pkgs: tcl tk itcl tdom blt shape python expat scew vtk
+pkgs: tcl tk itcl tdom blt tkimg shape python expat scew vtk
 
 rappture: install-rp rplib examples
 
@@ -77,6 +77,14 @@ blt:
 	./configure --enable-shared --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tcllibs=$(Rappture)/lib --with-tclincls=$(Rappture)/include --with-tk=$(Rappture)/lib --with-tklibs=$(Rappture)/lib --with-tkincls=$(Rappture)/include --x-includes=/usr/X11R6/include/X11 >& $(basedir)/output.blt 2>&1; \
 	make >> $(basedir)/output.blt 2>&1; \
 	make install >> $(basedir)/output.blt 2>&1
+
+#################################################
+tkimg:
+	echo "BUIDING tkimg1.3 ... ..."
+	cd $(basedir)/tkimg1.3; make clean; make distclean; \
+	./configure --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.tkimg 2>&1; \
+	make >> $(basedir)/output.tkimg 2>&1; \
+	make install >> $(basedir)/output.tkimg 2>&1
 
 #################################################
 shape:

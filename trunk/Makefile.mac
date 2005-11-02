@@ -84,6 +84,14 @@ blt:
 	make install >> $(basedir)/output.blt 2>&1
 
 #################################################
+tkimg:
+	echo "BUIDING tkimg1.3 ... ..."
+	cd $(basedir)/tkimg1.3; make clean; make distclean; \
+	./configure --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.tkimg 2>&1; \
+	make >> $(basedir)/output.tkimg 2>&1; \
+	make install >> $(basedir)/output.tkimg 2>&1
+
+#################################################
 shape:
 	echo "BUIDING Shape0.4 ... ..."
 	cd $(basedir)/shape0.4/unix; make clean; make distclean; \
