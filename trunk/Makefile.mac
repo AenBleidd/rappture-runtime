@@ -31,7 +31,7 @@ MKFILE_DIR=$(basedir)/Mac
 
 all: pkgs rappture clean
 
-pkgs: tcl tk itcl tdom blt shape python expat scew vtk
+pkgs: tcl tk itcl tdom blt shape python expat scew vtk tkimg
 
 rappture: install-rp rplib examples
 
@@ -86,8 +86,16 @@ blt:
 #################################################
 tkimg:
 	echo "BUIDING tkimg1.3 ... ..."
-	cd $(basedir)/tkimg1.3; make clean; make distclean; \
+	cd $(basedir)/tkimg1.3; \
+	make clean; make distclean; \
 	./configure --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.tkimg 2>&1; \
+	cp $(MKFILE_DIR)/Makefile.tkimg.libz.tcl.mac libz/tcl/Makefile ; \
+	cp $(MKFILE_DIR)/Makefile.tkimg.libpng.tcl.mac libpng/tcl/Makefile ; \
+	cp $(MKFILE_DIR)/Makefile.tkimg.libjpeg.tcl.mac libjpeg/tcl/Makefile ; \
+	cp $(MKFILE_DIR)/Makefile.tkimg.libtiff.tcl.mac libtiff/tcl/Makefile ; \
+	cp $(MKFILE_DIR)/Makefile.tkimg.jpeg.mac jpeg/Makefile ; \
+	cp $(MKFILE_DIR)/Makefile.tkimg.tiff.mac tiff/Makefile ; \
+	cp $(MKFILE_DIR)/Makefile.tkimg.base.mac base/Makefile ; \
 	make >> $(basedir)/output.tkimg 2>&1; \
 	make install >> $(basedir)/output.tkimg 2>&1
 
@@ -107,7 +115,9 @@ python:
 	./configure --enable-shared --disable-threads --prefix=$(Rappture) >& $(basedir)/output.py 2>&1 ; \
 	cp $(MKFILE_DIR)/Makefile.py.mac Makefile ; \
 	make >> $(basedir)/output.py 2>&1; \
-	make install >> $(basedir)/output.py 2>&1
+	make install >> $(basedir)/output.py 2>&1; \
+	cp libpython2.4.a $(Rappture)/lib; \
+	cp $(basedir)/Mac/libpython2.4.dylib $(Rappture)/lib
 
 #################################################
 expat:
