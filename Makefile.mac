@@ -42,7 +42,7 @@ tcl:
 	./configure --enable-shared --disable-threads --prefix=$(Rappture) >& $(basedir)/output.tcl; \
 	make >> $(basedir)/output.tcl 2>&1; \
 	make install >> $(basedir)/output.tcl 2>&1; \
-	ln -s $(Rappture)/bin/tclsh8.4 $(Rappture)/bin/tclsh
+	cd $(Rappture)/bin; rm -f tclsh; ln -s tclsh8.4 tclsh
 
 #################################################
 tk:
@@ -50,8 +50,8 @@ tk:
 	cd $(basedir)/tk8.4.11/unix; make clean; make distclean; \
 	./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib >& $(basedir)/output.tk 2>&1; \
 	make >> $(basedir)/output.tk 2>& 1; \
-	make install >> $(basedir)/output.tk 2>& 1; \
-	ln -s $(Rappture)/bin/wish8.4 $(Rappture)/bin/wish
+	make install >> $(basedir)/output.tk 2>& 1;
+	cd $(Rappture)/bin; rm -f wish; ln -s wish8.4 wish
 
 #################################################
 itcl:
@@ -175,8 +175,8 @@ rplib:
 #############################################################################
 examples:
 	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make mac
+	cd $(RP_SRC)/examples/app-fermi/cee; make clean; make mac
 	cd $(RP_SRC)/examples/c-example; make clean; make mac mac-plotc
-	cd $(RP_SRC)/examples/fermi_fortran; make clean; make mac
 	rm -rf $(Rappture)/examples
 	cp -r $(RP_SRC)/examples $(Rappture)
 
