@@ -115,9 +115,9 @@ python:
 	./configure --enable-shared --disable-threads --prefix=$(Rappture) >& $(basedir)/output.py 2>&1 ; \
 	cp $(MKFILE_DIR)/Makefile.py.mac Makefile ; \
 	make >> $(basedir)/output.py 2>&1; \
-	make install >> $(basedir)/output.py 2>&1; \
-	cp libpython2.4.a $(Rappture)/lib; \
-	cp $(basedir)/Mac/libpython2.4.dylib $(Rappture)/lib
+	make install >> $(basedir)/output.py 2>&1
+#	cp libpython2.4.a $(Rappture)/lib; \
+#	cp $(basedir)/Mac/libpython2.4.dylib $(Rappture)/lib
 
 #################################################
 expat:
