@@ -40,9 +40,9 @@ tcl:
 	cd $(basedir)/tcl8.4.11/unix; make clean; make distclean; \
 	./configure --enable-shared --disable-threads --prefix=$(Rappture) >& $(basedir)/output.tcl; \
 	make >> $(basedir)/output.tcl 2>&1; \
-	make install >> $(basedir)/output.tcl 2>&1; \
-	ln -s $(Rappture)/bin/tclsh8.4 $(Rappture)/bin/tclsh
-	ln -s $(Rappture)/lib/libtcl8.4.so $(Rappture)/lib/libtcl8.4.so.0
+	make install >> $(basedir)/output.tcl 2>&1;
+	cd $(Rappture)/bin; rm -f tclsh; ln -s tclsh8.4 tclsh; 
+	cd $(Rappture)/lib; rm -f libtcl8.4.so.0; ln -s libtcl8.4.so libtcl8.4.so.0
 
 #################################################
 tk:
@@ -51,8 +51,8 @@ tk:
 	./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib >& $(basedir)/output.tk 2>&1; \
 	make >> $(basedir)/output.tk 2>& 1; \
 	make install >> $(basedir)/output.tk 2>& 1; \
-	ln -s $(Rappture)/bin/wish8.4 $(Rappture)/bin/wish
-	ln -s $(Rappture)/lib/libtk8.4.so $(Rappture)/lib/libtk8.4.so.0
+	cd $(Rappture)/bin; rm -f wish; ln -s wish8.4 wish;
+	cd $(Rappture)/lib; rm -f libtk8.4.so.0; ln -s libtk8.4.so libtk8.4.so.0
 
 #################################################
 itcl:
@@ -60,7 +60,7 @@ itcl:
 	cd $(basedir)/itcl3.2.1; make clean; make distclean; \
 	./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib >& $(basedir)/output.itk 2>&1; \
 	make all  >> $(basedir)/output.itk 2>& 1; \
-	make install >> $(basedir)/output.itk 2>& 1;
+	make install >> $(basedir)/output.itk 2>& 1
 
 #################################################
 tdom:
@@ -171,8 +171,8 @@ rplib:
 #############################################################################
 examples:
 	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make
+	cd $(RP_SRC)/examples/app-fermi/cee; make clean; make
 	cd $(RP_SRC)/examples/c-example; make clean; make
-	cd $(RP_SRC)/examples/fermi_fortran; make clean; make
 	rm -rf $(Rappture)/examples
 	cp -r $(RP_SRC)/examples $(Rappture)
 
