@@ -30,8 +30,7 @@ MKFILE_DIR=$(basedir)/other
 
 all: pkgs rappture clean
 
-pkgs: tcl tk itcl tdom blt tkimg shape python expat scew vtk pynum
-# scipy
+pkgs: tcl tk itcl tdom blt tkimg shape python pyimg pynum expat scew vtk
 
 rappture: install-rp rplib examples
 
@@ -104,6 +103,13 @@ python:
 	./configure --enable-shared --prefix=$(Rappture) >& $(basedir)/output.py 2>&1 ; \
 	make >> $(basedir)/output.py 2>&1; \
 	make install >> $(basedir)/output.py 2>&1
+
+#################################################
+pyimg:
+	echo "BUIDING python Imaging"
+	cd $(basedir)/Imaging-1.1.5; \
+	rm -rf build; \
+	$(Rappture)/bin/python setup.py install --prefix=$(Rappture) >& $(basedir)/output.pyimg 2>&1
 
 #################################################
 pynum:
