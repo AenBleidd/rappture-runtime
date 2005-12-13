@@ -60,6 +60,8 @@ itcl:
 	./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tk=$(Rappture)/lib  >& $(basedir)/output.itk 2>&1; \
 	cp $(MKFILE_DIR)/Makefile.itcl.mac itcl/Makefile; \
 	cp $(MKFILE_DIR)/Makefile.itk.mac itk/Makefile; \
+	cp $(MKFILE_DIR)/pkgIndex.tcl.itcl.itk itk/pkgIndex.tcl; \
+	cp $(MKFILE_DIR)/pkgIndex.tcl.itcl.itcl itcl/pkgIndex.tcl; \
 	make all  >> $(basedir)/output.itk 2>& 1; \
 	make install >> $(basedir)/output.itk 2>& 1
 
@@ -104,6 +106,7 @@ shape:
 	cd $(basedir)/shape0.4/unix; make clean; make distclean; \
 	./configure --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.shape 2>&1; \
 	/bin/cp $(MKFILE_DIR)/Makefile.shape04.mac Makefile; \
+	/bin/cp $(MKFILE_DIR)/pkgIndex.tcl.shape04.mac pkgIndex.tcl ; \
 	make >> $(basedir)/output.shape 2>&1; \
 	make install >> $(basedir)/output.shape 2>&1
 
