@@ -48,19 +48,22 @@ EXTRA_HEADERS   = xelement.h xattribute.h xerror.h
 libscew: $(DEPS)
 	$(CC) $(DEGUG) -shared -Wl,-rpath,./ \
 	-Wl,-soname,$@.so -o $@.so.0.0 $^ -L$(LIB_HOME) -lexpat -lpthread
-
+	ar -r $@.a $^
+	ranlib $@.a
 
 install: all
 	/sbin/ldconfig -n ./
 	cp -d libscew.so* $(LIB_HOME)
+	cp -d libscew.a $(LIB_HOME)
 #	if ! test -d $(INCL_HOME)/scew
 #		then
 #			mkdir $(INCL_HOME)/scew
 #	fi
+	rm -rf $(INCL_HOME)/scew
 	mkdir $(INCL_HOME)/scew
 	cp $(SCEW_HEADERS) $(EXTRA_HEADERS) $(INCL_HOME)/scew
 
 #### CLEAN UP ############################################################
 clean: 
-	- rm -f *.o *.so* ${PROGS}
+	- rm -f *.o *.so* *.a ${PROGS}
 
