@@ -57,7 +57,7 @@ libscew: $(DEPS)
 
 install: all
 	if test "`uname`" == "Darwin"; then \
-		cp -d libscew.dylib $(LIB_HOME); \
+		cp libscew.dylib $(LIB_HOME); \
 	else \
 		/sbin/ldconfig -n ./ ; \
 		cp -d libscew.so* $(LIB_HOME) ; \
