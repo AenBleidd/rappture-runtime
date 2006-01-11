@@ -243,6 +243,9 @@ addons:
 	if test "`uname`" == "Linux"; then \
 		cp -d /usr/lib/libstdc++.so.6* $(Rappture)/lib; \
 		cp -d /usr/lib/libtiff.so.4* $(Rappture)/lib; \
+		cp -d /usr/lib/gcc/i486-linux-gnu/4.0.3/libstdc++.a $(Rappture)/lib; \
+		cp -d /usr/lib/gcc/i486-linux-gnu/4.0.3/libsupc++.a $(Rappture)/lib; \
+		cp -d /usr/lib/gcc/i486-linux-gnu/4.0.3/libgcc_eh.a $(Rappture)/lib; \
 	fi
 
 staticlibs:
