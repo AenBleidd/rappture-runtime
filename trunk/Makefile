@@ -21,17 +21,26 @@
 # - change $Rappture to point to where you want rappture binaries to be. 
 # 	The default is /opt/rappture.
 #
+# To install on all systems:
+# 	make mydate=20060111 installall
 #############################################################################
 basedir=/opt/rappture-runtime
 Rappture=/opt/rappture
 RP_SRC=$(basedir)/rappture
 #CPP=/usr/bin/cpp
+build_dir=$(basedir)/build
+build_date=$(mydate)
+INSTALL_DIR_NANOHUB=rappture@login.nanohub.org:/apps/rappture
+INSTALL_DIR_HAMLET=cxsong@radon.rcac.purdue.edu:/apps/01/rappture
+INSTALL_DIR_LEPUS=/opt/rappture
 
 all: pkgs rappture clean
 
 pkgs: tcl tk itcl tdom blt tkimg shape python pyimg pynum expat scew vtk
 
 rappture: install-rp rplib examples addons
+
+installall: setup install-hamlet  install-nanohub
 
 #################################################
 tcl:
@@ -253,11 +262,57 @@ staticlibs:
 		cp -d /usr/lib/gcc/i486-linux-gnu/4.0.3/libstdc++.a $(Rappture)/lib; \
 	fi
 
+tarfile:
+	if test "$(build_date)" == ""; then \
+		echo date:; \
+		read $(build_date); \
+	fi; \
+	cd /opt; \
+	echo "creating rappture runtime package ..."; \
+	if test "`uname`" == "Linux"; then \
+		tar czf rappture-linux-i686-$(build_date).tar.gz rappture; \
+	else \
+		tar czf rappture-macosx-$(build_date).tar.gz rappture; \
+	fi; \
+	echo done
+
+setup:
+	if test ! -d $(build_dir); then \
+		mkdir $(build_dir); \
+	fi; \
+	echo "$(build_dir) created\n"; \
+	cd $(build_dir); \
+	tar xzf /opt/rappture-*-$(build_date).tar.gz; \
+	echo "rappture runtime extracted in $(build_dir)"; \
+	mv ./rappture $(build_date);
+
+install-hamlet:
+	cd $(build_dir); \
+	echo "copying $(build_date) runtime to $(INSTALL_DIR_HAMLET)... ";\
+	scp -rp $(build_date) $(INSTALL_DIR_HAMLET); \
+	echo done
+
+install-nanohub:
+	cd $(build_dir); \
+	echo "copying $(build_date) runtime to $(INSTALL_DIR_NANOHUB)... "; \
+	scp -rp $(build_date) $(INSTALL_DIR_NANOHUB); \
+	echo done
+
+install-lepus:
+	echo "installing on lepus... "; \
+	cd $(build_dir); \
+	cp -rp $(build_date) $(INSTALL_DIR_LEPUS); \
+	cd $(INSTALL_DIR_LEPUS); \
+	rm current; \
+	ln -s $(build_date) current;
+	echo "link current updated"
+	echo done
+
 #############################################################################
 clean:
 	find $(Rappture) -name .svn | xargs rm -rf
-#	find $(Rappture) -name .svn -exec rm -rf "{}" \;
 
 cleanall:
 	rm -rf $(Rappture)/*
+	rm -rf $(build_dir)/*
 	rm -f output.*
