@@ -1,4 +1,4 @@
-#############################################################################
+############################################################################
 # Makefile - build and install all packages required by Rappture runtime
 # 
 # To build everything, type:
@@ -262,13 +262,16 @@ staticlibs:
 		cp -d /usr/lib/gcc/i486-linux-gnu/4.0.3/libstdc++.a $(Rappture)/lib; \
 	fi
 
+#############################################################################
+# installation scripts
+#
 tarfile:
 	if test "$(build_date)" == ""; then \
 		echo date:; \
 		read $(build_date); \
 	fi; \
 	cd /opt; \
-	echo "creating rappture runtime package ..."; \
+	echo "creating rappture runtime package $(build_date)..."; \
 	if test "`uname`" == "Linux"; then \
 		tar czf rappture-linux-i686-$(build_date).tar.gz rappture; \
 	else \
