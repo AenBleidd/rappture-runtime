@@ -7,19 +7,10 @@
 # To build individual package, tcl, for example:
 # 	make tcl
 #
-# To build all non-rappture packages, type:
-# 	make pkgs
-#
-# To build/install rappture
-# 	make rappture
-#
 # Modify the first two lines below this block of comments.
 #
 # - change $basedir to point to your directory that contains this Makefile.
 #   	The default is /opt/rappture-runtime.
-#
-# - change $Rappture to point to where you want rappture binaries to be. 
-# 	The default is /opt/rappture.
 #
 # To install on all systems:
 # 	make mydate=20060111 installall
@@ -28,11 +19,16 @@ basedir=/opt/rappture-runtime
 Rappture=/opt/rappture
 RP_SRC=$(basedir)/rappture
 #CPP=/usr/bin/cpp
+#
+#definitions for installation on various systems
+#
 build_dir=$(basedir)/build
 build_date=$(mydate)
 INSTALL_DIR_NANOHUB=rappture@login.nanohub.org:/apps/rappture
 INSTALL_DIR_HAMLET=cxsong@radon.rcac.purdue.edu:/apps/01/rappture
 INSTALL_DIR_LEPUS=/opt/rappture
+Tarfile_linux=rappture-linux-i686-$(build_date).tar.gz
+Tarfile_mac=rappture-macosx-$(build_date).tar.gz
 
 all: pkgs rappture clean
 
@@ -40,7 +36,7 @@ pkgs: tcl tk itcl tdom blt tkimg shape python pyimg pynum expat scew vtk
 
 rappture: install-rp rplib examples addons
 
-installall: setup install-hamlet  install-nanohub
+installall: setup install-hamlet  install-nanohub install-web
 
 #################################################
 tcl:
@@ -204,16 +200,26 @@ vtk:
 # 	- install rappture for Python
 # 	- install rappture apps (driver, rappture, rerun) in $(Rappture) dir
 #############################################################################
-install-rp:
+
+rp_update:	
 	if test -d $(RP_SRC); then \
 		cd $(RP_SRC); svn update ;\
 	else \
 		cd $(basedir); \
 		svn checkout https://repo.nanohub.org/svn/rappture/trunk rappture; \
 	fi
-	$(Rappture)/bin/tclsh $(RP_SRC)/tcl/install.tcl
+
+rp_gui: rp_update
+	cd $(RP_SRC)/gui; \
+	make clean; make distclean; \
+	./configure --prefix=$(Rappture) --with-blt=$(basedir)/blt2.4z/src; \
+	make all; \
+	make install
+
+install-rp: rp_gui
+	cd $(RP_SRC)/tcl; $(Rappture)/bin/tclsh install.tcl
 	cd $(RP_SRC)/python; $(Rappture)/bin/python setup.py install
-	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin
+	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin 
 	rm -rf $(Rappture)/include/cee $(Rappture)/include/core $(Rappture)/include/fortran
 	cp -r $(RP_SRC)/include/cee $(Rappture)/include
 	cp -r $(RP_SRC)/include/core $(Rappture)/include
@@ -267,15 +273,21 @@ staticlibs:
 #
 tarfile:
 	if test "$(build_date)" == ""; then \
-		echo date:; \
+		#echo `date +%Y%m%d`; \
+		#export BDATE=`date +%Y%m%d`; echo $(BDATE); \
+		echo -n "input date (yyyymmdd): "; \
 		read $(build_date); \
 	fi; \
-	cd /opt; \
+	if test ! -d $(build_dir); then \
+		mkdir $(build_dir); \
+	fi; \
+	cp -rp $(Rappture) $(build_dir)/$(build_date); \
+	cd $(build_dir); \
 	echo "creating rappture runtime package $(build_date)..."; \
 	if test "`uname`" == "Linux"; then \
-		tar czf rappture-linux-i686-$(build_date).tar.gz rappture; \
+		tar czf $(Tarfile_linux) $(build_date); \
 	else \
-		tar czf rappture-macosx-$(build_date).tar.gz rappture; \
+		tar czf $(Tarfile_mac) $(build_date); \
 	fi; \
 	echo done
 
@@ -283,19 +295,39 @@ setup:
 	if test ! -d $(build_dir); then \
 		mkdir $(build_dir); \
 	fi; \
+	if test ! -d $(build_dir)/tmp; then \
+		mkdir $(build_dir)/tmp; \
+	fi; \
 	echo "$(build_dir) created\n"; \
 	cd $(build_dir); \
 	tar xzf /opt/rappture-*-$(build_date).tar.gz; \
 	echo "rappture runtime extracted in $(build_dir)"; \
-	mv ./rappture $(build_date);
+	cp -p rappture/bin/rappture rappture/bin/rerun rappture/examples/demo.bash tmp ;\
+	mv rappture $(build_date)
 
-install-hamlet:
+install-hamlet2:
 	cd $(build_dir); \
-	echo "copying $(build_date) runtime to $(INSTALL_DIR_HAMLET)... ";\
+	echo "copying $(Tarfile_linux) to $(INSTALL_DIR_HAMLET)... ";\
 	scp -rp $(build_date) $(INSTALL_DIR_HAMLET); \
 	echo done
 
+install-hamlet:
+	cd /opt; \
+	echo "copying $(Tarfile_linux) to $(INSTALL_DIR_HAMLET)... ";\
+	scp $(build_date) $(INSTALL_DIR_HAMLET); \
+	ssh 
+
 install-nanohub:
+	echo "editing rappture/rerun/demo.bash..."
+	cd $(build_dir)/$(build_date)/bin; \
+	sed -e "s/opt/apps/" < rappture > rappture.nanohub; \
+	mv rappture.nanohub rappture; \
+#	sed -e "s/opt/apps/" < rerun > rerun.nanohub; \
+#	mv rerun.nanohub rerun; \
+	cd $(build_dir)/$(build_date)/examples; \
+	sed -e "s/opt/apps/" < demo.bash > demo.bash.nanohub; \
+	mv demo.bash.nanohub demo.bash; \
+	echo done
 	cd $(build_dir); \
 	echo "copying $(build_date) runtime to $(INSTALL_DIR_NANOHUB)... "; \
 	scp -rp $(build_date) $(INSTALL_DIR_NANOHUB); \
@@ -310,6 +342,9 @@ install-lepus:
 	ln -s $(build_date) current;
 	echo "link current updated"
 	echo done
+
+install-web:
+	echo "not implemented"
 
 #############################################################################
 clean:
