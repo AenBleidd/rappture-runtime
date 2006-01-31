@@ -23,20 +23,24 @@ RP_SRC=$(basedir)/rappture
 #definitions for installation on various systems
 #
 build_dir=$(basedir)/build
-build_date=$(mydate)
+ifndef $mydate
+build_date := $(shell date +%Y%m%d)
+else
+build_date := $(mydate)
+endif
 INSTALL_DIR_NANOHUB=rappture@login.nanohub.org:/apps/rappture
 INSTALL_DIR_HAMLET=cxsong@radon.rcac.purdue.edu:/apps/01/rappture
-INSTALL_DIR_LEPUS=/opt/rappture
-Tarfile_linux=rappture-linux-i686-$(build_date).tar.gz
-Tarfile_mac=rappture-macosx-$(build_date).tar.gz
+INSTALL_DIR_WEB=cxsong@hamlet:
+Tarfile_linux=rappture-linux-i686-$(build_date)
+Tarfile_mac=rappture-macosx-$(build_date)
 
 all: pkgs rappture clean
 
 pkgs: tcl tk itcl tdom blt tkimg shape python pyimg pynum expat scew vtk
 
-rappture: install-rp rplib examples addons
+rappture: install-rp rplib examples addons build_files
 
-installall: setup install-hamlet  install-nanohub install-web
+install-all: install-hamlet  install-nanohub install-web
 
 #################################################
 tcl:
@@ -270,81 +274,76 @@ staticlibs:
 
 #############################################################################
 # installation scripts
+#############################################################################
 #
-tarfile:
-	if test "$(build_date)" == ""; then \
-		#echo `date +%Y%m%d`; \
-		#export BDATE=`date +%Y%m%d`; echo $(BDATE); \
-		echo -n "input date (yyyymmdd): "; \
-		read $(build_date); \
-	fi; \
+# copy binaries to build dir and prepare files for various distributions
+#
+build_files:
 	if test ! -d $(build_dir); then \
 		mkdir $(build_dir); \
 	fi; \
-	cp -rp $(Rappture) $(build_dir)/$(build_date); \
-	cd $(build_dir); \
-	echo "creating rappture runtime package $(build_date)..."; \
-	if test "`uname`" == "Linux"; then \
-		tar czf $(Tarfile_linux) $(build_date); \
-	else \
-		tar czf $(Tarfile_mac) $(build_date); \
+	echo "removing existing directory: build_dir/rappture"
+	if test -d $(build_dir)/rappture; then \
+		rm -rf $(build_dir)/rappture; \
 	fi; \
+	if test -d $(build_dir)/$(build_date); then \
+		rm -rf $(build_dir)/$(build_date); \
+	fi; \
+	echo "copying $(Rappture) to $(build_dir) ..."
+	cp -rp $(Rappture) $(build_dir); \
+	cd $(build_dir); \
+	cp -p rappture/bin/rappture rappture.orig; \
+	cp -p rappture/examples/demo.bash demo.bash.orig; \
+	cp -rp rappture $(build_date); \
+	sed 's/opt\/rappture/apps\/rappture\/$(build_date)/' < ./rappture.orig > rappture.nanohub; \
+	sed 's/opt\/rappture/apps\/rappture\/$(build_date)/' < ./demo.bash.orig > demo.bash.nanohub; \
+	sed 's/opt\/rappture/apps\/01\/rappture\/$(build_date)/' < ./rappture.orig > rappture.hamlet; \
+	sed 's/opt\/rappture/apps\/01\/rappture\/$(build_date)/' < ./demo.bash.orig > demo.bash.hamlet; \
 	echo done
 
-setup:
-	if test ! -d $(build_dir); then \
-		mkdir $(build_dir); \
-	fi; \
-	if test ! -d $(build_dir)/tmp; then \
-		mkdir $(build_dir)/tmp; \
-	fi; \
-	echo "$(build_dir) created\n"; \
+#
+# Make a tarball for hamlet and push it out to hamlet (via radon)
+#
+install-hamlet:
+# create tarabll
 	cd $(build_dir); \
-	tar xzf /opt/rappture-*-$(build_date).tar.gz; \
-	echo "rappture runtime extracted in $(build_dir)"; \
-	cp -p rappture/bin/rappture rappture/bin/rerun rappture/examples/demo.bash tmp ;\
-	mv rappture $(build_date)
-
-install-hamlet2:
-	cd $(build_dir); \
-	echo "copying $(Tarfile_linux) to $(INSTALL_DIR_HAMLET)... ";\
+	cp rappture.hamlet $(build_date)/bin/rappture; \
+	cp demo.bash.hamlet $(build_date)/examples/demo.bash; \
+	echo -n "creating tarball for hamlet ...."; \
+	tar czf $(Tarfile_linux).ham.tar.gz $(build_date); \
+	echo done; \
+	echo -n "copying tarball to hamlet ... "; \
+	scp $(Tarfile_linux).ham.tar.gz $(INSTALL_DIR_HAMLET)/tars; \
 	scp -rp $(build_date) $(INSTALL_DIR_HAMLET); \
 	echo done
 
-install-hamlet:
-	cd /opt; \
-	echo "copying $(Tarfile_linux) to $(INSTALL_DIR_HAMLET)... ";\
-	scp $(build_date) $(INSTALL_DIR_HAMLET); \
-	ssh 
-
 install-nanohub:
-	echo "editing rappture/rerun/demo.bash..."
-	cd $(build_dir)/$(build_date)/bin; \
-	sed -e "s/opt/apps/" < rappture > rappture.nanohub; \
-	mv rappture.nanohub rappture; \
-#	sed -e "s/opt/apps/" < rerun > rerun.nanohub; \
-#	mv rerun.nanohub rerun; \
-	cd $(build_dir)/$(build_date)/examples; \
-	sed -e "s/opt/apps/" < demo.bash > demo.bash.nanohub; \
-	mv demo.bash.nanohub demo.bash; \
-	echo done
 	cd $(build_dir); \
-	echo "copying $(build_date) runtime to $(INSTALL_DIR_NANOHUB)... "; \
+	cp rappture.nanohub $(build_date)/bin/rappture; \
+	cp demo.bash.nanohub $(build_date)/examples/demo.bash; \
+	echo -n "creating tarball for nanohub ..."; \
+	tar czf $(Tarfile_linux).nanohub.tar.gz $(build_date); \
+	echo done; \
+	echo -n "copying tarball to nanohub ..."; \
+	scp $(Tarfile_linux).nanohub.tar.gz $(INSTALL_DIR_NANOHUB)/tars; \
 	scp -rp $(build_date) $(INSTALL_DIR_NANOHUB); \
 	echo done
 
-install-lepus:
-	echo "installing on lepus... "; \
+#
+# Make a tarball and push to web server
+#
+install-web: 
 	cd $(build_dir); \
-	cp -rp $(build_date) $(INSTALL_DIR_LEPUS); \
-	cd $(INSTALL_DIR_LEPUS); \
-	rm current; \
-	ln -s $(build_date) current;
-	echo "link current updated"
-	echo done
-
-install-web:
-	echo "not implemented"
+	echo -n "creating tarball for web download ..."; \
+	if test "`uname`" == "Linux"; then \
+		tar czf $(Tarfile_linux).tar.gz ./rappture; \
+	else \
+		tar czf $(Tarfile_mac).tar.gz ./rappture; \
+	fi; \
+	echo done ; \
+	echo "copying tarball to hamlet ..."; \
+	scp $(Tarfile_linux).tar.gz $(INSTALL_DIR_WEB); \
+	echo "auto push not implemented yet"
 
 #############################################################################
 clean:
