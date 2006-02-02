@@ -217,8 +217,8 @@ rp_gui: rp_update
 	cd $(RP_SRC)/gui; \
 	make clean; make distclean; \
 	./configure --prefix=$(Rappture) --with-blt=$(basedir)/blt2.4z/src; \
-	make all; \
-	make install
+	make all >& $(basedir)/output.gui 2>&1; \
+	make install >> $(basedir)/output.gui 2>&1
 
 install-rp: rp_gui
 	cd $(RP_SRC)/tcl; $(Rappture)/bin/tclsh install.tcl
