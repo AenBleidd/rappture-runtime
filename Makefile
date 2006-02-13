@@ -267,13 +267,11 @@ addons:
 		cp -d /usr/lib/gcc/i486-linux-gnu/4.0.3/libgcc_eh.a $(Rappture)/lib; \
 	fi
 
-staticlibs:
-	if test "`uname`" == "Linux"; then \
-		cp -d /usr/lib/gcc/i486-linux-gnu/4.0.3/libstdc++.a $(Rappture)/lib; \
-	fi
-
 #############################################################################
 # installation scripts
+# Temporary: copy matlab binary from hamlet build (due to inconsistency of 
+# c compilers between what's used by matlab and what's installed on lepus.
+# Should be fixed eventually.
 #############################################################################
 #
 # copy binaries to build dir and prepare files for various distributions
@@ -291,6 +289,7 @@ build_files:
 	fi; \
 	echo "copying $(Rappture) to $(build_dir) ..."
 	cp -rp $(Rappture) $(build_dir); \
+	cd $(build_dir)/rappture/lib/matlab; tar xfz $(basedir)/mlab.tgz; \
 	cd $(build_dir); \
 	cp -p rappture/bin/rappture rappture.orig; \
 	cp -p rappture/examples/demo.bash demo.bash.orig; \
