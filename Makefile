@@ -12,8 +12,12 @@
 # - change $basedir to point to your directory that contains this Makefile.
 #   	The default is /opt/rappture-runtime.
 #
-# To install on all systems:
+# To install rappture runtime on all systems:
 # 	make mydate=20060111 installall
+#
+# To install on nanohub:
+# 	make mydate=20060111 install-nanohub
+#
 #############################################################################
 basedir=/opt/rappture-runtime
 Rappture=/opt/rappture
@@ -23,11 +27,13 @@ RP_SRC=$(basedir)/rappture
 #definitions for installation on various systems
 #
 build_dir=$(basedir)/build
-ifndef $mydate
-build_date := $(shell date +%Y%m%d)
+
+ifndef mydate
+build_date = $(shell date +%Y%m%d)
 else
-build_date := $(mydate)
+build_date = $(mydate)
 endif
+
 INSTALL_DIR_NANOHUB=rappture@login.nanohub.org:/apps/rappture
 INSTALL_DIR_HAMLET=cxsong@radon.rcac.purdue.edu:/apps/01/rappture
 INSTALL_DIR_WEB=cxsong@hamlet:
