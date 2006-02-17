@@ -13,7 +13,7 @@
 #   	The default is /opt/rappture-runtime.
 #
 # To install rappture runtime on all systems:
-# 	make mydate=20060111 installall
+# 	make mydate=20060111 install-all
 #
 # To install on nanohub:
 # 	make mydate=20060111 install-nanohub
@@ -29,14 +29,18 @@ RP_SRC=$(basedir)/rappture
 build_dir=$(basedir)/build
 
 ifndef mydate
-build_date = $(shell date +%Y%m%d)
+build_date := $(shell date +%Y%m%d)
 else
 build_date = $(mydate)
 endif
 
-INSTALL_DIR_NANOHUB=rappture@login.nanohub.org:/apps/rappture
-INSTALL_DIR_HAMLET=cxsong@radon.rcac.purdue.edu:/apps/01/rappture
-INSTALL_DIR_WEB=cxsong@hamlet:
+HAMLET=cxsong@radon.rcac.purdue.edu
+NANOHUB=rappture@login.nanohub.org
+HAMLET_DIR=/apps/01/rappture
+NANOHUB_DIR=/apps/rappture
+INSTALL_DIR_HAMLET=$(HAMLET):$(HAMLET_DIR)
+INSTALL_DIR_NANOHUB=$(NANOHUB):$(NANOHUB_DIR)
+INSTALL_DIR_WEB=cxsong@hamlet.rcac.purdue.edu:
 Tarfile_linux=rappture-linux-i686-$(build_date)
 Tarfile_mac=rappture-macosx-$(build_date)
 
@@ -295,7 +299,10 @@ build_files:
 	fi; \
 	echo "copying $(Rappture) to $(build_dir) ..."
 	cp -rp $(Rappture) $(build_dir); \
-	cd $(build_dir)/rappture/lib/matlab; tar xfz $(basedir)/mlab.tgz; \
+	if test "`hostname -s`" == "lepus"; then \
+		cd $(build_dir)/rappture/lib/matlab; \
+		tar xfz $(basedir)/mlab.tgz; \
+	fi; \
 	cd $(build_dir); \
 	cp -p rappture/bin/rappture rappture.orig; \
 	cp -p rappture/examples/demo.bash demo.bash.orig; \
@@ -310,7 +317,6 @@ build_files:
 # Make a tarball for hamlet and push it out to hamlet (via radon)
 #
 install-hamlet:
-# create tarabll
 	cd $(build_dir); \
 	cp rappture.hamlet $(build_date)/bin/rappture; \
 	cp demo.bash.hamlet $(build_date)/examples/demo.bash; \
@@ -319,7 +325,12 @@ install-hamlet:
 	echo done; \
 	echo -n "copying tarball to hamlet ... "; \
 	scp $(Tarfile_linux).ham.tar.gz $(INSTALL_DIR_HAMLET)/tars; \
-	scp -rp $(build_date) $(INSTALL_DIR_HAMLET); \
+	ssh $(HAMLET) 'cd $(HAMLET_DIR); tar xzf tars/$(Tarfile_linux).ham.tar.gz'; \
+	echo "remove dev link" ;\
+	ssh $(HAMLET) rm $(HAMLET_DIR)/dev; \
+	echo "create dev link to new build"; \
+	ssh $(HAMLET) ln -s $(HAMLET_DIR)/$(build_date) $(HAMLET_DIR)/dev; \
+	ssh $(HAMLET) ls -l $(HAMLET_DIR); \
 	echo done
 
 install-nanohub:
@@ -331,7 +342,12 @@ install-nanohub:
 	echo done; \
 	echo -n "copying tarball to nanohub ..."; \
 	scp $(Tarfile_linux).nanohub.tar.gz $(INSTALL_DIR_NANOHUB)/tars; \
-	scp -rp $(build_date) $(INSTALL_DIR_NANOHUB); \
+	ssh $(NANOHUB) 'cd $(NANOHUB_DIR); tar xzf tars/$(Tarfile_linux).nanohub.tar.gz'; \
+	echo "remove dev link" ;\
+	ssh $(NANOHUB) rm $(NANOHUB_DIR)/dev; \
+	echo "create dev link to new build"; \
+	ssh $(NANOHUB) ln -s $(NANOHUB_DIR)/$(build_date) $(NANOHUB_DIR)/dev; \
+	ssh $(NANOHUB) ls -l $(NANOHUB_DIR); \
 	echo done
 
 #
@@ -350,6 +366,15 @@ install-web:
 	scp $(Tarfile_linux).tar.gz $(INSTALL_DIR_WEB); \
 	echo "auto push not implemented yet"
 
+#
+# cron job to run daily
+#
+cronjob:
+	cd $(basedir); \
+	make cleanall; \
+	svn update .; \
+	make all; \
+	make install-all
 #############################################################################
 clean:
 	find $(Rappture) -name .svn | xargs rm -rf
