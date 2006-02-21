@@ -639,11 +639,11 @@ extern char *Blt_Itoa _ANSI_ARGS_((int value));
 extern char *Blt_Utoa _ANSI_ARGS_((unsigned int value));
 extern char *Blt_Dtoa _ANSI_ARGS_((Tcl_Interp *interp, double value));
 extern Tcl_Command Blt_InitCmd _ANSI_ARGS_((Tcl_Interp *interp,
-	char *namespace, Blt_CmdSpec *specPtr));
+	char *name_space, Blt_CmdSpec *specPtr));
 
 #if (TCL_VERSION_NUMBER >= _VERSION(8,0,0)) 
 extern Tcl_Command Blt_InitObjCmd _ANSI_ARGS_((Tcl_Interp *interp,
-	char *namespace, Blt_ObjCmdSpec *specPtr));
+	char *name_space, Blt_ObjCmdSpec *specPtr));
 #if (TCL_VERSION_NUMBER < _VERSION(8,1,0))
 extern char *Tcl_GetString _ANSI_ARGS_((Tcl_Obj *objPtr));
 extern int Tcl_EvalObjv _ANSI_ARGS_((Tcl_Interp *interp, int objc, 
@@ -657,7 +657,7 @@ extern Tcl_Obj *Tcl_GetVar2Ex _ANSI_ARGS_((Tcl_Interp *interp, char *part1,
 #endif /* TCL_VERSION_NUMBER >= 8.0.0 */
 
 
-extern int Blt_InitCmds _ANSI_ARGS_((Tcl_Interp *interp, char *namespace,
+extern int Blt_InitCmds _ANSI_ARGS_((Tcl_Interp *interp, char *name_space,
 	Blt_CmdSpec *specPtr, int nCmds));
 
 extern int Blt_NaturalSpline _ANSI_ARGS_((Point2D *origPts, int nOrigPts, 
@@ -745,7 +745,7 @@ extern Point2D Blt_TranslatePoint _ANSI_ARGS_((Point2D *pointPtr, int width,
 	int height, Tk_Anchor anchor));
 
 extern int Blt_ConfigureWidgetComponent _ANSI_ARGS_((Tcl_Interp *interp,
-	Tk_Window tkwin, char *name, char *class, Tk_ConfigSpec *specs,
+	Tk_Window tkwin, char *name, char *class_, Tk_ConfigSpec *specs,
 	int argc, char **argv, char *widgRec, int flags));
 
 extern void Blt_HSV _ANSI_ARGS_((XColor *colorPtr, double *huePtr,
