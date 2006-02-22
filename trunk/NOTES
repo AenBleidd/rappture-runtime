@@ -1,0 +1,6 @@
+bltInt.h 
+	changed by dsk 2/22
+
+if javac/jar not in /usr/bin, /bin,
+	rp_gui won't make in a cronjob
+	(on lepus, /usr/bin/javac(jar) is sym link to /usr/local/bin)
