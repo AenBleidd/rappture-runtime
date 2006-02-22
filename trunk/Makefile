@@ -41,6 +41,7 @@ NANOHUB_DIR=/apps/rappture
 INSTALL_DIR_HAMLET=$(HAMLET):$(HAMLET_DIR)
 INSTALL_DIR_NANOHUB=$(NANOHUB):$(NANOHUB_DIR)
 INSTALL_DIR_WEB=cxsong@hamlet.rcac.purdue.edu:
+#INSTALL_DIR_WEB=www-data@pep.punch.purdue.edu:/var/www/downloads/rappture
 Tarfile_linux=rappture-linux-i686-$(build_date)
 Tarfile_mac=rappture-macosx-$(build_date)
 
@@ -224,6 +225,8 @@ rp_update:
 	fi
 
 rp_gui: rp_update
+	set -x; \
+	echo "path is $(PATH)"; \
 	cd $(RP_SRC)/gui; \
 	make clean; make distclean; \
 	./configure --prefix=$(Rappture) --with-blt=$(basedir)/blt2.4z/src; \
@@ -259,6 +262,7 @@ rplib:
 # 	- install rappture examples in $(Rappture)/examples
 #############################################################################
 examples:
+	set -x; \
 	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make
 	cd $(RP_SRC)/examples/app-fermi/cee; make clean; make
 	cd $(RP_SRC)/examples/c-example; make clean; make
@@ -287,6 +291,7 @@ addons:
 # copy binaries to build dir and prepare files for various distributions
 #
 build_files:
+	set -x; \
 	if test ! -d $(build_dir); then \
 		mkdir $(build_dir); \
 	fi; \
@@ -317,7 +322,9 @@ build_files:
 # Make a tarball for hamlet and push it out to hamlet (via radon)
 #
 install-hamlet:
+	set -x; \
 	cd $(build_dir); \
+	if ! test -d $(build_date); then exit; fi; \
 	cp rappture.hamlet $(build_date)/bin/rappture; \
 	cp demo.bash.hamlet $(build_date)/examples/demo.bash; \
 	echo -n "creating tarball for hamlet ...."; \
@@ -334,7 +341,9 @@ install-hamlet:
 	echo done
 
 install-nanohub:
+	set -x; \
 	cd $(build_dir); \
+	if ! test -d $(build_date); then exit; fi; \
 	cp rappture.nanohub $(build_date)/bin/rappture; \
 	cp demo.bash.nanohub $(build_date)/examples/demo.bash; \
 	echo -n "creating tarball for nanohub ..."; \
@@ -354,17 +363,18 @@ install-nanohub:
 # Make a tarball and push to web server
 #
 install-web: 
+	set -x; \
 	cd $(build_dir); \
+	if ! test -d $(build_date); then exit; fi; \
 	echo -n "creating tarball for web download ..."; \
 	if test "`uname`" == "Linux"; then \
 		tar czf $(Tarfile_linux).tar.gz ./rappture; \
+		scp $(Tarfile_linux).tar.gz $(INSTALL_DIR_WEB); \
 	else \
 		tar czf $(Tarfile_mac).tar.gz ./rappture; \
+		scp $(Tarfile_mac).tar.gz $(INSTALL_DIR_WEB);\
 	fi; \
 	echo done ; \
-	echo "copying tarball to hamlet ..."; \
-	scp $(Tarfile_linux).tar.gz $(INSTALL_DIR_WEB); \
-	echo "auto push not implemented yet"
 
 #
 # cron job to run daily
@@ -373,8 +383,7 @@ cronjob:
 	cd $(basedir); \
 	make cleanall; \
 	svn update .; \
-	make all; \
-	make install-all
+	make
 #############################################################################
 clean:
 	find $(Rappture) -name .svn | xargs rm -rf
