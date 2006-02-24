@@ -40,8 +40,8 @@ HAMLET_DIR=/apps/01/rappture
 NANOHUB_DIR=/apps/rappture
 INSTALL_DIR_HAMLET=$(HAMLET):$(HAMLET_DIR)
 INSTALL_DIR_NANOHUB=$(NANOHUB):$(NANOHUB_DIR)
-INSTALL_DIR_WEB=cxsong@hamlet.rcac.purdue.edu:
-#INSTALL_DIR_WEB=www-data@pep.punch.purdue.edu:/var/www/downloads/rappture
+#INSTALL_DIR_WEB=cxsong@hamlet.rcac.purdue.edu:
+INSTALL_DIR_WEB=www-data@pep.punch.purdue.edu:/var/www/downloads/rappture
 Tarfile_linux=rappture-linux-i686-$(build_date)
 Tarfile_mac=rappture-macosx-$(build_date)
 
