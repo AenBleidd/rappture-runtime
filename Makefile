@@ -217,6 +217,7 @@ vtk:
 #############################################################################
 
 rp_update:	
+	set -x; \
 	if test -d $(RP_SRC); then \
 		cd $(RP_SRC); svn update ;\
 	else \
@@ -234,6 +235,7 @@ rp_gui: rp_update
 	make install >> $(basedir)/output.gui 2>&1
 
 install-rp: rp_gui
+	set -x
 	cd $(RP_SRC)/tcl; $(Rappture)/bin/tclsh install.tcl
 	cd $(RP_SRC)/python; $(Rappture)/bin/python setup.py install
 	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin 
@@ -250,6 +252,7 @@ install-rp: rp_gui
 # 	- install rappture libs in $(Rappture) dir 
 #############################################################################
 rplib:
+	set -x; \
 	cd $(RP_SRC)/src; \
 	make clean >& $(basedir)/output.rp 2>&1; \
 	make all >& $(basedir)/output.rp 2>&1; \
@@ -316,6 +319,11 @@ build_files:
 	sed 's/opt\/rappture/apps\/rappture\/$(build_date)/' < ./demo.bash.orig > demo.bash.nanohub; \
 	sed 's/opt\/rappture/apps\/01\/rappture\/$(build_date)/' < ./rappture.orig > rappture.hamlet; \
 	sed 's/opt\/rappture/apps\/01\/rappture\/$(build_date)/' < ./demo.bash.orig > demo.bash.hamlet; \
+	if test "`uname`" == "Linux"; then \
+		tar czf $(Tarfile_linux).tar.gz ./rappture; \
+	else \
+		tar czf $(Tarfile_mac).tar.gz ./rappture; \
+	fi; \
 	echo done
 
 #
@@ -368,27 +376,31 @@ install-web:
 	if ! test -d $(build_date); then exit; fi; \
 	echo -n "creating tarball for web download ..."; \
 	if test "`uname`" == "Linux"; then \
-		tar czf $(Tarfile_linux).tar.gz ./rappture; \
 		scp $(Tarfile_linux).tar.gz $(INSTALL_DIR_WEB); \
-	else \
-		tar czf $(Tarfile_mac).tar.gz ./rappture; \
-		scp $(Tarfile_mac).tar.gz $(INSTALL_DIR_WEB);\
 	fi; \
-	echo done ; \
+	echo done
+
+install-mac:
+	set -x; \
+	cd $(build_dir); \
+	scp cxsong@mmc.rcac.purdue.edu:/opt/rappture-runtime/build/$(Tarfile_mac).tar.gz . ; \
+	scp $(Tarfile_mac).tar.gz $(INSTALL_DIR_WEB)
 
 #
 # cron job to run daily
 #
 cronjob:
 	cd $(basedir); \
-	make cleanall; \
+	$(MAKE) cleanall; \
+	$(MAKE) cleanbuild; \
 	svn update .; \
-	make
+	$(MAKE) all
 #############################################################################
 clean:
 	find $(Rappture) -name .svn | xargs rm -rf
 
 cleanall:
 	rm -rf $(Rappture)/*
-	rm -rf $(build_dir)/*
 	rm -f output.*
+cleanbuild:
+	rm -rf $(build_dir)/*
