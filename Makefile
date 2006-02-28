@@ -392,7 +392,6 @@ get-mac-build:
 cronjob:
 	cd $(basedir); \
 	$(MAKE) cleanall; \
-	$(MAKE) cleanbuild; \
 	svn update .; \
 	$(MAKE) all
 #############################################################################
