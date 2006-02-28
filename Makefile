@@ -40,8 +40,8 @@ HAMLET_DIR=/apps/01/rappture
 NANOHUB_DIR=/apps/rappture
 INSTALL_DIR_HAMLET=$(HAMLET):$(HAMLET_DIR)
 INSTALL_DIR_NANOHUB=$(NANOHUB):$(NANOHUB_DIR)
-#INSTALL_DIR_WEB=cxsong@hamlet.rcac.purdue.edu:
-INSTALL_DIR_WEB=www-data@pep.punch.purdue.edu:/var/www/downloads/rappture
+INSTALL_DIR_WEB=/tmp
+#INSTALL_DIR_WEB=www-data@pep.punch.purdue.edu:/var/www/downloads/rappture
 Tarfile_linux=rappture-linux-i686-$(build_date)
 Tarfile_mac=rappture-macosx-$(build_date)
 
@@ -370,21 +370,21 @@ install-nanohub:
 #
 # Make a tarball and push to web server
 #
-install-web: 
+install-web: get-mac-build
 	set -x; \
 	cd $(build_dir); \
-	if ! test -d $(build_date); then exit; fi; \
-	echo -n "creating tarball for web download ..."; \
-	if test "`uname`" == "Linux"; then \
+	if test -f $(Tarfile_linux).tar.gz; then \
 		scp $(Tarfile_linux).tar.gz $(INSTALL_DIR_WEB); \
+	fi; \
+	if test -f $(Tarfile_mac).tar.gz; then \
+		scp $(Tarfile_mac).tar.gz $(INSTALL_DIR_WEB); \
 	fi; \
 	echo done
 
-install-mac:
+get-mac-build:
 	set -x; \
 	cd $(build_dir); \
-	scp cxsong@mmc.rcac.purdue.edu:/opt/rappture-runtime/build/$(Tarfile_mac).tar.gz . ; \
-	scp $(Tarfile_mac).tar.gz $(INSTALL_DIR_WEB)
+	scp cxsong@mmc.rcac.purdue.edu:/opt/rappture-runtime/build/$(Tarfile_mac).tar.gz .
 
 #
 # cron job to run daily
