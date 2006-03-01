@@ -305,17 +305,17 @@ build_files:
 	if test -d $(build_dir)/$(build_date); then \
 		rm -rf $(build_dir)/$(build_date); \
 	fi; \
-	echo "copying $(Rappture) to $(build_dir) ..."
+	echo "copying $(Rappture) to $(build_dir) ..."; \
 	cp -rp $(Rappture) $(build_dir); \
 	if test "`hostname -s`" == "lepus"; then \
 		cd $(build_dir)/rappture/lib/matlab; \
 		tar xfz $(basedir)/mlab.tgz; \
 	fi; \
 	cd $(build_dir); \
-	cp -p rappture/bin/rappture rappture.orig; \
-	cp -p rappture/examples/demo.bash demo.bash.orig; \
 	cp -rp rappture $(build_date); \
 	if test "`uname`" == "Linux"; then \
+		cp -p rappture/bin/rappture rappture.orig; \
+		cp -p rappture/examples/demo.bash demo.bash.orig; \
 		sed 's/opt\/rappture/apps\/rappture\/$(build_date)/' < ./rappture.orig > rappture.nanohub; \
 		sed 's/opt\/rappture/apps\/rappture\/$(build_date)/' < ./demo.bash.orig > demo.bash.nanohub; \
 		sed 's/opt\/rappture/apps\/01\/rappture\/$(build_date)/' < ./rappture.orig > rappture.hamlet; \
