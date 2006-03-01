@@ -298,7 +298,7 @@ build_files:
 	if test ! -d $(build_dir); then \
 		mkdir $(build_dir); \
 	fi; \
-	echo "removing existing directory: build_dir/rappture"
+	echo "removing existing directory: build_dir/rappture"; \
 	if test -d $(build_dir)/rappture; then \
 		rm -rf $(build_dir)/rappture; \
 	fi; \
