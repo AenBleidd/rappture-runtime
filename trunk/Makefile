@@ -315,11 +315,11 @@ build_files:
 	cp -p rappture/bin/rappture rappture.orig; \
 	cp -p rappture/examples/demo.bash demo.bash.orig; \
 	cp -rp rappture $(build_date); \
-	sed 's/opt\/rappture/apps\/rappture\/$(build_date)/' < ./rappture.orig > rappture.nanohub; \
-	sed 's/opt\/rappture/apps\/rappture\/$(build_date)/' < ./demo.bash.orig > demo.bash.nanohub; \
-	sed 's/opt\/rappture/apps\/01\/rappture\/$(build_date)/' < ./rappture.orig > rappture.hamlet; \
-	sed 's/opt\/rappture/apps\/01\/rappture\/$(build_date)/' < ./demo.bash.orig > demo.bash.hamlet; \
 	if test "`uname`" == "Linux"; then \
+		sed 's/opt\/rappture/apps\/rappture\/$(build_date)/' < ./rappture.orig > rappture.nanohub; \
+		sed 's/opt\/rappture/apps\/rappture\/$(build_date)/' < ./demo.bash.orig > demo.bash.nanohub; \
+		sed 's/opt\/rappture/apps\/01\/rappture\/$(build_date)/' < ./rappture.orig > rappture.hamlet; \
+		sed 's/opt\/rappture/apps\/01\/rappture\/$(build_date)/' < ./demo.bash.orig > demo.bash.hamlet; \
 		tar czf $(Tarfile_linux).tar.gz ./rappture; \
 	else \
 		tar czf $(Tarfile_mac).tar.gz ./rappture; \
