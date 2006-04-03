@@ -255,8 +255,8 @@ rplib:
 	set -x; \
 	cd $(RP_SRC)/src; \
 	make clean >& $(basedir)/output.rp 2>&1; \
-	make all >& $(basedir)/output.rp 2>&1; \
-	make install >& $(basedir)/output.rp 2>&1
+	make all >> $(basedir)/output.rp 2>&1; \
+	make install >> $(basedir)/output.rp 2>&1
 
 #############################################################################
 # build rappture examples
@@ -266,9 +266,9 @@ rplib:
 #############################################################################
 examples:
 	set -x; \
-	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make >& $(basedir)/output.rp 2>& 1
-	cd $(RP_SRC)/examples/app-fermi/cee; make clean; make >& $(basedir)/output.rp 2>& 1
-	cd $(RP_SRC)/examples/c-example; make clean; make >& $(basedir)/output.rp 2>& 1
+	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make >> $(basedir)/output.rp 2>& 1
+	cd $(RP_SRC)/examples/app-fermi/cee; make clean; make >> $(basedir)/output.rp 2>& 1
+	cd $(RP_SRC)/examples/c-example; make clean; make >> $(basedir)/output.rp 2>& 1
 	rm -rf $(Rappture)/examples
 	cp -r $(RP_SRC)/examples $(Rappture)
 
