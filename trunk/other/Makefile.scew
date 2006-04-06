@@ -50,10 +50,12 @@ libscew: $(DEPS)
 		ranlib -s $@.a; \
 	else \
 		$(CC) $(DEGUG) -shared -Wl,-rpath,./ \
-		-Wl,-soname,$@.so -o $@.so.0.0 $^ -L$(LIB_HOME) -lexpat -lpthread; \
+		-Wl,-soname,$@.so -o $@.so.0.0 $^ -L$(LIB_HOME) -lexpat; \
 		ar -r $@.a $^; \
 		ranlib $@.a; \
 	fi
+
+#-Wl,-soname,$@.so -o $@.so.0.0 $^ -L$(LIB_HOME) -lexpat -lpthread; \
 
 install: all
 	if test "`uname`" == "Darwin"; then \
