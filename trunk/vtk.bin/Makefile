@@ -1,4 +1,7 @@
+ifndef RAPPTURE
 RAPPTURE = /opt/rappture
+endif
+
 VTK_LIB = $(RAPPTURE)/lib/vtk
 VTK_INC = $(RAPPTURE)/include/vtk
 
