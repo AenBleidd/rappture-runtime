@@ -22,7 +22,7 @@ SRCS	= $(GENERIC_SRCS) $(UNIX_SRCS)
 TCL_BIN_DIR = @TCL_BIN_DIR@
 
 # Libraries to use when linking:
-LIBS = @TCL_LIB_SPEC@ @TCL_LIBS@ -lc
+LIBS = @TCL_LIB_SPEC@ @TCL_LIBS@ @TK_LIB_SPEC@ -lc
 
 #----------------------------------------------------------------
 # The information below is modified by the configure script when
@@ -49,6 +49,8 @@ TOP_DIR			= @srcdir@/..
 GENERIC_DIR		= $(TOP_DIR)/generic
 UNIX_DIR		= $(TOP_DIR)/unix
 INCLUDE_DIR		= $(TOP_DIR)/include
+prefix = @prefix@
+INSTALLDIR		= $(prefix)
 # ----------------------------------------------------------------------
 CFLAGS = -g -DSHAPE_PHOTO=@SHAPE_PHOTO@
 CC_SWITCHES = $(CFLAGS) ${CFLAGS_WARNING} ${SHLIB_CFLAGS} \
@@ -57,7 +59,7 @@ CC_SWITCHES = $(CFLAGS) ${CFLAGS_WARNING} ${SHLIB_CFLAGS} \
 	-I${TCL_SRC_DIR}/generic -I${TCL_SRC_DIR}/unix \
 	-I${TK_SRC_DIR}/generic -I${TK_SRC_DIR}/unix
 # ----------------------------------------------------------------------
-all: @PRIMARY_TARGET@
+all: @PRIMARY_TARGET@ install
 
 $(OBJS): $(INCLUDE_DIR)/shape.h $(INCLUDE_DIR)/panic.h $(GENERIC_DIR)/shapeInt.h
 
@@ -79,6 +81,13 @@ clean:
 	rm -f *.o *.a $(SOFILE) $(EXEFILE) core
 distclean: clean
 	rm -f Makefile config.cache config.log config.status
+# ----------------------------------------------------------------------
+install: $(SOFILE)
+	rm -rf $(INSTALLDIR)/lib/shape0.4
+	mkdir -p $(INSTALLDIR)/lib/shape0.4
+	cp pkgIndex.tcl $(INSTALLDIR)/lib/shape0.4
+	cp $(SOFILE) $(INSTALLDIR)/lib/shape0.4
+
 # ----------------------------------------------------------------------
 Makefile: Makefile.in config.status
 	./config.status
