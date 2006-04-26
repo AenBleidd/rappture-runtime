@@ -1,4 +1,4 @@
-############################################################################
+###########################################################################
 # Makefile - build and install all packages required by Rappture runtime
 # 
 # To build everything, type:
@@ -19,8 +19,8 @@
 # 	make mydate=20060111 install-nanohub
 #
 #############################################################################
-basedir=/opt/rappture-runtime
-Rappture=/opt/rappture
+basedir=/home/cxsong/rappture-runtime
+Rappture=$(basedir)/tmp
 RP_SRC=$(basedir)/rappture
 #CPP=/usr/bin/cpp
 #
@@ -40,8 +40,7 @@ HAMLET_DIR=/apps/01/rappture
 NANOHUB_DIR=/apps/rappture
 INSTALL_DIR_HAMLET=$(HAMLET):$(HAMLET_DIR)
 INSTALL_DIR_NANOHUB=$(NANOHUB):$(NANOHUB_DIR)
-#INSTALL_DIR_WEB=/tmp
-INSTALL_DIR_WEB=www-data@pep.punch.purdue.edu:/var/www/downloads/rappture
+INSTALL_DIR_WEB=www-data@developer.nanohub.org:/var/www/downloads/rappture
 Tarfile_linux=rappture-linux-i686-$(build_date)
 Tarfile_mac=rappture-macosx-$(build_date)
 
@@ -49,7 +48,9 @@ all: pkgs rappture clean
 
 pkgs: tcl tk itcl tdom blt tkimg shape python pyimg pynum expat scew vtk
 
-rappture: install-rp rplib examples addons build_files
+ws: pyxml fpconst pysoap
+
+rappture: install-rp rplib examples build_files pkg_nanohub pkg_hamlet
 
 install-all: install-hamlet  install-nanohub install-web
 
@@ -136,6 +137,16 @@ tkimg:
 shape:
 	echo "BUIDING Shape0.4 ... ..."
 	cd $(basedir)/shape0.4/unix; make clean; make distclean; \
+	./configure --disable-threads --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.shape 2>&1; \
+	if test "`uname`" == "Darwin"; then \
+		cp $(basedir)/Mac/Makefile.shape04.mac Makefile; \
+	fi; \
+	make >> $(basedir)/output.shape 2>&1; \
+	make install >> $(basedir)/output.shape 2>&1
+
+shape-old:
+	echo "BUIDING Shape0.4 ... ..."
+	cd $(basedir)/shape0.4/unix; make clean; make distclean; \
 	./configure --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.shape 2>&1; \
 	if test "`uname`" == "Darwin"; then \
 		cp $(basedir)/Mac/Makefile.shape04.mac Makefile; \
@@ -199,14 +210,30 @@ scew:
 	cd $(basedir)/scew-0.4.0/scew; \
 	cp $(basedir)/other/Makefile.scew Makefile; \
 	make clean; \
-	make >& $(basedir)/output.scew 2>&1; \
-	make install >> $(basedir)/output.scew 2>&1
+	make LIB_HOME=$(Rappture)/lib INCL_HOME=$(Rappture)/include >& $(basedir)/output.scew 2>&1; \
+	make LIB_HOME=$(Rappture)/lib INCL_HOME=$(Rappture)/include install >> $(basedir)/output.scew 2>&1
 
 #############################################################################
 # Install vtk 4.4 from binary
 #############################################################################
 vtk:
-	cd $(basedir)/vtk.bin; make >& $(basedir)/output.vtk 2>&1
+	cd $(basedir)/vtk.bin; make RAPPTURE=$(Rappture) >& $(basedir)/output.vtk 2>&1
+
+#############################################################################
+# web service related packages
+#
+pyxml:
+	cd $(basedir)/PyXML-0.8.4; \
+	python setup.py build; \
+	python setup.py install
+
+fpconst:
+	cd $(basedir)/fpconst-0.7.2; \
+	python setup.py install
+
+pysoap:
+	cd $(basedir)/SOAPpy-0.12.0; \
+	python setup.py install
 
 #############################################################################
 # install-rp:
@@ -255,8 +282,8 @@ rplib:
 	set -x; \
 	cd $(RP_SRC)/src; \
 	make clean >& $(basedir)/output.rp 2>&1; \
-	make all >> $(basedir)/output.rp 2>&1; \
-	make install >> $(basedir)/output.rp 2>&1
+	make RP_INSTALL_BASE=$(Rappture) all >> $(basedir)/output.rp 2>&1; \
+	make RP_INSTALL_BASE=$(Rappture) install >> $(basedir)/output.rp 2>&1
 
 #############################################################################
 # build rappture examples
@@ -265,10 +292,10 @@ rplib:
 # 	- install rappture examples in $(Rappture)/examples
 #############################################################################
 examples:
-	set -x; \
-	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make >> $(basedir)/output.rp 2>& 1
-	cd $(RP_SRC)/examples/app-fermi/cee; make clean; make >> $(basedir)/output.rp 2>& 1
-	cd $(RP_SRC)/examples/c-example; make clean; make >> $(basedir)/output.rp 2>& 1
+	set -x;
+	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make RAPPTURE_DIR=$(Rappture) >> $(basedir)/output.rp 2>& 1
+	cd $(RP_SRC)/examples/app-fermi/cee; make clean; make RP_BASE=$(Rappture) >> $(basedir)/output.rp 2>& 1
+	cd $(RP_SRC)/examples/c-example; make clean; make RP_BASE=$(Rappture) >> $(basedir)/output.rp 2>& 1
 	rm -rf $(Rappture)/examples
 	cp -r $(RP_SRC)/examples $(Rappture)
 
@@ -277,11 +304,11 @@ examples:
 # #
 addons:
 	if test "`uname`" == "Linux"; then \
-		cp -d /usr/lib/libstdc++.so.6* $(Rappture)/lib; \
+		cp -d /usr/lib/libstdc++.so.5* $(Rappture)/lib; \
 		cp -d /usr/lib/libtiff.so.4* $(Rappture)/lib; \
-		cp -d /usr/lib/gcc/i486-linux-gnu/4.0.3/libstdc++.a $(Rappture)/lib; \
-		cp -d /usr/lib/gcc/i486-linux-gnu/4.0.3/libsupc++.a $(Rappture)/lib; \
-		cp -d /usr/lib/gcc/i486-linux-gnu/4.0.3/libgcc_eh.a $(Rappture)/lib; \
+		cp -d /usr/lib/gcc-lib/i486-linux/3.3.5/libstdc++.a $(Rappture)/lib; \
+		cp -d /usr/lib/gcc-lib/i486-linux/3.3.5/libsupc++.a $(Rappture)/lib; \
+		cp -d /usr/lib/gcc-lib/i486-linux/3.3.5/libgcc_eh.a $(Rappture)/lib; \
 	fi
 
 #############################################################################
@@ -294,7 +321,7 @@ addons:
 # copy binaries to build dir and prepare files for various distributions
 #
 build_files:
-	set -x; \
+	set -x;
 	if test ! -d $(build_dir); then \
 		mkdir $(build_dir); \
 	fi; \
@@ -302,11 +329,13 @@ build_files:
 	if test -d $(build_dir)/rappture; then \
 		rm -rf $(build_dir)/rappture; \
 	fi; \
+	mkdir $(build_dir)/rappture; \
 	if test -d $(build_dir)/$(build_date); then \
 		rm -rf $(build_dir)/$(build_date); \
 	fi; \
 	echo "copying $(Rappture) to $(build_dir) ..."; \
-	cp -rp $(Rappture) $(build_dir); \
+	cd $(Rappture); \
+	cp -rp bin include lib man examples $(build_dir)/rappture; \
 	if test "`hostname -s`" == "lepus"; then \
 		cd $(build_dir)/rappture/lib/matlab; \
 		tar xfz $(basedir)/mlab.tgz; \
@@ -329,43 +358,48 @@ build_files:
 #
 # Make a tarball for hamlet and push it out to hamlet (via radon)
 #
-install-hamlet:
-	set -x; \
+pkg_hamlet:
+	set -x;
 	cd $(build_dir); \
 	if ! test -d $(build_date); then exit; fi; \
 	cp rappture.hamlet $(build_date)/bin/rappture; \
 	cp demo.bash.hamlet $(build_date)/examples/demo.bash; \
 	echo -n "creating tarball for hamlet ...."; \
 	tar czf $(Tarfile_linux).ham.tar.gz $(build_date); \
-	echo done; \
-	echo -n "copying tarball to hamlet ... "; \
+	echo done
+
+install-hamlet:
+	set -x; 
+	if ! test -f $(build_dir)/$(Tarfile_linux).hamlet.tar.gz; then \
+		$(MAKE) pkg_hamlet; \
+	fi; \
+	cd $(build_dir); \
 	scp $(Tarfile_linux).ham.tar.gz $(INSTALL_DIR_HAMLET)/tars; \
 	ssh $(HAMLET) 'cd $(HAMLET_DIR); tar xzf tars/$(Tarfile_linux).ham.tar.gz'; \
-	echo "remove dev link" ;\
 	ssh $(HAMLET) rm $(HAMLET_DIR)/dev; \
-	echo "create dev link to new build"; \
 	ssh $(HAMLET) ln -s $(HAMLET_DIR)/$(build_date) $(HAMLET_DIR)/dev; \
 	ssh $(HAMLET) ls -l $(HAMLET_DIR); \
 	echo done
 
-install-nanohub:
+pkg_nanohub:
 	set -x; \
 	cd $(build_dir); \
 	if ! test -d $(build_date); then exit; fi; \
 	cp rappture.nanohub $(build_date)/bin/rappture; \
 	cp demo.bash.nanohub $(build_date)/examples/demo.bash; \
-	echo -n "creating tarball for nanohub ..."; \
 	tar czf $(Tarfile_linux).nanohub.tar.gz $(build_date); \
-	echo done; \
-	echo -n "copying tarball to nanohub ..."; \
+
+install-nanohub: 
+	set -x;
+	if test ! -f $(build_dir)/$(Tarfile_linux).nanohub.tar.gz; then \
+		$(MAKE) pkg_nanohub; \
+	fi; \
+	cd $(build_dir); \
 	scp $(Tarfile_linux).nanohub.tar.gz $(INSTALL_DIR_NANOHUB)/tars; \
 	ssh $(NANOHUB) 'cd $(NANOHUB_DIR); tar xzf tars/$(Tarfile_linux).nanohub.tar.gz'; \
-	echo "remove dev link" ;\
 	ssh $(NANOHUB) rm $(NANOHUB_DIR)/dev; \
-	echo "create dev link to new build"; \
 	ssh $(NANOHUB) ln -s $(NANOHUB_DIR)/$(build_date) $(NANOHUB_DIR)/dev; \
 	ssh $(NANOHUB) ls -l $(NANOHUB_DIR); \
-	echo done
 
 #
 # Make a tarball and push to web server
@@ -401,5 +435,6 @@ clean:
 cleanall:
 	rm -rf $(Rappture)/*
 	rm -f output.*
+
 cleanbuild:
 	rm -rf $(build_dir)/*
