@@ -17,8 +17,12 @@
 # if you want to install the library to another directory, 
 # change the $(LIB_HOME) variable.
 
+ifndef LIB_HOME
 LIB_HOME        = /opt/rappture/lib
+endif
+ifndef INCL_HOME
 INCL_HOME       = /opt/rappture/include
+endif
 
 PROGS           = libscew
 
