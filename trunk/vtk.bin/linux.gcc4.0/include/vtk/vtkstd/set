@@ -1,0 +1,17 @@
+#ifndef __vtkstd_set
+#define __vtkstd_set
+
+#include "vtkConfigure.h"
+
+#ifdef _MSC_VER
+#pragma warning (push, 1)
+#pragma warning (disable: 4702)
+#endif
+
+#include <set>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+#endif
