@@ -1,0 +1,144 @@
+2005-02-24 12:42  warnes
+
+	* fpconst.py (tags: fpconst_0_7_2): Update version to 0.7.2
+
+2005-02-24 12:39  warnes
+
+	* README (tags: fpconst_0_7_2), fpconst.py, setup.py (tags:
+	  fpconst_0_7_2): Added notice of PSF license grant
+
+2005-02-24 12:21  warnes
+
+	* COPYING (tags: fpconst_0_7_2), README, fpconst.py, pep-0754.txt
+	  (tags: fpconst_0_7_2), setup.py: Change to Apache license for
+	  contribution to PSF for inclusion in Python standard library.
+
+2004-12-10 13:45  warnes
+
+	* COPYING, PEP.txt, README, fpconst.py, pep-0754.txt: Modified to
+	  show copyright assignment for the code to the PSF, and to update
+	  version numbers.
+
+2004-05-22 00:39  warnes
+
+	* setup.py: Fix url.
+
+2004-05-22 00:38  warnes
+
+	* fpconst.py: Correct URL for fpconst home page.
+
+2004-05-22 00:35  warnes
+
+	* fpconst.py: Add some comments to test functions created in last
+	  revision.
+
+2004-05-22 00:32  warnes
+
+	* fpconst.py: Integrate and extend patch from Derek Jones
+	  <dtj@rincon.com> to fix problems on platforms where integers are
+	  not 32 bits by using 8 bytes instead of 2 integers.
+
+2004-05-21 15:44  warnes
+
+	* fpconst.py: First attempt to make work on 64 bit platforms
+
+2003-05-12 11:24  warnes
+
+	* README (tags: fpconst_0_6_0):
+	  - Updated version number in README.
+
+2003-05-12 11:14  warnes
+
+	* fpconst.py (tags: fpconst_0_6_0):
+	  - Updated version number.
+
+2003-05-12 11:11  warnes
+
+	* fpconst.py:
+	  - Fixed error caused by incomplete replacement of 'Inf' with
+	  'PosInf'.
+
+2003-05-12 10:09  warnes
+
+	* PEP.txt (tags: fpconst_0_6_0), fpconst.py: - Updated based on
+	  comments by Tim Peters <tim.one@comcast.net>.
+
+2003-04-26 10:19  warnes
+
+	* README, fpconst.py:
+	  - Updated readme to point to the text of the PEP.  - Did some
+	  code reformatting to be consistent with PEP 8: "Style Guide	for
+	  Python Code"
+
+2003-04-09 23:28  warnes
+
+	* README:
+	  - Updated date and version
+
+2003-04-09 23:23  warnes
+
+	* README:
+	  - Renamed package from 'ieee754' to 'fpconst'.  - Removed
+	  documentation for mantissa, sign, exponent functions as   these
+	  are now private.
+
+2003-04-09 23:13  warnes
+
+	* PEP.txt:
+	  - Initial version with real contents.
+
+2003-04-09 23:12  warnes
+
+	* setup.py (tags: fpconst_0_6_0):
+	  - Renamed package from 'ieee754' to 'fpconst'.
+
+2003-04-09 23:07  warnes
+
+	* fpconst.py:
+	  - Added underscore to 'mantissa', 'sign' and 'exponent' to
+	  discourage   use outside of the package.
+
+	  - Now access pack/unpack using explicit package name, to preven
+	  name-space clutter.
+
+2003-03-29 22:52  warnes
+
+	* PEP.txt:
+	  - Added PEP template for submission to the Python developers.
+
+2003-03-27 18:03  warnes
+
+	* README, fpconst.py:
+	  - Added more help text.
+
+2003-03-27 15:13  warnes
+
+	* MANIFEST:
+	  - Uncessessary file in CVS
+
+2003-03-27 15:09  warnes
+
+	* README:
+	  - Added installation instructions.
+
+2003-03-27 15:03  warnes
+
+	* README, fpconst.py:
+	  - Fix spelling errors/typos in documentation.
+
+2003-03-27 14:43  warnes
+
+	* ieee754.pyc:
+	  - Checked in one too many files.
+
+2003-03-27 14:41  warnes
+
+	* MANIFEST, README, fpconst.py, ieee754.pyc, setup.py (utags:
+	  null):
+	  - Initial checkin.
+
+2003-03-27 14:41  warnes
+
+	* MANIFEST, README, fpconst.py, ieee754.pyc, setup.py: Initial
+	  revision
+
