@@ -34,6 +34,8 @@ else
 build_date = $(mydate)
 endif
 
+PYTHON = $(Rappture)/bin/python
+
 HAMLET=cxsong@radon.rcac.purdue.edu
 NANOHUB=rappture@login.nanohub.org
 HAMLET_DIR=/apps/01/rappture
@@ -44,13 +46,13 @@ INSTALL_DIR_WEB=www-data@developer.nanohub.org:/var/www/downloads/rappture
 Tarfile_linux=rappture-linux-i686-$(build_date)
 Tarfile_mac=rappture-macosx-$(build_date)
 
-all: pkgs rappture clean
+all: pkgs ws rappture
 
 pkgs: tcl tk itcl tdom blt tkimg shape python pyimg pynum expat scew vtk
 
-ws: pyxml fpconst pysoap
+ws: pyxml fpconst pysoap clientcookie
 
-rappture: install-rp rplib examples build_files pkg_nanohub pkg_hamlet
+rappture: install-rp rplib examples clean build_files pkg_nanohub pkg_hamlet
 
 install-all: install-hamlet  install-nanohub install-web
 
@@ -179,22 +181,22 @@ pyimg:
 	echo "BUIDING python Imaging"
 	cd $(basedir)/Imaging-1.1.5; \
 	rm -rf build; \
-	$(Rappture)/bin/python setup.py install --prefix=$(Rappture) >& $(basedir)/output.pyimg 2>&1
+	$(PYTHON) setup.py install --prefix=$(Rappture) >& $(basedir)/output.pyimg 2>&1
 
 #################################################
 pynum:
 	echo "BUIDING python Numeric 24.2"
 	cd $(basedir)/Numeric-24.2; \
 	/bin/sh makeclean.sh; \
-	$(Rappture)/bin/python setup.py build >& $(basedir)/output.num 2>&1; \
-	$(Rappture)/bin/python setup.py install --prefix=$(Rappture) >> $(basedir)/output.num 2>&1
+	$(PYTHON) setup.py build >& $(basedir)/output.num 2>&1; \
+	$(PYTHON) setup.py install --prefix=$(Rappture) >> $(basedir)/output.num 2>&1
 
 #################################################
 # TODO
 scipy:
 	echo "BUIDING SciPy 0.3.2"
 	cd $(basedir)/SciPy_complete-0.3.2; \
-	$(Rappture)/bin/python setup.py build >& $(basedir)/output.sci 2>&1
+	$(PYTHON) setup.py build >& $(basedir)/output.sci 2>&1
 
 #################################################
 expat:
@@ -224,16 +226,21 @@ vtk:
 #
 pyxml:
 	cd $(basedir)/PyXML-0.8.4; \
-	python setup.py build; \
-	python setup.py install
+	$(PYTHON) setup.py build; \
+	$(PYTHON) setup.py install
 
 fpconst:
 	cd $(basedir)/fpconst-0.7.2; \
-	python setup.py install
+	$(PYTHON) setup.py install
 
 pysoap:
 	cd $(basedir)/SOAPpy-0.12.0; \
-	python setup.py install
+	$(PYTHON) setup.py install
+
+clientcookie:
+	cd $(basedir)/ClientCookie-1.3.0; \
+	$(PYTHON) setup.py build; \
+	$(PYTHON) setup.py install
 
 #############################################################################
 # install-rp:
@@ -336,10 +343,6 @@ build_files:
 	echo "copying $(Rappture) to $(build_dir) ..."; \
 	cd $(Rappture); \
 	cp -rp bin include lib man examples $(build_dir)/rappture; \
-	if test "`hostname -s`" == "lepus"; then \
-		cd $(build_dir)/rappture/lib/matlab; \
-		tar xfz $(basedir)/mlab.tgz; \
-	fi; \
 	cd $(build_dir); \
 	cp -rp rappture $(build_date); \
 	if test "`uname`" == "Linux"; then \
