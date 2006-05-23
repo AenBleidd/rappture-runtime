@@ -50,7 +50,17 @@ init_expat_parser(scew_parser* parser)
     /* initialize Expat handlers */
     XML_SetXmlDeclHandler(parser->parser, xmldecl_handler);
     XML_SetElementHandler(parser->parser, start_handler, end_handler);
-    XML_SetCharacterDataHandler(parser->parser, char_handler);
+    //
+    // commented out the line below because when using the
+    // CharacterData Handler, expat replaces all entity references like,
+    // &lt; and &gt;, with their equivalent translation. in this case,
+    // actual '<' and '>' are placed in the xml file. to get around this, 
+    // XML_SetCharacterDataHandler was replaced with XML_SetDefaultHandler
+    // the translation will be done when by the end user of this library.
+    // dsk 20060402
+    //
+    // XML_SetCharacterDataHandler(parser->parser, char_handler);
+    XML_SetDefaultHandler(parser->parser, char_handler);
     XML_SetUserData(parser->parser, parser);
 
     return 1;
