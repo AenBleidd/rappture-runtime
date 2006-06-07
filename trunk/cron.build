@@ -1,13 +1,16 @@
 #!/bin/bash
 # 
-# crontab script to build rappture runtime on lepus 
+# crontab script to build rappture runtime on nanohub workspace
 # 
 
-PATH=/opt/rappture/bin:/opt/matlab/bin:$PATH
-LD_LIBRARY_PATH=/opt/rappture/lib:/opt/matlab/extern/lib:$LD_LIBRARY_PATH
+bld_src_dir=/home/cxsong/rappture-runtime
+bld_dir=$bld_src_dir/tmp
 
-logfile="cronlog.`date +%y%m%d%H%M`"
-cd /opt/rappture-runtime
+PATH=$bld_dir/bin:/apps/matlab/bin:$PATH
+LD_LIBRARY_PATH=$bld_dir/lib:/apps/matlab/extern/lib:$LD_LIBRARY_PATH
+
+logfile="cronlog.`date +%y%m%d-%H%M`"
+cd $bld_src_dir
 touch $logfile
 echo "path is $PATH" >> $logfile
 make cronjob >> $logfile
