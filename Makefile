@@ -364,7 +364,7 @@ build_files:
 pkg_hamlet:
 	set -x;
 	cd $(build_dir); \
-	if ! test -d $(build_date); then exit; fi; \
+	if test ! -d $(build_date); then exit; fi; \
 	cp rappture.hamlet $(build_date)/bin/rappture; \
 	cp demo.bash.hamlet $(build_date)/examples/demo.bash; \
 	echo -n "creating tarball for hamlet ...."; \
@@ -373,7 +373,7 @@ pkg_hamlet:
 
 install-hamlet:
 	set -x; 
-	if ! test -f $(build_dir)/$(Tarfile_linux).hamlet.tar.gz; then \
+	if test ! -f $(build_dir)/$(Tarfile_linux).ham.tar.gz; then \
 		$(MAKE) pkg_hamlet; \
 	fi; \
 	cd $(build_dir); \
@@ -387,7 +387,7 @@ install-hamlet:
 pkg_nanohub:
 	set -x; \
 	cd $(build_dir); \
-	if ! test -d $(build_date); then exit; fi; \
+	if test ! -d $(build_date); then exit; fi; \
 	cp rappture.nanohub $(build_date)/bin/rappture; \
 	cp demo.bash.nanohub $(build_date)/examples/demo.bash; \
 	tar czf $(Tarfile_linux).nanohub.tar.gz $(build_date); \
