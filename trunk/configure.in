@@ -1,0 +1,33 @@
+AC_INIT(NOTES)
+
+VERSION=0.0.1
+
+#------------------------------------------------------------------------
+# Handle the --prefix=... option
+#------------------------------------------------------------------------
+
+if test "${prefix}" = "NONE"; then
+    prefix=/usr/local
+fi
+if test "${exec_prefix}" = "NONE"; then
+    exec_prefix=$prefix
+fi
+
+# RR_SRC_DIR=`cd $srcdir/..; pwd`
+RR_SRC_DIR=`pwd`
+AC_SUBST(RR_SRC_DIR)
+
+dnl find and test the C compiler
+AC_PROG_CC
+AC_LANG_C
+
+# AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+
+AC_HEADER_STDC
+AC_CHECK_FUNC(atol,,AC_MSG_ERROR(oops! no atol ?!?))
+
+AC_SUBST(VERSION)
+
+dnl read Makefile.in and write Makefile
+AC_OUTPUT(Makefile)
