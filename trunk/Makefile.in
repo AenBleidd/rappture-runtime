@@ -177,6 +177,23 @@ python:
 #	fi
 
 #################################################
+perl:
+	echo "BUIDING perl-5.8.8..."
+	cd $(basedir)/perl-5.8.8; make clean; make distclean; \
+	chmod u+w lib/Cwd.pm; \
+	cp ext/Cwd/Cwd.pm.hack lib/Cwd.pm; \
+	if test "`uname`" == "Linux"; then \
+		export LDFLAGS="-Wl,-rpath $(Rappture)/lib"; \
+		./Configure -Dusethreads -Duselargefiles -Dprefix=$(Rappture) -des >& $(basedir)/output.perl 2>&1; \
+	else \
+		./configure -Dusethreads -Duselargefiles -Dprefix=$(Rappture) -des >& $(basedir)/output.perl 2>&1 ; \
+	fi; \
+	make >> $(basedir)/output.perl 2>&1; \
+	cp ext/Cwd/Cwd.pm.stock lib/Cwd.pm; \
+	chmod u-w lib/Cwd.pm; \
+	make install >> $(basedir)/output.perl 2>&1; 
+
+#################################################
 pyimg:
 	echo "BUIDING python Imaging"
 	cd $(basedir)/Imaging-1.1.5; \
