@@ -184,7 +184,7 @@ perl:
 	cp ext/Cwd/Cwd.pm.hack lib/Cwd.pm; \
 	if test "`uname`" == "Linux"; then \
 		export LDFLAGS="-Wl,-rpath $(Rappture)/lib"; \
-		./Configure -Dusethreads -Duselargefiles -Dprefix=$(Rappture) -des >& $(basedir)/output.perl 2>&1; \
+		./Configure -Dusethreads -Duselargefiles -Ud_attribute_unused -Dprefix=$(Rappture) -des >& $(basedir)/output.perl 2>&1; \
 	else \
 		./configure -Dusethreads -Duselargefiles -Dprefix=$(Rappture) -des >& $(basedir)/output.perl 2>&1 ; \
 	fi; \
@@ -288,6 +288,7 @@ rp_gui: rp_update
 install-rp: rp_gui
 	set -x
 	cd $(RP_SRC)/tcl; $(Rappture)/bin/tclsh install.tcl
+	cd $(RP_SRC)/perl; $(Rappture)/bin/perl Makefile.PL; make; make install
 	cd $(RP_SRC)/python; $(Rappture)/bin/python setup.py install
 	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin 
 	rm -rf $(Rappture)/include/cee $(Rappture)/include/core $(Rappture)/include/fortran
