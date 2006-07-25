@@ -2374,7 +2374,7 @@ typedef struct clone_params CLONE_PARAMS;
 #  if __GNUC__ >= 3 /* gcc 3.0 -> */
 #    define HASATTRIBUTE_PURE
 #  endif
-#  if __GNUC__ >= 3 /* gcc 3.0 -> */ /* XXX Verify this version */
+#  if __GNUC__ == 3 && __GNUC_MINOR__ >= 4 || __GNUC__ > 3 /* 3.4 -> */ /* XXX Verify this version */
 #    define HASATTRIBUTE_UNUSED
 #  endif
 #  if __GNUC__ == 3 && __GNUC_MINOR__ >= 4 || __GNUC__ > 3 /* 3.4 -> */
