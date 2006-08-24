@@ -54,7 +54,10 @@ ws: pyxml fpconst pysoap clientcookie
 
 rappture: install-rp rplib examples clean build_files pkg_nanohub pkg_hamlet
 
-install-all: install-hamlet  install-nanohub install-web
+rappture-basic: create_install_dir pkgs-simple rappture-simple
+pkgs-simple: tcl tk itcl tdom blt tkimg shape expat scew vtk
+
+install-all: install-hamlet install-nanohub install-web
 
 #################################################
 tcl:
@@ -285,16 +288,29 @@ rp_gui: rp_update
 	make all >& $(basedir)/output.gui 2>&1; \
 	make install >> $(basedir)/output.gui 2>&1
 
-install-rp: rp_gui
+install-rp: rp_gui rplib examples
 	set -x
 	cd $(RP_SRC)/tcl; $(Rappture)/bin/tclsh install.tcl
-	cd $(RP_SRC)/perl; $(Rappture)/bin/perl Makefile.PL; make; make install
-	cd $(RP_SRC)/python; $(Rappture)/bin/python setup.py install
-	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin 
+#	cd $(RP_SRC)/python; python setup.py install --prefix=$(Rappture)
+	chmod 755 $(RP_SRC)/gui/apps/rappture
+	cp $(RP_SRC)/gui/apps/rappture $(Rappture)/bin
+	cp $(RP_SRC)/gui/apps/driver $(Rappture)/bin
+	cp $(RP_SRC)/gui/apps/rerun $(Rappture)/bin
 	rm -rf $(Rappture)/include/cee $(Rappture)/include/core $(Rappture)/include/fortran
-	cp -r $(RP_SRC)/include/cee $(Rappture)/include
-	cp -r $(RP_SRC)/include/core $(Rappture)/include
-	cp -r $(RP_SRC)/include/fortran $(Rappture)/include
+	cp -r $(RP_SRC)/src/cee/*.h $(Rappture)/include
+	cp -r $(RP_SRC)/src/core/*.h $(Rappture)/include
+	cp -r $(RP_SRC)/src/fortran/*.h $(Rappture)/include
+
+rappture-simple: rp_update
+	set -x;			\
+	cd $(RP_SRC); 	\
+	./configure --prefix=$(Rappture) --with-matlab=/apps/matlab;	\
+	make install build_pkgs;
+
+create_install_dir:
+	if test ! -d $(Rappture); then \
+		mkdir -p $(Rappture); \
+	fi; \
 
 #############################################################################
 # build rappture libs - assuming "rappture" dir was checked out from 
@@ -304,11 +320,11 @@ install-rp: rp_gui
 # 	- install rappture libs in $(Rappture) dir 
 #############################################################################
 rplib:
-	set -x; \
-	cd $(RP_SRC)/src; \
-	make clean >& $(basedir)/output.rp 2>&1; \
-	make RP_INSTALL_BASE=$(Rappture) all >> $(basedir)/output.rp 2>&1; \
-	make RP_INSTALL_BASE=$(Rappture) install >> $(basedir)/output.rp 2>&1
+	set -x;
+	make clean;
+	cd $(RP_SRC); ./configure --prefix=$(Rappture) --with-matlab=/apps/matlab;
+	cd $(RP_SRC); make clean; make install >> $(basedir)/output.rp 2>&1;
+	cd -;
 
 #############################################################################
 # build rappture examples
@@ -318,23 +334,9 @@ rplib:
 #############################################################################
 examples:
 	set -x;
-	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make RAPPTURE_DIR=$(Rappture) >> $(basedir)/output.rp 2>& 1
-	cd $(RP_SRC)/examples/app-fermi/cee; make clean; make RP_BASE=$(Rappture) >> $(basedir)/output.rp 2>& 1
-	cd $(RP_SRC)/examples/c-example; make clean; make RP_BASE=$(Rappture) >> $(basedir)/output.rp 2>& 1
-	rm -rf $(Rappture)/examples
+	cd $(RP_SRC); make examples; cd -;
+	rm -rf $(Rappture)/examples;
 	cp -r $(RP_SRC)/examples $(Rappture)
-
-#############################################################################
-# additional libs, files:
-# #
-addons:
-	if test "`uname`" == "Linux"; then \
-		cp -d /usr/lib/libstdc++.so.5* $(Rappture)/lib; \
-		cp -d /usr/lib/libtiff.so.4* $(Rappture)/lib; \
-		cp -d /usr/lib/gcc-lib/i486-linux/3.3.5/libstdc++.a $(Rappture)/lib; \
-		cp -d /usr/lib/gcc-lib/i486-linux/3.3.5/libsupc++.a $(Rappture)/lib; \
-		cp -d /usr/lib/gcc-lib/i486-linux/3.3.5/libgcc_eh.a $(Rappture)/lib; \
-	fi
 
 #############################################################################
 # installation scripts
@@ -454,8 +456,11 @@ clean:
 	find $(Rappture) -name .svn | xargs rm -rf
 
 cleanall:
-	rm -rf $(Rappture)/*
+#	rm -rf $(Rappture)/*
 	rm -f output.*
 
 cleanbuild:
 	rm -rf $(build_dir)/*
+
+distclean: cleanall cleanbuild
+	rm -rf config.status config.log Makefile rappture
