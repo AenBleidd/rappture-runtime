@@ -29,5 +29,32 @@ AC_CHECK_FUNC(atol,,AC_MSG_ERROR(oops! no atol ?!?))
 
 AC_SUBST(VERSION)
 
+AC_ARG_WITH(matlab, [  --with-matlab[=DIR]         Build Matlab bindings if MEX compiler is found])
+dnl AC_CHECK_PROG(MEX, mex, mex, false)
+MEX=
+if test "$with_matlab" != "no" ; then
+    dnl WITH_MATLAB = "yes"
+    if test -x "$with_matlab/bin/mex"
+    then
+        echo Found matlab in $with_matlab/bin/mex
+        MEX="$with_matlab/bin/mex"
+        MATLAB_HOME="$with_matlab"
+    else
+        if test -x "$with_matlab"
+        then
+            echo Found mex in $with_matlab
+            MEX="$with_matlab"
+            MATLAB_HOME="$with_matlab"
+        else
+            AC_PATH_PROG(MEX, mex)
+            AC_PATH_PROG(MATLAB_HOME, mex)
+        fi
+    fi
+fi
+dnl AM_CONDITIONAL(WITH_MATLAB, test x$MEX != x)
+
+AC_SUBST(MEX)
+AC_SUBST(MATLAB_HOME)
+
 dnl read Makefile.in and write Makefile
 AC_OUTPUT(Makefile)
