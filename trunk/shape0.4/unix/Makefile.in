@@ -4,7 +4,7 @@
 #
 # SCCS: @(#) Makefile.in 1.5 97/08/14 19:01:21
 
-SOFILE		= libshape04.so.1.0
+SOFILE		= libshape04@SHLIB_SUFFIX@
 EXEFILE		= shapewish
 UNIX_OBJS	= shapeUnixImpl.o shapeUnixText.o
 GENERIC_OBJS	= shape.o
@@ -73,7 +73,7 @@ shapeUnixText.o: $(UNIX_DIR)/shapeUnixText.c
 	$(CC) -c $(CC_SWITCHES) $(UNIX_DIR)/shapeUnixText.c
 # ----------------------------------------------------------------------
 $(SOFILE): $(OBJS)
-	${SHLIB_LD} -o $@ $^ @SHLIB_LD_LIBS@
+	${SHLIB_LD} -o $@ $^ @SHLIB_LD_LIBS@ ${TK_LIBS}
 $(EXEFILE): $(OBJS) tkAppInit.o
 	$(CC) -o $@ $^ @SHLIB_LD_LIBS@ ${TK_LIB_SPEC} ${TCL_LIB_SPEC} ${TK_LIBS}
 # ----------------------------------------------------------------------
