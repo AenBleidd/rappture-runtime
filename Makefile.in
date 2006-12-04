@@ -82,12 +82,6 @@ itcl:
 	echo "BUIDING itcl3.2.1...." 
 	cd $(basedir)/itcl3.2.1; make clean; make distclean; \
 	./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tk=$(Rappture)/lib >& $(basedir)/output.itk 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.itcl.mac itcl/Makefile; \
-		cp $(basedir)/Mac/Makefile.itk.mac itk/Makefile; \
-		cp $(basedir)/Mac/pkgIndex.tcl.itcl.itk itk/pkgIndex.tcl; \
-		cp $(basedir)/Mac/pkgIndex.tcl.itcl.itcl itcl/pkgIndex.tcl; \
-	fi; \
 	make all  >> $(basedir)/output.itk 2>& 1; \
 	make install >> $(basedir)/output.itk 2>& 1
 
@@ -96,9 +90,6 @@ tdom:
 	echo "BUIDING tdom-0.8.0..."
 	cd $(basedir)/tDOM-0.8.0/unix; make clean; make distclean; \
 	../configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tk=$(Rappture)/lib >& $(basedir)/output.tdom 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.tdom.mac Makefile; \
-	fi; \
 	make >> $(basedir)/output.tdom 2>&1; \
 	make install >> $(basedir)/output.tdom 2>&1
 
@@ -107,11 +98,6 @@ blt:
 	echo "BUIDING blt2.4z..."
 	cd $(basedir)/blt2.4z; make clean; make distclean; \
 	./configure --enable-shared --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tcllibs=$(Rappture)/lib --with-tclincls=$(Rappture)/include --with-tk=$(Rappture)/lib --with-tklibs=$(Rappture)/lib --with-tkincls=$(Rappture)/include --x-includes=/usr/X11R6/include/X11 >& $(basedir)/output.blt 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.blt.mac Makefile; \
-		cp $(basedir)/Mac/Makefile.blt.src.mac src/Makefile; \
-		cp $(basedir)/Mac/Makefile.blt.src.shared.mac src/shared/Makefile;\
-	fi; \
 	make >> $(basedir)/output.blt 2>&1; \
 	make install >> $(basedir)/output.blt 2>&1
 
@@ -120,38 +106,14 @@ tkimg:
 	echo "BUIDING tkimg1.3 ... ..."
 	cd $(basedir)/tkimg1.3; make clean; make distclean; \
 	./configure --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.tkimg 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.tkimg.libz.tcl.mac libz/tcl/Makefile ; \
-		cp $(basedir)/Mac/Makefile.tkimg.libpng.tcl.mac libpng/tcl/Makefile; \
-		cp $(basedir)/Mac/Makefile.tkimg.libjpeg.tcl.mac libjpeg/tcl/Makefile; \
-		cp $(basedir)/Mac/Makefile.tkimg.libtiff.tcl.mac libtiff/tcl/Makefile; \
-		cp $(basedir)/Mac/Makefile.tkimg.jpeg.mac jpeg/Makefile; \
-		cp $(basedir)/Mac/Makefile.tkimg.tiff.mac tiff/Makefile; \
-		cp $(basedir)/Mac/Makefile.tkimg.base.mac base/Makefile; \
-	fi;\
 	make >> $(basedir)/output.tkimg 2>&1; \
 	make install >> $(basedir)/output.tkimg 2>&1
 
 #################################################
 shape:
-	echo "BUIDING Shape0.4 ... ..."
+	echo "BUIDING Shape0.4 ......"
 	cd $(basedir)/shape0.4/unix; make clean; make distclean; \
 	./configure --disable-threads --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.shape 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.shape04.mac Makefile; \
-	fi; \
-	make >> $(basedir)/output.shape 2>&1; \
-	make install >> $(basedir)/output.shape 2>&1
-
-shape-old:
-	echo "BUIDING Shape0.4 ... ..."
-	cd $(basedir)/shape0.4/unix; make clean; make distclean; \
-	./configure --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.shape 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.shape04.mac Makefile; \
-	else \
-		cp $(basedir)/other/Makefile.shape04 Makefile; \
-	fi; \
 	make >> $(basedir)/output.shape 2>&1; \
 	make install >> $(basedir)/output.shape 2>&1
 
