@@ -177,10 +177,10 @@ create_install_dir:
 #############################################################################
 rplib:
 	set -x;
-	make clean;
-	cd $(RP_SRC); ./configure --prefix=$(Rappture) --with-matlab=/apps/matlab;
-	cd $(RP_SRC); make clean; make install >> $(basedir)/output.rp 2>&1;
-	cd -;
+	cd $(RP_SRC); \
+	make clean; \
+	./configure --prefix=$(Rappture) --with-matlab=/apps/matlab; \
+	make install >> $(basedir)/output.rp 2>&1;
 
 #############################################################################
 # build rappture examples
