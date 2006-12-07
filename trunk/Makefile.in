@@ -143,8 +143,13 @@ vtk:
 #############################################################################
 # install-rp:
 # 	- check out rappture from repository if not already in $(basedir)
+# 	- clean up old compiled libraries
+# 	- compile new core and bindings libraries
 # 	- install rappture for TCL
 # 	- install rappture for Python
+# 	- install rappture for Perl
+# 	- install rappture for Matlab
+# 	- install rappture for Octave
 # 	- install rappture apps (driver, rappture, rerun) in $(Rappture) dir
 #############################################################################
 
@@ -158,9 +163,10 @@ rp_update:
 	fi
 
 rappture-simple: rp_update
-	set -x;			\
-	cd $(RP_SRC); 	\
-	./configure --prefix=$(Rappture) --with-matlab=@MATLAB_HOME@;	\
+	set -x; \
+	cd $(RP_SRC); \
+	make clean; \
+	./configure --prefix=$(Rappture) --with-matlab=@MATLAB_HOME@; \
 	make install build_pkgs;
 
 create_install_dir:
@@ -177,10 +183,10 @@ create_install_dir:
 #############################################################################
 rplib:
 	set -x;
-	cd $(RP_SRC); \
-	make clean; \
-	./configure --prefix=$(Rappture) --with-matlab=/apps/matlab; \
-	make install >> $(basedir)/output.rp 2>&1;
+	make clean;
+	cd $(RP_SRC); ./configure --prefix=$(Rappture) --with-matlab=/apps/matlab;
+	cd $(RP_SRC); make clean; make install >> $(basedir)/output.rp 2>&1;
+	cd -;
 
 #############################################################################
 # build rappture examples
