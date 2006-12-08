@@ -4,7 +4,7 @@
 #
 # SCCS: @(#) Makefile.in 1.5 97/08/14 19:01:21
 
-SOFILE		= libshape04@SHLIB_SUFFIX@
+SOFILE		= libshape04.so.1.0
 EXEFILE		= shapewish
 UNIX_OBJS	= shapeUnixImpl.o shapeUnixText.o
 GENERIC_OBJS	= shape.o
