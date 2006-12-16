@@ -154,7 +154,10 @@ MAKE_SHARED_LIB	= @MAKE_SHARED_LIB@
 MAKE_STATIC_LIB	= @MAKE_STATIC_LIB@
 MAKE_STUB_LIB	= @MAKE_STUB_LIB@
 OBJEXT		= @OBJEXT@
-RANLIB		= @RANLIB@
+#RANLIB		= @RANLIB@
+# changed by dsk on 12/14/2006 because macs seem 
+# to have problems finding ranlib.
+RANLIB		= ../../files/ranlib.sh
 SHLIB_CFLAGS	= @SHLIB_CFLAGS@
 SHLIB_LD	= @SHLIB_LD@
 SHLIB_LDFLAGS	= @SHLIB_LDFLAGS@
