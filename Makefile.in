@@ -166,7 +166,7 @@ rappture-simple: rp_update
 	set -x; \
 	cd $(RP_SRC); \
 	make clean; \
-	./configure --prefix=$(Rappture) --with-matlab=@MATLAB_HOME@; \
+	./configure --prefix=$(Rappture) --with-matlab=@MATLAB_HOME@ @MEX_ARCH@; \
 	make install build_pkgs;
 
 create_install_dir:
