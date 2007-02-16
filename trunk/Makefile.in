@@ -49,7 +49,7 @@ pkgs: tcl tk itcl tdom blt tkimg shape expat scew vtk
 rappture: install-rp rplib examples clean build_files pkg_nanohub pkg_hamlet
 
 rappture-basic: create_install_dir pkgs-simple rappture-simple
-pkgs-simple: tcl tk itcl tdom blt tkimg shape expat scew vtk
+pkgs-simple: tcl tk itcl tdom blt tkimg shape expat scew vtk zlib libb64
 
 install-all: install-hamlet install-nanohub install-web
 
@@ -139,6 +139,24 @@ scew:
 #############################################################################
 vtk:
 	cd $(basedir)/vtk.bin; make RAPPTURE=$(Rappture) >& $(basedir)/output.vtk 2>&1
+
+#################################################
+zlib:
+	echo "BUIDING zlib-1.2.3 ......."
+	cd $(basedir)/zlib-1.2.3; make clean; make distclean; \
+	./configure --shared --prefix=$(Rappture) >& $(basedir)/output.zlib 2>&1 ; \
+	make >> $(basedir)/output.zlib 2>&1; \
+	make install >> $(basedir)/output.zlib 2>&1
+
+#################################################
+libb64:
+	echo "BUIDING libb64 ......."
+	cd $(basedir)/libb64-1.1; make distclean; \
+	make libb64 >> $(basedir)/output.libb64 2>&1; \
+	cp src/libb64.a $(Rappture)/lib/.; \
+	cp src/libb64.so.0.0 $(Rappture)/lib/.; \
+	cp -r include/b64 $(Rappture)/include/.; \
+	cd $(Rappture)/lib; ln -s libb64.so.0.0 libb64.so;
 
 #############################################################################
 # install-rp:
