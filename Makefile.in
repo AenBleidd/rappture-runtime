@@ -146,7 +146,7 @@ zlib:
 	cd $(basedir)/zlib-1.2.3; make clean; make distclean; \
 	./configure --shared --prefix=$(Rappture) >& $(basedir)/output.zlib 2>&1 ; \
 	make >> $(basedir)/output.zlib 2>&1; \
-	make install >> $(basedir)/output.zlib 2>&1
+	make install >> $(basedir)/output.zlib 2>&1\
 	./configure --prefix=$(Rappture) >& $(basedir)/output.zlib 2>&1 ; \
 	make >> $(basedir)/output.zlib 2>&1; \
 	make install >> $(basedir)/output.zlib 2>&1
