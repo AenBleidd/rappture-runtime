@@ -18,7 +18,6 @@
 basedir=/home/mmc/nanohub/rappture-runtime
 Rappture=/apps/rappture/20070410
 RP_SRC=$(basedir)/rappture
-SHELL=/bin/bash
 
 
 #definitions for installation on various systems
@@ -113,7 +112,7 @@ tkimg:
 #################################################
 htmlwidget:
 	echo "BUIDING htmlwidget..."
-	cd $(basedir)/htmlwidget; make clean; make distclean; \
+	cd $(basedir)/htmlwidget-3a14; make clean; make distclean; \
 	./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tk=$(Rappture)/lib >& $(basedir)/output.htmlwidget 2>&1; \
 	make >> $(basedir)/output.htmlwidget 2>&1; \
 	make install >> $(basedir)/output.htmlwidget 2>&1
