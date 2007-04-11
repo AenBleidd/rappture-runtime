@@ -1,0 +1,113 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.5.4	//
+GC_FREE	hv3see.c	171;"	d	file:
+GC_MALLOC_UNCOLLECTABLE	hv3see.c	170;"	d	file:
+Hv3GlobalEnum	hv3see.c	/^struct Hv3GlobalEnum {$/;"	s	file:
+Hv3GlobalEnum	hv3see.c	/^typedef struct Hv3GlobalEnum Hv3GlobalEnum;$/;"	t	file:
+Hv3GlobalEnumVtbl	hv3see.c	/^static struct SEE_enumclass Hv3GlobalEnumVtbl = {$/;"	v	file:
+Hv3GlobalEnum_Next	hv3see.c	/^Hv3GlobalEnum_Next(pSeeInterp, pEnum, pFlags)$/;"	f	file:
+Hv3GlobalObject	hv3see.c	/^struct Hv3GlobalObject {$/;"	s	file:
+Hv3GlobalObject	hv3see.c	/^typedef struct Hv3GlobalObject Hv3GlobalObject;$/;"	t	file:
+Hv3GlobalObjectVtbl	hv3see.c	/^static struct SEE_objectclass Hv3GlobalObjectVtbl = {$/;"	v	file:
+Hv3Global_CanPut	hv3see.c	/^Hv3Global_CanPut(pInterp, pObj, pProp)$/;"	f	file:
+Hv3Global_DefaultValue	hv3see.c	/^Hv3Global_DefaultValue(pInterp, pObj, pHint, pRes)$/;"	f	file:
+Hv3Global_Delete	hv3see.c	/^Hv3Global_Delete(pInterp, pObj, pProp)$/;"	f	file:
+Hv3Global_Enumerator	hv3see.c	/^Hv3Global_Enumerator(pInterp, pObj)$/;"	f	file:
+Hv3Global_Get	hv3see.c	/^Hv3Global_Get(pInterp, pObj, pProp, pRes)$/;"	f	file:
+Hv3Global_HasProperty	hv3see.c	/^Hv3Global_HasProperty(pInterp, pObj, pProp)$/;"	f	file:
+Hv3Global_Put	hv3see.c	/^Hv3Global_Put(pInterp, pObj, pProp, pVal, flags)$/;"	f	file:
+IGNORE_NEWLINE	hv3see.c	2060;"	d	file:
+IGNORE_NONE	hv3see.c	2058;"	d	file:
+IGNORE_SPACE	hv3see.c	2059;"	d	file:
+JSTOKEN_CLOSE_BRACE	hv3see.c	1922;"	d	file:
+JSTOKEN_CLOSE_BRACKET	hv3see.c	1920;"	d	file:
+JSTOKEN_NEWLINE	hv3see.c	1924;"	d	file:
+JSTOKEN_OPEN_BRACE	hv3see.c	1921;"	d	file:
+JSTOKEN_OPEN_BRACKET	hv3see.c	1919;"	d	file:
+JSTOKEN_PUNC	hv3see.c	1928;"	d	file:
+JSTOKEN_SEMICOLON	hv3see.c	1923;"	d	file:
+JSTOKEN_SPACE	hv3see.c	1925;"	d	file:
+JSTOKEN_WORD	hv3see.c	1927;"	d	file:
+MAX	hv3see.c	180;"	d	file:
+MIN	hv3see.c	181;"	d	file:
+OBJECT_HASH_SIZE	hv3see.c	187;"	d	file:
+SEE_scope	hv3see.c	/^struct SEE_scope {$/;"	s	file:
+SeeInterp	hv3see.c	/^struct SeeInterp {$/;"	s	file:
+SeeInterp	hv3see.c	/^typedef struct SeeInterp SeeInterp;$/;"	t	file:
+SeeJsObject	hv3see.c	/^struct SeeJsObject {$/;"	s	file:
+SeeJsObject	hv3see.c	/^typedef struct SeeJsObject SeeJsObject;$/;"	t	file:
+SeeTclEnum	hv3see.c	/^struct SeeTclEnum {$/;"	s	file:
+SeeTclEnum	hv3see.c	/^typedef struct SeeTclEnum SeeTclEnum;$/;"	t	file:
+SeeTclEnumVtbl	hv3see.c	/^static struct SEE_enumclass SeeTclEnumVtbl = {$/;"	v	file:
+SeeTclEnum_Next	hv3see.c	/^SeeTclEnum_Next(pSeeInterp, pEnum, pFlags)$/;"	f	file:
+SeeTclObject	hv3see.c	/^struct SeeTclObject {$/;"	s	file:
+SeeTclObject	hv3see.c	/^typedef struct SeeTclObject SeeTclObject;$/;"	t	file:
+SeeTclObjectVtbl	hv3see.c	/^static struct SEE_objectclass SeeTclObjectVtbl = {$/;"	v	file:
+SeeTcl_Call	hv3see.c	/^SeeTcl_Call(pInterp, pObj, pThis, argc, argv, pRes)$/;"	f	file:
+SeeTcl_CanPut	hv3see.c	/^SeeTcl_CanPut(pInterp, pObj, pProp)$/;"	f	file:
+SeeTcl_Construct	hv3see.c	/^SeeTcl_Construct(pInterp, pObj, pThis, argc, argv, pRes)$/;"	f	file:
+SeeTcl_DefaultValue	hv3see.c	/^SeeTcl_DefaultValue(pInterp, pObj, pHint, pRes)$/;"	f	file:
+SeeTcl_Delete	hv3see.c	/^SeeTcl_Delete(pInterp, pObj, pProp)$/;"	f	file:
+SeeTcl_Enumerator	hv3see.c	/^SeeTcl_Enumerator(pInterp, pObj)$/;"	f	file:
+SeeTcl_Get	hv3see.c	/^SeeTcl_Get(pInterp, pObj, pProp, pRes)$/;"	f	file:
+SeeTcl_GetSecDomain	hv3see.c	/^SeeTcl_GetSecDomain(pInterp, pObj)$/;"	f	file:
+SeeTcl_HasInstance	hv3see.c	/^SeeTcl_HasInstance(pInterp, pObj, pInstance)$/;"	f	file:
+SeeTcl_HasProperty	hv3see.c	/^SeeTcl_HasProperty(pInterp, pObj, pProp)$/;"	f	file:
+SeeTcl_Put	hv3see.c	/^SeeTcl_Put(pInterp, pObj, pProp, pVal, flags)$/;"	f	file:
+Tclsee_Init	hv3see.c	/^Tclsee_Init(interp)$/;"	f
+aJsObject	hv3see.c	/^    SeeJsObject *aJsObject[OBJECT_HASH_SIZE];$/;"	m	struct:SeeInterp	file:
+aString	hv3see.c	/^  struct SEE_string **aString;$/;"	m	struct:SeeTclEnum	file:
+aTclObject	hv3see.c	/^    SeeTclObject *aTclObject[OBJECT_HASH_SIZE];$/;"	m	struct:SeeInterp	file:
+argValueToTcl	hv3see.c	/^argValueToTcl(pTclSeeInterp, pValue)$/;"	f	file:
+base	hv3see.c	/^    struct SEE_enum base;$/;"	m	struct:Hv3GlobalEnum	file:
+base	hv3see.c	/^  struct SEE_enum base;$/;"	m	struct:SeeTclEnum	file:
+createObjectRef	hv3see.c	/^createObjectRef(pTclSeeInterp, pObject, isTransient)$/;"	f	file:
+delInterpCmd	hv3see.c	/^delInterpCmd(clientData)$/;"	f	file:
+finalizeSeeTclObject	hv3see.c	/^finalizeSeeTclObject(pSeeInterp, p, closure)$/;"	f	file:
+findOrCreateObject	hv3see.c	/^findOrCreateObject(pTclSeeInterp, pTclCommand)$/;"	f	file:
+getVtbl	hv3see.c	/^static struct SEE_objectclass *getVtbl() {$/;"	f	file:
+handleJavascriptError	hv3see.c	/^handleJavascriptError(pTclSeeInterp, pTry)$/;"	f	file:
+hashCommand	hv3see.c	/^hashCommand(zCommand)$/;"	f	file:
+hashInteger	hv3see.c	/^hashInteger(iValue)$/;"	f	file:
+hv3GlobalPick	hv3see.c	/^hv3GlobalPick(pInterp, pObj, pProp)$/;"	f	file:
+iCurrent	hv3see.c	/^  int iCurrent;$/;"	m	struct:SeeTclEnum	file:
+iKey	hv3see.c	/^    int iKey;$/;"	m	struct:SeeJsObject	file:
+iNextKey	hv3see.c	/^    int iNextKey;$/;"	m	struct:SeeInterp	file:
+iSeeInterp	hv3see.c	/^static int iSeeInterp = 0;$/;"	v	file:
+installHv3Global	hv3see.c	/^installHv3Global(pTclSeeInterp, pWindow)$/;"	f	file:
+interp	hv3see.c	/^    struct SEE_interpreter interp;$/;"	m	struct:SeeInterp	file:
+interpCmd	hv3see.c	/^interpCmd(clientData, pTclInterp, objc, objv)$/;"	f	file:
+interpEvalThis	hv3see.c	/^interpEvalThis(pTclSeeInterp, pTclThis, pCode)$/;"	f	file:
+jsToken	hv3see.c	/^jsToken(zCode, ePrevToken, peToken)$/;"	f	file:
+lookupObjectRef	hv3see.c	/^lookupObjectRef(pTclSeeInterp, iKey)$/;"	f	file:
+nString	hv3see.c	/^  int nString;$/;"	m	struct:SeeTclEnum	file:
+next	hv3see.c	/^  struct SEE_scope *next;$/;"	m	struct:SEE_scope	file:
+obj	hv3see.c	/^  struct SEE_object *obj;$/;"	m	struct:SEE_scope	file:
+objToValue	hv3see.c	/^objToValue(pInterp, pObj, pValue)$/;"	f	file:
+object	hv3see.c	/^    struct SEE_object object;$/;"	m	struct:Hv3GlobalObject	file:
+object	hv3see.c	/^    struct SEE_object object;$/;"	m	struct:SeeTclObject	file:
+objectCmd	hv3see.c	/^objectCmd(pTclSeeInterp, p, objc, objv, apGet)$/;"	f	file:
+pGlobal	hv3see.c	/^    struct SEE_object *pGlobal;$/;"	m	struct:Hv3GlobalObject	file:
+pGlobalEnum	hv3see.c	/^    struct SEE_enum *pGlobalEnum;$/;"	m	struct:Hv3GlobalEnum	file:
+pNext	hv3see.c	/^    SeeJsObject *pNext;$/;"	m	struct:SeeJsObject	file:
+pNext	hv3see.c	/^    SeeTclObject *pNext;$/;"	m	struct:SeeTclObject	file:
+pNextTransient	hv3see.c	/^    SeeJsObject *pNextTransient;$/;"	m	struct:SeeJsObject	file:
+pObj	hv3see.c	/^    Tcl_Obj *pObj;$/;"	m	struct:SeeTclObject	file:
+pObject	hv3see.c	/^    struct SEE_object *pObject;$/;"	m	struct:SeeJsObject	file:
+pTclInterp	hv3see.c	/^    Tcl_Interp *pTclInterp;$/;"	m	struct:SeeInterp	file:
+pTclSeeInterp	hv3see.c	/^    SeeInterp *pTclSeeInterp;$/;"	m	struct:SeeTclObject	file:
+pTransient	hv3see.c	/^    SeeJsObject *pTransient;$/;"	m	struct:SeeInterp	file:
+pWindow	hv3see.c	/^    struct SEE_object *pWindow;$/;"	m	struct:Hv3GlobalObject	file:
+pWindowEnum	hv3see.c	/^    struct SEE_enum *pWindowEnum;$/;"	m	struct:Hv3GlobalEnum	file:
+primitiveValueToTcl	hv3see.c	/^primitiveValueToTcl(pTclSeeInterp, pValue)$/;"	f	file:
+removeObjectRef	hv3see.c	/^removeObjectRef(pTclSeeInterp, iKey)$/;"	f	file:
+removeTransientRefs	hv3see.c	/^removeTransientRefs(pTclSeeInterp)$/;"	f	file:
+tclCallOrConstruct	hv3see.c	/^tclCallOrConstruct(pMethod, pInterp, pObj, pThis, argc, argv, pRes)$/;"	f	file:
+tclEnumerator	hv3see.c	/^tclEnumerator(pInterp, pObj)$/;"	f	file:
+tclSeeFormat	hv3see.c	/^tclSeeFormat(clientData, interp, objc, objv)$/;"	f	file:
+tclSeeInterp	hv3see.c	/^tclSeeInterp(clientData, interp, objc, objv)$/;"	f	file:
+zGlobal	hv3see.c	/^    char *zGlobal;$/;"	m	struct:SeeInterp	file:

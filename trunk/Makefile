@@ -2,15 +2,11 @@
 # Makefile - build and install all packages required by Rappture runtime
 # 
 # To build everything, type:
-# 	make all
+# 	./configure --prefix=/apps/rappture/20060907
+# 	make rappture-basic
 # 	
 # To build individual package, tcl, for example:
 # 	make tcl
-#
-# Modify the first two lines below this block of comments.
-#
-# - change $basedir to point to your directory that contains this Makefile.
-#   	The default is /opt/rappture-runtime.
 #
 # To install rappture runtime on all systems:
 # 	make mydate=20060111 install-all
@@ -19,13 +15,14 @@
 # 	make mydate=20060111 install-nanohub
 #
 #############################################################################
-basedir=/home/cxsong/rappture-runtime
-Rappture=$(basedir)/tmp
+basedir=/home/mmc/nanohub/rappture-runtime
+Rappture=/apps/rappture/20070410
 RP_SRC=$(basedir)/rappture
-#CPP=/usr/bin/cpp
-#
+SHELL=/bin/bash
+
+
 #definitions for installation on various systems
-#
+
 build_dir=$(basedir)/build
 
 ifndef mydate
@@ -48,19 +45,20 @@ Tarfile_mac=rappture-macosx-$(build_date)
 
 all: pkgs ws rappture
 
-pkgs: tcl tk itcl tdom blt tkimg shape python pyimg pynum expat scew vtk
-
-ws: pyxml fpconst pysoap clientcookie
+pkgs: tcl tk itcl tdom blt tkimg htmlwidget shape expat scew tls tcllib vtk
 
 rappture: install-rp rplib examples clean build_files pkg_nanohub pkg_hamlet
 
-install-all: install-hamlet  install-nanohub install-web
+rappture-basic: create_install_dir pkgs-simple rappture-simple
+pkgs-simple: tcl tk itcl tdom blt tkimg htmlwidget shape expat scew tls tcllib vtk zlib libb64
+
+install-all: install-hamlet install-nanohub install-web
 
 #################################################
 tcl:
 	echo "BUIDING TCL8.4.11...." 
 	cd $(basedir)/tcl8.4.11/unix; make clean; make distclean; \
-	./configure --enable-shared --disable-threads --prefix=$(Rappture) >& $(basedir)/output.tcl; \
+	./configure --enable-shared --disable-threads --with-readline --prefix=$(Rappture) >& $(basedir)/output.tcl; \
 	make >> $(basedir)/output.tcl 2>&1; \
 	make install >> $(basedir)/output.tcl 2>&1;
 	cd $(Rappture)/bin; rm -f tclsh; ln -s tclsh8.4 tclsh;
@@ -85,12 +83,6 @@ itcl:
 	echo "BUIDING itcl3.2.1...." 
 	cd $(basedir)/itcl3.2.1; make clean; make distclean; \
 	./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tk=$(Rappture)/lib >& $(basedir)/output.itk 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.itcl.mac itcl/Makefile; \
-		cp $(basedir)/Mac/Makefile.itk.mac itk/Makefile; \
-		cp $(basedir)/Mac/pkgIndex.tcl.itcl.itk itk/pkgIndex.tcl; \
-		cp $(basedir)/Mac/pkgIndex.tcl.itcl.itcl itcl/pkgIndex.tcl; \
-	fi; \
 	make all  >> $(basedir)/output.itk 2>& 1; \
 	make install >> $(basedir)/output.itk 2>& 1
 
@@ -99,9 +91,6 @@ tdom:
 	echo "BUIDING tdom-0.8.0..."
 	cd $(basedir)/tDOM-0.8.0/unix; make clean; make distclean; \
 	../configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tk=$(Rappture)/lib >& $(basedir)/output.tdom 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.tdom.mac Makefile; \
-	fi; \
 	make >> $(basedir)/output.tdom 2>&1; \
 	make install >> $(basedir)/output.tdom 2>&1
 
@@ -110,11 +99,6 @@ blt:
 	echo "BUIDING blt2.4z..."
 	cd $(basedir)/blt2.4z; make clean; make distclean; \
 	./configure --enable-shared --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tcllibs=$(Rappture)/lib --with-tclincls=$(Rappture)/include --with-tk=$(Rappture)/lib --with-tklibs=$(Rappture)/lib --with-tkincls=$(Rappture)/include --x-includes=/usr/X11R6/include/X11 >& $(basedir)/output.blt 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.blt.mac Makefile; \
-		cp $(basedir)/Mac/Makefile.blt.src.mac src/Makefile; \
-		cp $(basedir)/Mac/Makefile.blt.src.shared.mac src/shared/Makefile;\
-	fi; \
 	make >> $(basedir)/output.blt 2>&1; \
 	make install >> $(basedir)/output.blt 2>&1
 
@@ -123,97 +107,24 @@ tkimg:
 	echo "BUIDING tkimg1.3 ... ..."
 	cd $(basedir)/tkimg1.3; make clean; make distclean; \
 	./configure --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.tkimg 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.tkimg.libz.tcl.mac libz/tcl/Makefile ; \
-		cp $(basedir)/Mac/Makefile.tkimg.libpng.tcl.mac libpng/tcl/Makefile; \
-		cp $(basedir)/Mac/Makefile.tkimg.libjpeg.tcl.mac libjpeg/tcl/Makefile; \
-		cp $(basedir)/Mac/Makefile.tkimg.libtiff.tcl.mac libtiff/tcl/Makefile; \
-		cp $(basedir)/Mac/Makefile.tkimg.jpeg.mac jpeg/Makefile; \
-		cp $(basedir)/Mac/Makefile.tkimg.tiff.mac tiff/Makefile; \
-		cp $(basedir)/Mac/Makefile.tkimg.base.mac base/Makefile; \
-	fi;\
 	make >> $(basedir)/output.tkimg 2>&1; \
 	make install >> $(basedir)/output.tkimg 2>&1
 
 #################################################
+htmlwidget:
+	echo "BUIDING htmlwidget..."
+	cd $(basedir)/htmlwidget; make clean; make distclean; \
+	./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tk=$(Rappture)/lib >& $(basedir)/output.htmlwidget 2>&1; \
+	make >> $(basedir)/output.htmlwidget 2>&1; \
+	make install >> $(basedir)/output.htmlwidget 2>&1
+
+#################################################
 shape:
-	echo "BUIDING Shape0.4 ... ..."
+	echo "BUIDING Shape0.4 ......"
 	cd $(basedir)/shape0.4/unix; make clean; make distclean; \
 	./configure --disable-threads --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.shape 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.shape04.mac Makefile; \
-	fi; \
 	make >> $(basedir)/output.shape 2>&1; \
 	make install >> $(basedir)/output.shape 2>&1
-
-shape-old:
-	echo "BUIDING Shape0.4 ... ..."
-	cd $(basedir)/shape0.4/unix; make clean; make distclean; \
-	./configure --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib >& $(basedir)/output.shape 2>&1; \
-	if test "`uname`" == "Darwin"; then \
-		cp $(basedir)/Mac/Makefile.shape04.mac Makefile; \
-	else \
-		cp $(basedir)/other/Makefile.shape04 Makefile; \
-	fi; \
-	make >> $(basedir)/output.shape 2>&1; \
-	make install >> $(basedir)/output.shape 2>&1
-
-#################################################
-python:
-	echo "BUIDING python2.4.1..."
-	cd $(basedir)/Python-2.4.1; make clean; make distclean; \
-	if test "`uname`" == "Linux"; then \
-		export LDFLAGS="-Wl,-rpath $(Rappture)/lib"; \
-		./configure --enable-shared --prefix=$(Rappture) >& $(basedir)/output.py 2>&1; \
-	else \
-		./configure --enable-shared --disable-threads --prefix=$(Rappture) >& $(basedir)/output.py 2>&1 ; \
-		cp $(basedir)/Mac/Makefile.py.mac Makefile ; \
-	fi; \
-	make >> $(basedir)/output.py 2>&1; \
-	make install >> $(basedir)/output.py 2>&1; 
-#	if test "`uname`" == "Darwin"; then \
-#	cp libpython2.4.a $(Rappture)/lib; \
-#	cp $(basedir)/Mac/libpython2.4.dylib $(Rappture)/lib; \
-#	fi
-
-#################################################
-perl:
-	echo "BUIDING perl-5.8.8..."
-	cd $(basedir)/perl-5.8.8; make clean; make distclean; \
-	chmod u+w lib/Cwd.pm; \
-	cp ext/Cwd/Cwd.pm.hack lib/Cwd.pm; \
-	if test "`uname`" == "Linux"; then \
-		export LDFLAGS="-Wl,-rpath $(Rappture)/lib"; \
-		./Configure -Dusethreads -Duselargefiles -Dprefix=$(Rappture) -des >& $(basedir)/output.perl 2>&1; \
-	else \
-		./Configure -Duselargefiles -Dprefix=$(Rappture) -des >& $(basedir)/output.perl 2>&1; \
-	fi; \
-	make >> $(basedir)/output.perl 2>&1; \
-	cp ext/Cwd/Cwd.pm.stock lib/Cwd.pm; \
-	chmod u-w lib/Cwd.pm; \
-	make install >> $(basedir)/output.perl 2>&1;
-
-#################################################
-pyimg:
-	echo "BUIDING python Imaging"
-	cd $(basedir)/Imaging-1.1.5; \
-	rm -rf build; \
-	$(PYTHON) setup.py install --prefix=$(Rappture) >& $(basedir)/output.pyimg 2>&1
-
-#################################################
-pynum:
-	echo "BUIDING python Numeric 24.2"
-	cd $(basedir)/Numeric-24.2; \
-	/bin/sh makeclean.sh; \
-	$(PYTHON) setup.py build >& $(basedir)/output.num 2>&1; \
-	$(PYTHON) setup.py install --prefix=$(Rappture) >> $(basedir)/output.num 2>&1
-
-#################################################
-# TODO
-scipy:
-	echo "BUIDING SciPy 0.3.2"
-	cd $(basedir)/SciPy_complete-0.3.2; \
-	$(PYTHON) setup.py build >& $(basedir)/output.sci 2>&1
 
 #################################################
 expat:
@@ -232,38 +143,59 @@ scew:
 	make LIB_HOME=$(Rappture)/lib INCL_HOME=$(Rappture)/include >& $(basedir)/output.scew 2>&1; \
 	make LIB_HOME=$(Rappture)/lib INCL_HOME=$(Rappture)/include install >> $(basedir)/output.scew 2>&1
 
+#################################################
+tls:
+	echo "BUIDING tls1.5..."
+	cd $(basedir)/tls1.5; make clean; make distclean; \
+	./configure --enable-shared --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-ssl-dir=/usr >& $(basedir)/output.tls 2>&1; \
+	make >> $(basedir)/output.tls 2>&1; \
+	make install >> $(basedir)/output.tls 2>&1
+
+#################################################
+tcllib:
+	echo "BUIDING tcllib-1.6.1..."
+	cd $(basedir)/tcllib-1.6.1; make clean; make distclean; \
+	./configure --enable-shared --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tcllibs=$(Rappture)/lib --with-tclincls=$(Rappture)/include >& $(basedir)/output.tcllib 2>&1; \
+	make >> $(basedir)/output.tcllib 2>&1; \
+	make install >> $(basedir)/output.tcllib 2>&1
+
 #############################################################################
 # Install vtk 4.4 from binary
 #############################################################################
 vtk:
 	cd $(basedir)/vtk.bin; make RAPPTURE=$(Rappture) >& $(basedir)/output.vtk 2>&1
 
-#############################################################################
-# web service related packages
-#
-pyxml:
-	cd $(basedir)/PyXML-0.8.4; \
-	$(PYTHON) setup.py build; \
-	$(PYTHON) setup.py install
+#################################################
+zlib:
+	echo "BUIDING zlib-1.2.3 ......."
+	cd $(basedir)/zlib-1.2.3; make clean; make distclean; \
+	./configure --shared --prefix=$(Rappture) >& $(basedir)/output.zlib 2>&1 ; \
+	make >> $(basedir)/output.zlib 2>&1; \
+	make install >> $(basedir)/output.zlib 2>&1;\
+	./configure --prefix=$(Rappture) >& $(basedir)/output.zlib 2>&1 ; \
+	make >> $(basedir)/output.zlib 2>&1; \
+	make install >> $(basedir)/output.zlib 2>&1
 
-fpconst:
-	cd $(basedir)/fpconst-0.7.2; \
-	$(PYTHON) setup.py install
-
-pysoap:
-	cd $(basedir)/SOAPpy-0.12.0; \
-	$(PYTHON) setup.py install
-
-clientcookie:
-	cd $(basedir)/ClientCookie-1.3.0; \
-	$(PYTHON) setup.py build; \
-	$(PYTHON) setup.py install
+#################################################
+libb64:
+	echo "BUIDING libb64 ......."
+	cd $(basedir)/libb64-1.1; make distclean; \
+	make libb64 >> $(basedir)/output.libb64 2>&1; \
+	cp src/libb64.a $(Rappture)/lib/.; \
+	cp src/libb64.so.0.0 $(Rappture)/lib/.; \
+	cp -r include/b64 $(Rappture)/include/.; \
+	cd $(Rappture)/lib; ln -s libb64.so.0.0 libb64.so;
 
 #############################################################################
 # install-rp:
 # 	- check out rappture from repository if not already in $(basedir)
+# 	- clean up old compiled libraries
+# 	- compile new core and bindings libraries
 # 	- install rappture for TCL
 # 	- install rappture for Python
+# 	- install rappture for Perl
+# 	- install rappture for Matlab
+# 	- install rappture for Octave
 # 	- install rappture apps (driver, rappture, rerun) in $(Rappture) dir
 #############################################################################
 
@@ -276,24 +208,17 @@ rp_update:
 		svn checkout https://repo.nanohub.org/svn/rappture/trunk rappture; \
 	fi
 
-rp_gui: rp_update
+rappture-simple: rp_update
 	set -x; \
-	echo "path is $(PATH)"; \
-	cd $(RP_SRC)/gui; \
-	make clean; make distclean; \
-	./configure --prefix=$(Rappture) --with-blt=$(basedir)/blt2.4z/src; \
-	make all >& $(basedir)/output.gui 2>&1; \
-	make install >> $(basedir)/output.gui 2>&1
+	cd $(RP_SRC); \
+	make clean; \
+	./configure --prefix=$(Rappture) --with-matlab= ; \
+	make install build_pkgs;
 
-install-rp: rp_gui
-	set -x
-	cd $(RP_SRC)/tcl; $(Rappture)/bin/tclsh install.tcl
-	cd $(RP_SRC)/python; $(Rappture)/bin/python setup.py install
-	cp $(RP_SRC)/gui/apps/* $(Rappture)/bin 
-	rm -rf $(Rappture)/include/cee $(Rappture)/include/core $(Rappture)/include/fortran
-	cp -r $(RP_SRC)/include/cee $(Rappture)/include
-	cp -r $(RP_SRC)/include/core $(Rappture)/include
-	cp -r $(RP_SRC)/include/fortran $(Rappture)/include
+create_install_dir:
+	if test ! -d $(Rappture); then \
+		mkdir -p $(Rappture); \
+	fi; \
 
 #############################################################################
 # build rappture libs - assuming "rappture" dir was checked out from 
@@ -303,11 +228,11 @@ install-rp: rp_gui
 # 	- install rappture libs in $(Rappture) dir 
 #############################################################################
 rplib:
-	set -x; \
-	cd $(RP_SRC)/src; \
-	make clean >& $(basedir)/output.rp 2>&1; \
-	make RP_INSTALL_BASE=$(Rappture) all >> $(basedir)/output.rp 2>&1; \
-	make RP_INSTALL_BASE=$(Rappture) install >> $(basedir)/output.rp 2>&1
+	set -x;
+	make clean;
+	cd $(RP_SRC); ./configure --prefix=$(Rappture) --with-matlab=/apps/matlab;
+	cd $(RP_SRC); make clean; make install >> $(basedir)/output.rp 2>&1;
+	cd -;
 
 #############################################################################
 # build rappture examples
@@ -317,23 +242,9 @@ rplib:
 #############################################################################
 examples:
 	set -x;
-	cd $(RP_SRC)/examples/app-fermi/fortran; make clean; make RAPPTURE_DIR=$(Rappture) >> $(basedir)/output.rp 2>& 1
-	cd $(RP_SRC)/examples/app-fermi/cee; make clean; make RP_BASE=$(Rappture) >> $(basedir)/output.rp 2>& 1
-	cd $(RP_SRC)/examples/c-example; make clean; make RP_BASE=$(Rappture) >> $(basedir)/output.rp 2>& 1
-	rm -rf $(Rappture)/examples
+	cd $(RP_SRC); make examples; cd -;
+	rm -rf $(Rappture)/examples;
 	cp -r $(RP_SRC)/examples $(Rappture)
-
-#############################################################################
-# additional libs, files:
-# #
-addons:
-	if test "`uname`" == "Linux"; then \
-		cp -d /usr/lib/libstdc++.so.5* $(Rappture)/lib; \
-		cp -d /usr/lib/libtiff.so.4* $(Rappture)/lib; \
-		cp -d /usr/lib/gcc-lib/i486-linux/3.3.5/libstdc++.a $(Rappture)/lib; \
-		cp -d /usr/lib/gcc-lib/i486-linux/3.3.5/libsupc++.a $(Rappture)/lib; \
-		cp -d /usr/lib/gcc-lib/i486-linux/3.3.5/libgcc_eh.a $(Rappture)/lib; \
-	fi
 
 #############################################################################
 # installation scripts
@@ -453,8 +364,11 @@ clean:
 	find $(Rappture) -name .svn | xargs rm -rf
 
 cleanall:
-	rm -rf $(Rappture)/*
+#	rm -rf $(Rappture)/*
 	rm -f output.*
 
 cleanbuild:
 	rm -rf $(build_dir)/*
+
+distclean: cleanall cleanbuild
+	rm -rf config.status config.log Makefile rappture
