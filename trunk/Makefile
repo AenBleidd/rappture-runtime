@@ -18,6 +18,7 @@
 basedir=/home/mmc/nanohub/rappture-runtime
 Rappture=/apps/rappture/20070410
 RP_SRC=$(basedir)/rappture
+SHELL=/bin/bash
 
 
 #definitions for installation on various systems

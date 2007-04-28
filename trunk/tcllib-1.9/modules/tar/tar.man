@@ -1,0 +1,76 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin tar n 0.2]
+[moddesc   {Tar file handling}]
+[titledesc {Tar file creation, extraction & manipulation}]
+[require Tcl 8.4]
+[require tar [opt 0.2]]
+[description]
+
+
+[para]
+
+[list_begin definitions]
+
+[call [cmd ::tar::contents] [arg tarball]]
+
+Returns a list of the files contained in [arg tarball].
+[nl]
+
+[call [cmd ::tar::stat] [arg tarball] [opt file]]
+
+Returns a nested dict containing information on the named [opt file] in [arg tarball],
+or all files. the top level are pairs of filename and info. The info is a dict in the form
+mode uid gid size mtime type linkname uname gname devmajor devminor
+
+[example {
+% ::tar::stat tarball.tar
+foo.jpg {mode 0644 uid 1000 gid 0 size 7580 mtime 811903867 type file linkname {} uname user gname wheel devmajor 0 devminor 0}
+}]
+
+
+[call [cmd ::tar::untar] [arg tarball] [arg args]]
+
+Extracts [arg tarball]
+
+[list_begin opt]
+[opt_def -dir dirName]
+[opt_def -file fileName]
+[opt_def -glob pattern]
+[opt_def -nooverwrite]
+[opt_def -nomtime]
+[opt_def -noperms]
+[list_end]
+[nl]
+
+[call [cmd ::tar::get] [arg tarball] [arg fileName]]
+
+Returns the contents of [arg fileName] from the [arg tarball]
+[nl]
+
+[call [cmd ::tar::create] [arg tarball] [arg files] [arg args]]
+
+Creates a new tar file containing the [arg files]
+
+[list_begin opt]
+[opt_def -dereference]
+[list_end]
+[nl]
+
+[call [cmd ::tar::add] [arg tarball] [arg files] [arg args]]
+
+Appends [arg files] to the end of the existing [arg tarball]
+
+[list_begin opt]
+[opt_def -dereference]
+[list_end]
+[nl]
+
+[call [cmd ::tar::remove] [arg tarball] [arg files]]
+
+Removes [arg files] from the [arg tarball]
+
+[list_end]
+
+
+[keywords tar {tape archive} archive]
+[manpage_end]

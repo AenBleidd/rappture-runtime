@@ -1,0 +1,64 @@
+2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.9 ========================
+	* 
+
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* jpeg.man: Bumped version to 0.3
+	* jpeg.tcl:
+	* pkgIndex.tcl:
+
+2005-12-15  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* jpeg.tcl fixed bug in removeComments and removeExif
+	where file was opened and not configured as binary
+
+2005-11-10  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* Added support for non-baseline and progressive files by
+	accepting c0-3 for SOF marker
+
+2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.8 ========================
+	* 
+
+2005-04-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* jpeg.man:     Synchronized indexed vs provided versions.
+	* pkgIndex.tcl:
+
+2005-04-01  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* jpeg.tcl: added comments, bumped version number because of
+	potential incompatibility due to inverting the return value
+	of isJPEG.
+
+2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.7 ========================
+	* 
+
+2004-10-05  Andreas Kupries <andreask@activestate.com>
+
+	* jpeg.tcl: Accepted last-minute fixes from Aaron in the exif
+	  decoder code.
+
+2004-08-16  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* jpeg.tcl: added commands isJPEG, stripJPEG, formatExif, exifKeys
+	* jpeg.man: updated for new commands, new examples
+
+2004-05-26  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* jpeg.tcl: rewritten/factored
+	* jpeg.man: updated
+
+2004-05-07  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* New module for querying JPEG images, and manipulating their
+	  comments.

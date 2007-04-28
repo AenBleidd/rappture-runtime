@@ -1,0 +1,29 @@
+2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.9 ========================
+	* 
+
+2006-7-20 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* tiff.tcl: added nametotag and tagtoname, some other
+	small changes. Didnt increment version since module
+	hasnt yet appeared in a release
+	* tiff.man: Added variables section and documented
+	new procedures
+
+2006-02-01  Andreas Kupries <andreask@activestate.com>
+
+	* tiff.man: Fixed bad syntax in manpage.
+
+2006-1-31 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* tiff.tcl: typo in numImages, fix in _ifds
+
+2006-1-31 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* Typos in man page
+
+2005-1-28 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* New module for manipulating TIFF images
