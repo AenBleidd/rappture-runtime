@@ -152,8 +152,8 @@ tls:
 
 #################################################
 tcllib:
-	echo "BUIDING tcllib-1.6.1..."
-	cd $(basedir)/tcllib-1.6.1; make clean; make distclean; \
+	echo "BUIDING tcllib-1.9..."
+	cd $(basedir)/tcllib-1.9; make clean; make distclean; \
 	./configure --enable-shared --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tcllibs=$(Rappture)/lib --with-tclincls=$(Rappture)/include >& $(basedir)/output.tcllib 2>&1; \
 	make >> $(basedir)/output.tcllib 2>&1; \
 	make install >> $(basedir)/output.tcllib 2>&1
