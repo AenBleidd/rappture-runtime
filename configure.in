@@ -62,5 +62,23 @@ AC_SUBST(MEX)
 AC_SUBST(MEX_ARCH)
 AC_SUBST(MATLAB_HOME)
 
+#AC_CONFIG_SUBDIRS(  tcl8.4.11/unix )
+#AC_CONFIG_SUBDIRS(  tk8.4.11/unix )
+#AC_CONFIG_SUBDIRS(  itcl3.2.1 )
+#AC_CONFIG_SUBDIRS(  tDOM-0.8.0/unix
+#                    blt2.4z
+#                    tkimg1.3
+#                    htmlwidget-3a14
+#                    tls1.5
+#                    expat-1.95.8
+#                    scew-0.4.0
+#                    shape0.4/unix
+#                    tcllib-1.9
+#                    vtk.bin
+#                    libb64-1.1
+#                    zlib-1.2.3  )
+#
+#dnl                    VTK4.4
+
 dnl read Makefile.in and write Makefile
 AC_OUTPUT(Makefile)
