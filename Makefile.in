@@ -28,7 +28,7 @@ Tarfile_linux=rappture-linux-i686-$(build_date)
 Tarfile_mac=rappture-macosx-$(build_date)
 
 all: rappture
-pkgs: tcl tk itcl tdom blt tkimg htmlwidget shape expat scew tls tcllib vtk zlib libb64
+pkgs: tcl tk itcl tdom blt tkimg htmlwidget shape expat scew tls tcllib vtk pymol zlib libb64
 
 #################################################
 tcl:
@@ -128,6 +128,13 @@ tcllib:
 #############################################################################
 vtk:
 	cd $(basedir)/vtk.bin; make RAPPTURE=$(Rappture)
+
+#################################################
+pymol:
+	echo "BUIDING pymol-1.00b19..."
+	cd $(basedir)/pymol-1.00b19 && ./configure --prefix=$(Rappture)
+	make -C $(basedir)/pymol-1.00b19
+	make -C $(basedir)/pymol-1.00b19 install
 
 #################################################
 zlib:
