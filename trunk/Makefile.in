@@ -204,9 +204,14 @@ endif
 
 #############################################################################
 # Install vtk 4.4 from binary
+# cd $(basedir)/vtk.bin; make RAPPTURE=$(prefix)
 #############################################################################
 vtk:
 ifeq (@BUILD_VTK@,yes)
+	# cd $(basedir)/VTK4.4;
+	# cmake ../VTK4.4 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix) -DBUILD_SHARED_LIBS:BOOL=ON -DTCL_TCLSH:FILEPATH=$(prefix)/bin/tclsh -DVTK_WRAP_PYTHON:BOOL=ON -DVTK_WRAP_TCL:BOOL=ON;
+	# make;
+	# make install
 	cd $(basedir)/vtk.bin; make RAPPTURE=$(prefix)
 endif
 
@@ -252,7 +257,9 @@ ifeq (@BUILD_LIBB64@,yes)
 	cp $(basedir)/libb64-1.1/src/libb64.a $(libdir)/.;
 	cp $(basedir)/libb64-1.1/src/libb64.so.0.0 $(libdir)/.;
 	cp $(basedir)/libb64-1.1/include/b64/*.h $(includedir)/b64/.;
-	cd $(libdir); ln -s libb64.so.0.0 libb64.so;
+	@if ! test -e $(libdir)/libb64.so ; then \
+		cd $(libdir); ln -s libb64.so.0.0 libb64.so; \
+	fi
 endif
 
 #############################################################################
