@@ -10,8 +10,15 @@
 #
 #############################################################################
 basedir=@RR_SRC_DIR@
-Rappture=@prefix@
 RP_SRC=$(basedir)/rappture
+
+prefix			= @prefix@
+exec_prefix		= @exec_prefix@
+bindir			= @bindir@
+libdir			= @libdir@
+includedir		= @includedir@
+mandir			= @mandir@
+
 
 #definitions for installation on various systems
 
@@ -32,135 +39,221 @@ pkgs: tcl tk itcl tdom blt tkimg htmlwidget shape expat scew tls tcllib vtk pymo
 
 #################################################
 tcl:
-	echo "BUIDING TCL8.4.11...." 
-	cd $(basedir)/tcl8.4.11/unix && ./configure --enable-shared --disable-threads --with-readline --prefix=$(Rappture)
+ifeq (@BUILD_TCL@,yes)
+	@echo "BUIDING TCL8.4.11...." 
+	@if test -e $(basedir)/tcl8.4.11/unix/Makefile ; then \
+		make -C $(basedir)/tcl8.4.11/unix distclean; \
+	fi
+	cd $(basedir)/tcl8.4.11/unix && ./configure --enable-shared --disable-threads --with-readline --prefix=$(prefix) @X86_64@ --libdir=$(libdir)
 	make -C $(basedir)/tcl8.4.11/unix
 	make -C $(basedir)/tcl8.4.11/unix install
-	cd $(Rappture)/bin; rm -f tclsh; ln -s tclsh8.4 tclsh
-	if test "`uname`" == "Linux"; then \
-		cd $(Rappture)/lib; rm -f libtcl8.4.so.0; ln -s libtcl8.4.so libtcl8.4.so.0; \
+	cd $(bindir); rm -f tclsh; ln -s tclsh8.4 tclsh
+	@if test "`uname`" == "Linux"; then \
+		cd $(libdir); rm -f libtcl8.4.so.0; ln -s libtcl8.4.so libtcl8.4.so.0; \
 	fi
+endif
 
 #################################################
 tk:
-	echo "BUIDING Tk8.4.11...." 
-	cd $(basedir)/tk8.4.11/unix && ./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib
+ifeq (@BUILD_TK@,yes)
+	@echo "BUIDING Tk8.4.11...." 
+	@if test -e $(basedir)/tk8.4.11/unix/Makefile ; then \
+		make -C $(basedir)/tk8.4.11/unix distclean; \
+	fi
+	cd $(basedir)/tk8.4.11/unix && ./configure --enable-shared --disable-threads --prefix=$(prefix) --with-tcl=$(libdir) @X86_64@ --libdir=$(libdir)
 	make -C $(basedir)/tk8.4.11/unix
 	make -C $(basedir)/tk8.4.11/unix install
-	cd $(Rappture)/bin; rm -f wish; ln -s wish8.4 wish;
-	if test "`uname`" == "Linux"; then \
-		cd $(Rappture)/lib; rm -f libtk8.4.so.0; ln -s libtk8.4.so libtk8.4.so.0; \
+	cd $(bindir); rm -f wish; ln -s wish8.4 wish;
+	@if test "`uname`" == "Linux"; then \
+		cd $(libdir); rm -f libtk8.4.so.0; ln -s libtk8.4.so libtk8.4.so.0; \
 	fi
+endif
 
 #################################################
 itcl:
-	echo "BUIDING itcl3.2.1...."
-	cd $(basedir)/itcl3.2.1 && ./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tk=$(Rappture)/lib
+ifeq (@BUILD_ITCL@,yes)
+	@echo "BUIDING itcl3.2.1...."
+	@if test -e $(basedir)/itcl3.2.1/Makefile ; then \
+		make -C $(basedir)/itcl3.2.1 distclean; \
+	fi
+	cd $(basedir)/itcl3.2.1 && ./configure --enable-shared --disable-threads --prefix=$(prefix) --with-tcl=$(libdir) --with-tk=$(libdir) --libdir=$(libdir)
 	make -C $(basedir)/itcl3.2.1 all
 	make -C $(basedir)/itcl3.2.1 install
+endif
 
 #################################################
 tdom:
-	echo "BUIDING tdom-0.8.0..."
-	cd $(basedir)/tDOM-0.8.0/unix && ../configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tk=$(Rappture)/lib
+ifeq (@BUILD_TDOM@,yes)
+	@echo "BUIDING tdom-0.8.0..."
+	@if test -e $(basedir)/tDOM-0.8.0/Makefile ; then \
+		make -C $(basedir)/tDOM-0.8.0 distclean; \
+	fi
+	cd $(basedir)/tDOM-0.8.0/unix && ../configure --enable-shared --disable-threads --prefix=$(prefix) --with-tcl=$(libdir) --with-tk=$(libdir) @X86_64@ --libdir=$(libdir)
 	make -C $(basedir)/tDOM-0.8.0/unix
 	make -C $(basedir)/tDOM-0.8.0/unix install
+endif
 
 #################################################
 blt:
-	echo "BUIDING blt2.4z..."
-	cd $(basedir)/blt2.4z && ./configure --enable-shared --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tcllibs=$(Rappture)/lib --with-tclincls=$(Rappture)/include --with-tk=$(Rappture)/lib --with-tklibs=$(Rappture)/lib --with-tkincls=$(Rappture)/include --x-includes=/usr/X11R6/include/X11
+ifeq (@BUILD_BLT@,yes)
+	@echo "BUIDING blt2.4z..."
+	@if test -e $(basedir)/blt2.4z/Makefile ; then \
+		make -C $(basedir)/blt2.4z distclean; \
+	fi
+	cd $(basedir)/blt2.4z && ./configure --enable-shared --prefix=$(prefix) --with-tcl=$(libdir) --with-tcllibs=$(libdir) --with-tclincls=$(includedir) --with-tk=$(libdir) --with-tklibs=$(libdir) --with-tkincls=$(includedir) --x-includes=/usr/X11R6/include/X11 --libdir=$(libdir)
+	@if test "x@X86_64@" != "x"; then \
+		if ! test -e $(basedir)/blt2.4z/src/bltTree.c.orig; then \
+			patch -b -p0 < other/blt2.4z-patch-64; \
+		fi \
+	fi
 	make -C $(basedir)/blt2.4z
 	make -C $(basedir)/blt2.4z install
+endif
 
 #################################################
 tkimg:
-	echo "BUIDING tkimg1.3 ... ..."
-	cd $(basedir)/tkimg1.3 && ./configure --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib
+ifeq (@BUILD_TKIMG@,yes)
+	@echo "BUIDING tkimg1.3 ...."
+	@if test -e $(basedir)/tkimg1.3/Makefile ; then \
+		make -C $(basedir)/tkimg1.3 distclean; \
+	fi
+	# we do not use libdir here, because it messes up 64-bit builds for some reason
+	cd $(basedir)/tkimg1.3 && ./configure --prefix=$(prefix) --with-tclconf=$(libdir) --with-tkconf=$(libdir)
 	make -C $(basedir)/tkimg1.3
 	make -C $(basedir)/tkimg1.3 install
+endif
 
 #################################################
 htmlwidget:
-	echo "BUIDING htmlwidget..."
-	cd $(basedir)/htmlwidget-3a14 && ./configure --enable-shared --disable-threads --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tk=$(Rappture)/lib
+ifeq (@BUILD_HTMLWIDGET@,yes)
+	@echo "BUIDING htmlwidget..."
+	@if test -e $(basedir)/htmlwidget-3a14/Makefile ; then \
+		make -C $(basedir)/htmlwidget-3a14 distclean; \
+	fi
+	cd $(basedir)/htmlwidget-3a14 && ./configure --enable-shared --disable-threads --prefix=$(prefix) --with-tcl=$(libdir) --with-tk=$(libdir) @X86_64@ --libdir=$(libdir)
 	make -C $(basedir)/htmlwidget-3a14
 	make -C $(basedir)/htmlwidget-3a14 install
+endif
 
 #################################################
 shape:
-	echo "BUIDING Shape0.4 ......"
-	cd $(basedir)/shape0.4/unix && ./configure --disable-threads --prefix=$(Rappture) --with-tclconf=$(Rappture)/lib --with-tkconf=$(Rappture)/lib
+ifeq (@BUILD_SHAPE@,yes)
+	@echo "BUIDING Shape0.4 ......"
+	@if test -e $(basedir)/shape0.4/unix/Makefile ; then \
+		make -C $(basedir)/shape0.4/unix distclean; \
+	fi
+	cd $(basedir)/shape0.4/unix && ./configure --disable-threads --prefix=$(prefix) --with-tclconf=$(libdir) --with-tkconf=$(libdir) --libdir=$(libdir)
 	make -C $(basedir)/shape0.4/unix
 	make -C $(basedir)/shape0.4/unix install
+endif
 
 #################################################
 expat:
-	echo "BUIDING expat-1.95.8 ......."
-	cd $(basedir)/expat-1.95.8 && ./configure --prefix=$(Rappture)
+ifeq (@BUILD_EXPAT@,yes)
+	@echo "BUIDING expat-1.95.8 ......."
+	@if test -e $(basedir)/expat-1.95.8/Makefile ; then \
+		make -C $(basedir)/expat-1.95.8 distclean; \
+	fi
+	cd $(basedir)/expat-1.95.8 && ./configure --prefix=$(prefix) --libdir=$(libdir)
 	make -C $(basedir)/expat-1.95.8
 	make -C $(basedir)/expat-1.95.8 install
+endif
 
 #################################################
 scew:
-	echo "BUIDING scew-0.4.0 ......."
-	cd $(basedir)/scew-0.4.0 && ./configure --prefix=$(Rappture)
+ifeq (@BUILD_SCEW@,yes)
+	@echo "BUIDING scew-0.4.0 ......."
+	@if test -e $(basedir)/scew-0.4.0/Makefile ; then \
+		make -C $(basedir)/scew-0.4.0 distclean; \
+	fi
+	@if test "x@X86_64@" != "x"; then \
+		if ! test -e $(basedir)/scew-0.4.0/configure.in.orig; then \
+			patch -b -p0 < other/scew-0.4.0-patch-64; \
+			cd $(basedir)/scew-0.4.0 && autoconf -f; \
+		fi \
+	fi
+	cd $(basedir)/scew-0.4.0 && ./configure --prefix=$(prefix) --libdir=$(libdir)
 	make -C $(basedir)/scew-0.4.0
 	make -C $(basedir)/scew-0.4.0 install
-	cp $(basedir)/scew-0.4.0/scew/x*.h $(Rappture)/include/scew/.
+	cp $(basedir)/scew-0.4.0/scew/x*.h $(includedir)/scew/.
+endif
 
 #################################################
 tls:
-	echo "BUIDING tls1.5..."
-	cd $(basedir)/tls1.5 && ./configure --enable-shared --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-ssl-dir=/usr
+ifeq (@BUILD_TLS@,yes)
+	@echo "BUIDING tls1.5..."
+	@if test -e $(basedir)/tls1.5/Makefile ; then \
+		make -C $(basedir)/tls1.5 distclean; \
+	fi
+	cd $(basedir)/tls1.5 && ./configure --enable-shared --prefix=$(prefix) --with-tcl=$(libdir) --with-ssl-dir=/usr --libdir=$(libdir)
 	make -C $(basedir)/tls1.5
 	make -C $(basedir)/tls1.5 install
+endif
 
 #################################################
 tcllib:
-	echo "BUIDING tcllib-1.9..."
-	cd $(basedir)/tcllib-1.9 && ./configure --enable-shared --prefix=$(Rappture) --with-tcl=$(Rappture)/lib --with-tcllibs=$(Rappture)/lib --with-tclincls=$(Rappture)/include
+ifeq (@BUILD_TCLLIB@,yes)
+	@echo "BUIDING tcllib-1.9..."
+	@if test -e $(basedir)/tcllib-1.9/Makefile ; then \
+		make -C $(basedir)/tcllib-1.9 distclean; \
+	fi
+	cd $(basedir)/tcllib-1.9 && ./configure --enable-shared --prefix=$(prefix) --with-tcl=$(libdir) --with-tcllibs=$(libdir) --with-tclincls=$(includedir) --libdir=$(libdir)
 	make -C $(basedir)/tcllib-1.9
 	make -C $(basedir)/tcllib-1.9 install
+endif
 
 #############################################################################
 # Install vtk 4.4 from binary
 #############################################################################
 vtk:
-	cd $(basedir)/vtk.bin; make RAPPTURE=$(Rappture)
+ifeq (@BUILD_VTK@,yes)
+	cd $(basedir)/vtk.bin; make RAPPTURE=$(prefix)
+endif
 
 #################################################
 pymol:
-	echo "BUIDING pymol-1.00b19..."
-	cd $(basedir)/pymol-1.00b19 && ./configure --prefix=$(Rappture)
+ifeq (@BUILD_PYMOL@,yes)
+	@echo "BUIDING pymol-1.00b19..."
+	@if test -e $(basedir)/pymol-1.00b19/Makefile ; then \
+		make -C $(basedir)/pymol-1.00b19 distclean; \
+	fi
+	cd $(basedir)/pymol-1.00b19 && ./configure --prefix=$(prefix) --libdir=$(libdir)
 	make -C $(basedir)/pymol-1.00b19
 	make -C $(basedir)/pymol-1.00b19 install
+endif
 
 #################################################
 zlib:
-	echo "BUIDING zlib-1.2.3 ......."
-	cd $(basedir)/zlib-1.2.3 && CFLAGS="-fPIC" ./configure --shared --prefix=$(Rappture)
+ifeq (@BUILD_ZLIB@,yes)
+	@echo "BUIDING zlib-1.2.3 ......."
+	@if test -e $(basedir)/zlib-1.2.3/Makefile ; then \
+		make -C $(basedir)/zlib-1.2.3 distclean; \
+	fi
+	cd $(basedir)/zlib-1.2.3 && CFLAGS="-fPIC" ./configure --shared --prefix=$(prefix) --libdir=$(libdir)
 	make -C $(basedir)/zlib-1.2.3
 	make -C $(basedir)/zlib-1.2.3 install
-	cd $(basedir)/zlib-1.2.3 && CFLAGS="-fPIC" ./configure --prefix=$(Rappture)
+	cd $(basedir)/zlib-1.2.3 && CFLAGS="-fPIC" ./configure --prefix=$(prefix) --libdir=$(libdir)
 	make -C $(basedir)/zlib-1.2.3
 	make -C $(basedir)/zlib-1.2.3 install
+endif
 
 #################################################
 libb64:
-	echo "BUIDING libb64 ......."
+ifeq (@BUILD_LIBB64@,yes)
+	@echo "BUIDING libb64 ......."
 	make -C $(basedir)/libb64-1.1/src distclean;
 	make -C $(basedir)/libb64-1.1/src libb64;
-	if test ! -d $(Rappture)/include/b64; then \
-		mkdir -p $(Rappture)/include/b64; \
+	if test ! -d $(includedir)/b64; then \
+		mkdir -p $(includedir)/b64; \
 	fi; \
-	if test ! -d $(Rappture)/lib; then \
-		mkdir -p $(Rappture)/lib; \
+	if test ! -d $(libdir); then \
+		mkdir -p $(libdir); \
 	fi; \
-	cp $(basedir)/libb64-1.1/src/libb64.a $(Rappture)/lib/.;
-	cp $(basedir)/libb64-1.1/src/libb64.so.0.0 $(Rappture)/lib/.;
-	cp $(basedir)/libb64-1.1/include/b64/*.h $(Rappture)/include/b64/.;
-	cd $(Rappture)/lib; ln -s libb64.so.0.0 libb64.so;
+	cp $(basedir)/libb64-1.1/src/libb64.a $(libdir)/.;
+	cp $(basedir)/libb64-1.1/src/libb64.so.0.0 $(libdir)/.;
+	cp $(basedir)/libb64-1.1/include/b64/*.h $(includedir)/b64/.;
+	cd $(libdir); ln -s libb64.so.0.0 libb64.so;
+endif
 
 #############################################################################
 # install-rp:
@@ -172,12 +265,11 @@ libb64:
 # 	- install rappture for Perl
 # 	- install rappture for Matlab
 # 	- install rappture for Octave
-# 	- install rappture apps (driver, rappture, rerun) in $(Rappture) dir
+# 	- install rappture apps (driver, rappture, rerun) in $(prefix) dir
 #############################################################################
 
 rp_update:
-	set -x; \
-	if test -d $(RP_SRC); then \
+	@if test -d $(RP_SRC); then \
 		cd $(RP_SRC); svn update ;\
 	else \
 		cd $(basedir); \
@@ -185,23 +277,23 @@ rp_update:
 	fi
 
 rappture: create_install_dir pkgs rp_update
-	set -x; \
-	cd $(RP_SRC); \
-	make clean; \
-	./configure --prefix=$(Rappture) --with-matlab=@MATLAB_HOME@ @MEX_ARCH@; \
+	@if test -e $(RP_SRC)/Makefile ; then \
+		make -C $(RP_SRC) distclean; \
+	fi
+	./configure --prefix=$(prefix) --with-matlab=@MATLAB_HOME@ @MEX_ARCH@ --libdir=$(libdir);
 	make install build_pkgs;
 
 create_install_dir:
-	if test ! -d $(Rappture); then \
-		mkdir -p $(Rappture); \
-	fi; \
+	@if test ! -d $(prefix); then \
+		mkdir -p $(prefix); \
+	fi;
 
 #############################################################################
 clean:
-	find $(Rappture) -name .svn | xargs rm -rf
+	find $(prefix) -name .svn | xargs rm -rf
 
 cleanall:
-#	rm -rf $(Rappture)/*
+#	rm -rf $(prefix)/*
 	rm -f output.*
 
 cleanbuild:

@@ -272,7 +272,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="NOTES"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS RR_SRC_DIR CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT SET_MAKE CPP EGREP VERSION MEX MATLAB_HOME MEX_ARCH LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS RR_SRC_DIR CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT SET_MAKE CPP EGREP VERSION BUILD_BLT BUILD_EXPAT BUILD_HTMLWIDGET BUILD_ITCL BUILD_LIBB64 BUILD_PYMOL BUILD_SCEW BUILD_SHAPE BUILD_TDOM BUILD_TCL BUILD_TCLLIB BUILD_TK BUILD_TKIMG BUILD_TLS BUILD_VTK BUILD_ZLIB MEX MATLAB_HOME X86_64 MEX_ARCH LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -800,11 +800,33 @@ if test -n "$ac_init_help"; then
 
   cat <<\_ACEOF
 
+Optional Features:
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-64bit              Enable 64bit support (where applicable)
+
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-blt=DIR        use installed version of blt2.4z [default=check]
+  --with-expat=DIR      use installed version of expat [default=check]
+  --with-htmlwidget=DIR use installed version of htmlwidget
+                          [default=check]
+  --with-itcl=DIR       use installed version of itcl [default=check]
+  --with-b64=DIR        use installed version of b64 [default=check]
+  --with-pymol=DIR      use installed version of pymol [default=no]
+  --with-scew=DIR       use installed version of scew [default=check]
+  --with-shape=DIR      use installed version of shape [default=check]
+  --with-tDOM=DIR       use installed version of tDOM [default=check]
+  --with-tcl=DIR        use installed version of tcl [default=check]
+  --with-tcllib=DIR     use installed version of tcllib [default=check]
+  --with-tk=DIR         use installed version of tk [default=check]
+  --with-tkimg=DIR      use installed version of tkimg [default=check]
+  --with-tls=DIR        use installed version of tls [default=check]
+  --with-vtk=DIR        use installed version of vtk [default=check]
+  --with-zlib=DIR       use installed version of zlib [default=check]
   --with-matlab=DIR         Build Matlab bindings if MEX compiler is found
-  --with-matlab-arch=ARCH         Build Matlab bindings for ARCH architecture
+  --with-matlab-arch=ARCH   Build Matlab bindings for ARCH architecture
 
 Some influential environment variables:
   CC          C compiler command
@@ -906,7 +928,7 @@ esac
     else
       echo "$as_me: WARNING: no configuration information is in $ac_dir" >&2
     fi
-    cd "$ac_popdir"
+    cd $ac_popdir
   done
 fi
 
@@ -1839,7 +1861,8 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -1897,7 +1920,8 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2013,7 +2037,8 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2067,7 +2092,8 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2112,7 +2138,8 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2156,7 +2183,8 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2517,7 +2545,8 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2714,7 +2743,8 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2747,6 +2777,193 @@ echo "$as_me: error: oops! no atol ?!?" >&2;}
 fi
 
 
+
+
+# Check whether --enable-64bit or --disable-64bit was given.
+if test "${enable_64bit+set}" = set; then
+  enableval="$enable_64bit"
+
+fi;
+X86_64=
+if test "x$enable_64bit" != "x" ; then
+    echo Enabling 64-bit support
+    X86_64="--enable-64bit"
+fi
+
+
+# Check whether --with-blt or --without-blt was given.
+if test "${with_blt+set}" = set; then
+  withval="$with_blt"
+
+else
+  with_blt=check
+fi;
+BUILD_BLT=yes
+
+
+
+# Check whether --with-expat or --without-expat was given.
+if test "${with_expat+set}" = set; then
+  withval="$with_expat"
+
+else
+  with_expat=check
+fi;
+BUILD_EXPAT=yes
+
+
+
+# Check whether --with-htmlwidget or --without-htmlwidget was given.
+if test "${with_htmlwidget+set}" = set; then
+  withval="$with_htmlwidget"
+
+else
+  with_htmlwidget=check
+fi;
+BUILD_HTMLWIDGET=yes
+
+
+
+# Check whether --with-itcl or --without-itcl was given.
+if test "${with_itcl+set}" = set; then
+  withval="$with_itcl"
+
+else
+  with_itcl=check
+fi;
+BUILD_ITCL=yes
+
+
+
+# Check whether --with-b64 or --without-b64 was given.
+if test "${with_b64+set}" = set; then
+  withval="$with_b64"
+
+else
+  with_b64=check
+fi;
+BUILD_LIBB64=yes
+
+
+
+# Check whether --with-pymol or --without-pymol was given.
+if test "${with_pymol+set}" = set; then
+  withval="$with_pymol"
+
+else
+  with_pymol=no
+fi;
+BUILD_PYMOL=no
+
+
+
+# Check whether --with-scew or --without-scew was given.
+if test "${with_scew+set}" = set; then
+  withval="$with_scew"
+
+else
+  with_scew=check
+fi;
+BUILD_SCEW=yes
+
+
+
+# Check whether --with-shape or --without-shape was given.
+if test "${with_shape+set}" = set; then
+  withval="$with_shape"
+
+else
+  with_shape=check
+fi;
+BUILD_SHAPE=yes
+
+
+
+# Check whether --with-tDOM or --without-tDOM was given.
+if test "${with_tDOM+set}" = set; then
+  withval="$with_tDOM"
+
+else
+  with_tDOM=check
+fi;
+BUILD_TDOM=yes
+
+
+
+# Check whether --with-tcl or --without-tcl was given.
+if test "${with_tcl+set}" = set; then
+  withval="$with_tcl"
+
+else
+  with_tcl=check
+fi;
+BUILD_TCL=yes
+
+
+
+# Check whether --with-tcllib or --without-tcllib was given.
+if test "${with_tcllib+set}" = set; then
+  withval="$with_tcllib"
+
+else
+  with_tcllib=check
+fi;
+BUILD_TCLLIB=yes
+
+
+
+# Check whether --with-tk or --without-tk was given.
+if test "${with_tk+set}" = set; then
+  withval="$with_tk"
+
+else
+  with_tk=check
+fi;
+BUILD_TK=yes
+
+
+
+# Check whether --with-tkimg or --without-tkimg was given.
+if test "${with_tkimg+set}" = set; then
+  withval="$with_tkimg"
+
+else
+  with_tkimg=check
+fi;
+BUILD_TKIMG=yes
+
+
+
+# Check whether --with-tls or --without-tls was given.
+if test "${with_tls+set}" = set; then
+  withval="$with_tls"
+
+else
+  with_tls=check
+fi;
+BUILD_TLS=yes
+
+
+
+# Check whether --with-vtk or --without-vtk was given.
+if test "${with_vtk+set}" = set; then
+  withval="$with_vtk"
+
+else
+  with_vtk=check
+fi;
+BUILD_VTK=yes
+
+
+
+# Check whether --with-zlib or --without-zlib was given.
+if test "${with_zlib+set}" = set; then
+  withval="$with_zlib"
+
+else
+  with_zlib=check
+fi;
+BUILD_ZLIB=yes
 
 
 
@@ -2860,6 +3077,7 @@ fi
 if test "x$with_matlab_arch" != "x" ; then
     MEX_ARCH="--with-matlab-arch=$with_matlab_arch"
 fi
+
 
 
 
@@ -3530,8 +3748,25 @@ s,@SET_MAKE@,$SET_MAKE,;t t
 s,@CPP@,$CPP,;t t
 s,@EGREP@,$EGREP,;t t
 s,@VERSION@,$VERSION,;t t
+s,@BUILD_BLT@,$BUILD_BLT,;t t
+s,@BUILD_EXPAT@,$BUILD_EXPAT,;t t
+s,@BUILD_HTMLWIDGET@,$BUILD_HTMLWIDGET,;t t
+s,@BUILD_ITCL@,$BUILD_ITCL,;t t
+s,@BUILD_LIBB64@,$BUILD_LIBB64,;t t
+s,@BUILD_PYMOL@,$BUILD_PYMOL,;t t
+s,@BUILD_SCEW@,$BUILD_SCEW,;t t
+s,@BUILD_SHAPE@,$BUILD_SHAPE,;t t
+s,@BUILD_TDOM@,$BUILD_TDOM,;t t
+s,@BUILD_TCL@,$BUILD_TCL,;t t
+s,@BUILD_TCLLIB@,$BUILD_TCLLIB,;t t
+s,@BUILD_TK@,$BUILD_TK,;t t
+s,@BUILD_TKIMG@,$BUILD_TKIMG,;t t
+s,@BUILD_TLS@,$BUILD_TLS,;t t
+s,@BUILD_VTK@,$BUILD_VTK,;t t
+s,@BUILD_ZLIB@,$BUILD_ZLIB,;t t
 s,@MEX@,$MEX,;t t
 s,@MATLAB_HOME@,$MATLAB_HOME,;t t
+s,@X86_64@,$X86_64,;t t
 s,@MEX_ARCH@,$MEX_ARCH,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
@@ -3697,6 +3932,11 @@ esac
 
 
 
+  if test x"$ac_file" != x-; then
+    { echo "$as_me:$LINENO: creating $ac_file" >&5
+echo "$as_me: creating $ac_file" >&6;}
+    rm -f "$ac_file"
+  fi
   # Let's still pretend it is `configure' which instantiates (i.e., don't
   # use $as_me), people would be surprised to read:
   #    /* config.h.  Generated by config.status.  */
@@ -3735,12 +3975,6 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
 	 fi;;
       esac
     done` || { (exit 1); exit 1; }
-
-  if test x"$ac_file" != x-; then
-    { echo "$as_me:$LINENO: creating $ac_file" >&5
-echo "$as_me: creating $ac_file" >&6;}
-    rm -f "$ac_file"
-  fi
 _ACEOF
 cat >>$CONFIG_STATUS <<_ACEOF
   sed "$ac_vpsub

@@ -29,9 +29,79 @@ AC_CHECK_FUNC(atol,,AC_MSG_ERROR(oops! no atol ?!?))
 
 AC_SUBST(VERSION)
 
-AC_ARG_WITH(matlab, [  --with-matlab[=DIR]         Build Matlab bindings if MEX compiler is found])
-AC_ARG_WITH(matlab_arch, [  --with-matlab-arch[=ARCH]         Build Matlab bindings for ARCH architecture])
-dnl AC_CHECK_PROG(MEX, mex, mex, false)
+AC_ARG_ENABLE(64bit,       [  --enable-64bit              Enable 64bit support (where applicable)])
+X86_64=
+if test "x$enable_64bit" != "x" ; then
+    echo Enabling 64-bit support
+    X86_64="--enable-64bit"
+fi
+
+AC_ARG_WITH([blt],[AS_HELP_STRING([--with-blt[=DIR]], [use installed version of blt2.4z @<:@default=check@:>@])],[],[with_blt=check])
+BUILD_BLT=yes
+AC_SUBST(BUILD_BLT)
+
+AC_ARG_WITH([expat],[AS_HELP_STRING([--with-expat[=DIR]], [use installed version of expat @<:@default=check@:>@])],[],[with_expat=check])
+BUILD_EXPAT=yes
+AC_SUBST(BUILD_EXPAT)
+
+AC_ARG_WITH([htmlwidget],[AS_HELP_STRING([--with-htmlwidget[=DIR]], [use installed version of htmlwidget @<:@default=check@:>@])],[],[with_htmlwidget=check])
+BUILD_HTMLWIDGET=yes
+AC_SUBST(BUILD_HTMLWIDGET)
+
+AC_ARG_WITH([itcl],[AS_HELP_STRING([--with-itcl[=DIR]], [use installed version of itcl @<:@default=check@:>@])],[],[with_itcl=check])
+BUILD_ITCL=yes
+AC_SUBST(BUILD_ITCL)
+
+AC_ARG_WITH([b64],[AS_HELP_STRING([--with-b64[=DIR]], [use installed version of b64 @<:@default=check@:>@])],[],[with_b64=check])
+BUILD_LIBB64=yes
+AC_SUBST(BUILD_LIBB64)
+
+AC_ARG_WITH([pymol],[AS_HELP_STRING([--with-pymol[=DIR]], [use installed version of pymol @<:@default=no@:>@])],[],[with_pymol=no])
+BUILD_PYMOL=no
+AC_SUBST(BUILD_PYMOL)
+
+AC_ARG_WITH([scew],[AS_HELP_STRING([--with-scew[=DIR]], [use installed version of scew @<:@default=check@:>@])],[],[with_scew=check])
+BUILD_SCEW=yes
+AC_SUBST(BUILD_SCEW)
+
+AC_ARG_WITH([shape],[AS_HELP_STRING([--with-shape[=DIR]], [use installed version of shape @<:@default=check@:>@])],[],[with_shape=check])
+BUILD_SHAPE=yes
+AC_SUBST(BUILD_SHAPE)
+
+AC_ARG_WITH([tDOM],[AS_HELP_STRING([--with-tDOM[=DIR]], [use installed version of tDOM @<:@default=check@:>@])],[],[with_tDOM=check])
+BUILD_TDOM=yes
+AC_SUBST(BUILD_TDOM)
+
+AC_ARG_WITH([tcl],[AS_HELP_STRING([--with-tcl[=DIR]], [use installed version of tcl @<:@default=check@:>@])],[],[with_tcl=check])
+BUILD_TCL=yes
+AC_SUBST(BUILD_TCL)
+
+AC_ARG_WITH([tcllib],[AS_HELP_STRING([--with-tcllib[=DIR]], [use installed version of tcllib @<:@default=check@:>@])],[],[with_tcllib=check])
+BUILD_TCLLIB=yes
+AC_SUBST(BUILD_TCLLIB)
+
+AC_ARG_WITH([tk],[AS_HELP_STRING([--with-tk[=DIR]], [use installed version of tk @<:@default=check@:>@])],[],[with_tk=check])
+BUILD_TK=yes
+AC_SUBST(BUILD_TK)
+
+AC_ARG_WITH([tkimg],[AS_HELP_STRING([--with-tkimg[=DIR]], [use installed version of tkimg @<:@default=check@:>@])],[],[with_tkimg=check])
+BUILD_TKIMG=yes
+AC_SUBST(BUILD_TKIMG)
+
+AC_ARG_WITH([tls],[AS_HELP_STRING([--with-tls[=DIR]], [use installed version of tls @<:@default=check@:>@])],[],[with_tls=check])
+BUILD_TLS=yes
+AC_SUBST(BUILD_TLS)
+
+AC_ARG_WITH([vtk],[AS_HELP_STRING([--with-vtk[=DIR]], [use installed version of vtk @<:@default=check@:>@])],[],[with_vtk=check])
+BUILD_VTK=yes
+AC_SUBST(BUILD_VTK)
+
+AC_ARG_WITH([zlib],[AS_HELP_STRING([--with-zlib[=DIR]], [use installed version of zlib @<:@default=check@:>@])],[],[with_zlib=check])
+BUILD_ZLIB=yes
+AC_SUBST(BUILD_ZLIB)
+
+AC_ARG_WITH(matlab,      [  --with-matlab[=DIR]         Build Matlab bindings if MEX compiler is found])
+AC_ARG_WITH(matlab_arch, [  --with-matlab-arch[=ARCH]   Build Matlab bindings for ARCH architecture])
 MEX=
 MEX_ARCH=
 if test "$with_matlab" != "no" ; then
@@ -58,6 +128,7 @@ if test "x$with_matlab_arch" != "x" ; then
 fi
 dnl AM_CONDITIONAL(WITH_MATLAB, test x$MEX != x)
 
+AC_SUBST(X86_64)
 AC_SUBST(MEX)
 AC_SUBST(MEX_ARCH)
 AC_SUBST(MATLAB_HOME)
