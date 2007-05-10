@@ -287,8 +287,8 @@ rappture: create_install_dir pkgs rp_update
 	@if test -e $(RP_SRC)/Makefile ; then \
 		make -C $(RP_SRC) distclean; \
 	fi
-	./configure --prefix=$(prefix) --with-matlab=@MATLAB_HOME@ @MEX_ARCH@ --libdir=$(libdir);
-	make install build_pkgs;
+	cd $(RP_SRC) && ./configure --prefix=$(prefix) --with-matlab=@MATLAB_HOME@ @MEX_ARCH@ --libdir=$(libdir);
+	make -C $(RP_SRC) install build_pkgs;
 
 create_install_dir:
 	@if test ! -d $(prefix); then \
