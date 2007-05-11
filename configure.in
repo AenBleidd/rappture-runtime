@@ -36,68 +36,68 @@ if test "x$enable_64bit" != "x" ; then
     X86_64="--enable-64bit"
 fi
 
-AC_ARG_WITH([blt],[AS_HELP_STRING([--with-blt[=DIR]], [use installed version of blt2.4z @<:@default=check@:>@])],[],[with_blt=check])
-BUILD_BLT=yes
+AC_ARG_WITH([blt],[AS_HELP_STRING([--with-blt[=DIR]], [use installed version of blt2.4z @<:@default=yes@:>@])],[],[with_blt=yes])
+BUILD_BLT=$with_blt
 AC_SUBST(BUILD_BLT)
 
-AC_ARG_WITH([expat],[AS_HELP_STRING([--with-expat[=DIR]], [use installed version of expat @<:@default=check@:>@])],[],[with_expat=check])
-BUILD_EXPAT=yes
+AC_ARG_WITH([expat],[AS_HELP_STRING([--with-expat[=DIR]], [use installed version of expat @<:@default=yes@:>@])],[],[with_expat=yes])
+BUILD_EXPAT=$with_expat
 AC_SUBST(BUILD_EXPAT)
 
-AC_ARG_WITH([htmlwidget],[AS_HELP_STRING([--with-htmlwidget[=DIR]], [use installed version of htmlwidget @<:@default=check@:>@])],[],[with_htmlwidget=check])
-BUILD_HTMLWIDGET=yes
+AC_ARG_WITH([htmlwidget],[AS_HELP_STRING([--with-htmlwidget[=DIR]], [use installed version of htmlwidget @<:@default=yes@:>@])],[],[with_htmlwidget=yes])
+BUILD_HTMLWIDGET=$with_htmlwidget
 AC_SUBST(BUILD_HTMLWIDGET)
 
-AC_ARG_WITH([itcl],[AS_HELP_STRING([--with-itcl[=DIR]], [use installed version of itcl @<:@default=check@:>@])],[],[with_itcl=check])
-BUILD_ITCL=yes
+AC_ARG_WITH([itcl],[AS_HELP_STRING([--with-itcl[=DIR]], [use installed version of itcl @<:@default=yes@:>@])],[],[with_itcl=yes])
+BUILD_ITCL=$with_itcl
 AC_SUBST(BUILD_ITCL)
 
-AC_ARG_WITH([b64],[AS_HELP_STRING([--with-b64[=DIR]], [use installed version of b64 @<:@default=check@:>@])],[],[with_b64=check])
-BUILD_LIBB64=yes
+AC_ARG_WITH([b64],[AS_HELP_STRING([--with-b64[=DIR]], [use installed version of b64 @<:@default=yes@:>@])],[],[with_b64=yes])
+BUILD_LIBB64=$with_b64
 AC_SUBST(BUILD_LIBB64)
 
 AC_ARG_WITH([pymol],[AS_HELP_STRING([--with-pymol[=DIR]], [use installed version of pymol @<:@default=no@:>@])],[],[with_pymol=no])
-BUILD_PYMOL=no
+BUILD_PYMOL=$with_pymol
 AC_SUBST(BUILD_PYMOL)
 
-AC_ARG_WITH([scew],[AS_HELP_STRING([--with-scew[=DIR]], [use installed version of scew @<:@default=check@:>@])],[],[with_scew=check])
-BUILD_SCEW=yes
+AC_ARG_WITH([scew],[AS_HELP_STRING([--with-scew[=DIR]], [use installed version of scew @<:@default=yes@:>@])],[],[with_scew=yes])
+BUILD_SCEW=$with_scew
 AC_SUBST(BUILD_SCEW)
 
-AC_ARG_WITH([shape],[AS_HELP_STRING([--with-shape[=DIR]], [use installed version of shape @<:@default=check@:>@])],[],[with_shape=check])
-BUILD_SHAPE=yes
+AC_ARG_WITH([shape],[AS_HELP_STRING([--with-shape[=DIR]], [use installed version of shape @<:@default=yes@:>@])],[],[with_shape=yes])
+BUILD_SHAPE=$with_shape
 AC_SUBST(BUILD_SHAPE)
 
-AC_ARG_WITH([tDOM],[AS_HELP_STRING([--with-tDOM[=DIR]], [use installed version of tDOM @<:@default=check@:>@])],[],[with_tDOM=check])
-BUILD_TDOM=yes
+AC_ARG_WITH([tDOM],[AS_HELP_STRING([--with-tDOM[=DIR]], [use installed version of tDOM @<:@default=yes@:>@])],[],[with_tDOM=yes])
+BUILD_TDOM=$with_tDOM
 AC_SUBST(BUILD_TDOM)
 
-AC_ARG_WITH([tcl],[AS_HELP_STRING([--with-tcl[=DIR]], [use installed version of tcl @<:@default=check@:>@])],[],[with_tcl=check])
-BUILD_TCL=yes
+AC_ARG_WITH([tcl],[AS_HELP_STRING([--with-tcl[=DIR]], [use installed version of tcl @<:@default=yes@:>@])],[],[with_tcl=yes])
+BUILD_TCL=$with_tcl
 AC_SUBST(BUILD_TCL)
 
-AC_ARG_WITH([tcllib],[AS_HELP_STRING([--with-tcllib[=DIR]], [use installed version of tcllib @<:@default=check@:>@])],[],[with_tcllib=check])
-BUILD_TCLLIB=yes
+AC_ARG_WITH([tcllib],[AS_HELP_STRING([--with-tcllib[=DIR]], [use installed version of tcllib @<:@default=yes@:>@])],[],[with_tcllib=yes])
+BUILD_TCLLIB=$with_tcllib
 AC_SUBST(BUILD_TCLLIB)
 
-AC_ARG_WITH([tk],[AS_HELP_STRING([--with-tk[=DIR]], [use installed version of tk @<:@default=check@:>@])],[],[with_tk=check])
-BUILD_TK=yes
+AC_ARG_WITH([tk],[AS_HELP_STRING([--with-tk[=DIR]], [use installed version of tk @<:@default=yes@:>@])],[],[with_tk=yes])
+BUILD_TK=$with_tk
 AC_SUBST(BUILD_TK)
 
-AC_ARG_WITH([tkimg],[AS_HELP_STRING([--with-tkimg[=DIR]], [use installed version of tkimg @<:@default=check@:>@])],[],[with_tkimg=check])
-BUILD_TKIMG=yes
+AC_ARG_WITH([tkimg],[AS_HELP_STRING([--with-tkimg[=DIR]], [use installed version of tkimg @<:@default=yes@:>@])],[],[with_tkimg=yes])
+BUILD_TKIMG=$with_tkimg
 AC_SUBST(BUILD_TKIMG)
 
-AC_ARG_WITH([tls],[AS_HELP_STRING([--with-tls[=DIR]], [use installed version of tls @<:@default=check@:>@])],[],[with_tls=check])
-BUILD_TLS=yes
+AC_ARG_WITH([tls],[AS_HELP_STRING([--with-tls[=DIR]], [use installed version of tls @<:@default=yes@:>@])],[],[with_tls=yes])
+BUILD_TLS=$with_tls
 AC_SUBST(BUILD_TLS)
 
-AC_ARG_WITH([vtk],[AS_HELP_STRING([--with-vtk[=DIR]], [use installed version of vtk @<:@default=check@:>@])],[],[with_vtk=check])
-BUILD_VTK=yes
+AC_ARG_WITH([vtk],[AS_HELP_STRING([--with-vtk[=DIR]], [use installed version of vtk @<:@default=yes@:>@])],[],[with_vtk=yes])
+BUILD_VTK=$with_vtk
 AC_SUBST(BUILD_VTK)
 
-AC_ARG_WITH([zlib],[AS_HELP_STRING([--with-zlib[=DIR]], [use installed version of zlib @<:@default=check@:>@])],[],[with_zlib=check])
-BUILD_ZLIB=yes
+AC_ARG_WITH([zlib],[AS_HELP_STRING([--with-zlib[=DIR]], [use installed version of zlib @<:@default=yes@:>@])],[],[with_zlib=yes])
+BUILD_ZLIB=$with_zlib
 AC_SUBST(BUILD_ZLIB)
 
 AC_ARG_WITH(matlab,      [  --with-matlab[=DIR]         Build Matlab bindings if MEX compiler is found])

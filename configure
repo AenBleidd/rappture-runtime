@@ -808,23 +808,23 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-blt=DIR        use installed version of blt2.4z [default=check]
-  --with-expat=DIR      use installed version of expat [default=check]
+  --with-blt=DIR        use installed version of blt2.4z [default=yes]
+  --with-expat=DIR      use installed version of expat [default=yes]
   --with-htmlwidget=DIR use installed version of htmlwidget
-                          [default=check]
-  --with-itcl=DIR       use installed version of itcl [default=check]
-  --with-b64=DIR        use installed version of b64 [default=check]
+                          [default=yes]
+  --with-itcl=DIR       use installed version of itcl [default=yes]
+  --with-b64=DIR        use installed version of b64 [default=yes]
   --with-pymol=DIR      use installed version of pymol [default=no]
-  --with-scew=DIR       use installed version of scew [default=check]
-  --with-shape=DIR      use installed version of shape [default=check]
-  --with-tDOM=DIR       use installed version of tDOM [default=check]
-  --with-tcl=DIR        use installed version of tcl [default=check]
-  --with-tcllib=DIR     use installed version of tcllib [default=check]
-  --with-tk=DIR         use installed version of tk [default=check]
-  --with-tkimg=DIR      use installed version of tkimg [default=check]
-  --with-tls=DIR        use installed version of tls [default=check]
-  --with-vtk=DIR        use installed version of vtk [default=check]
-  --with-zlib=DIR       use installed version of zlib [default=check]
+  --with-scew=DIR       use installed version of scew [default=yes]
+  --with-shape=DIR      use installed version of shape [default=yes]
+  --with-tDOM=DIR       use installed version of tDOM [default=yes]
+  --with-tcl=DIR        use installed version of tcl [default=yes]
+  --with-tcllib=DIR     use installed version of tcllib [default=yes]
+  --with-tk=DIR         use installed version of tk [default=yes]
+  --with-tkimg=DIR      use installed version of tkimg [default=yes]
+  --with-tls=DIR        use installed version of tls [default=yes]
+  --with-vtk=DIR        use installed version of vtk [default=yes]
+  --with-zlib=DIR       use installed version of zlib [default=yes]
   --with-matlab=DIR         Build Matlab bindings if MEX compiler is found
   --with-matlab-arch=ARCH   Build Matlab bindings for ARCH architecture
 
@@ -2796,9 +2796,9 @@ if test "${with_blt+set}" = set; then
   withval="$with_blt"
 
 else
-  with_blt=check
+  with_blt=yes
 fi;
-BUILD_BLT=yes
+BUILD_BLT=$with_blt
 
 
 
@@ -2807,9 +2807,9 @@ if test "${with_expat+set}" = set; then
   withval="$with_expat"
 
 else
-  with_expat=check
+  with_expat=yes
 fi;
-BUILD_EXPAT=yes
+BUILD_EXPAT=$with_expat
 
 
 
@@ -2818,9 +2818,9 @@ if test "${with_htmlwidget+set}" = set; then
   withval="$with_htmlwidget"
 
 else
-  with_htmlwidget=check
+  with_htmlwidget=yes
 fi;
-BUILD_HTMLWIDGET=yes
+BUILD_HTMLWIDGET=$with_htmlwidget
 
 
 
@@ -2829,9 +2829,9 @@ if test "${with_itcl+set}" = set; then
   withval="$with_itcl"
 
 else
-  with_itcl=check
+  with_itcl=yes
 fi;
-BUILD_ITCL=yes
+BUILD_ITCL=$with_itcl
 
 
 
@@ -2840,9 +2840,9 @@ if test "${with_b64+set}" = set; then
   withval="$with_b64"
 
 else
-  with_b64=check
+  with_b64=yes
 fi;
-BUILD_LIBB64=yes
+BUILD_LIBB64=$with_b64
 
 
 
@@ -2853,7 +2853,7 @@ if test "${with_pymol+set}" = set; then
 else
   with_pymol=no
 fi;
-BUILD_PYMOL=no
+BUILD_PYMOL=$with_pymol
 
 
 
@@ -2862,9 +2862,9 @@ if test "${with_scew+set}" = set; then
   withval="$with_scew"
 
 else
-  with_scew=check
+  with_scew=yes
 fi;
-BUILD_SCEW=yes
+BUILD_SCEW=$with_scew
 
 
 
@@ -2873,9 +2873,9 @@ if test "${with_shape+set}" = set; then
   withval="$with_shape"
 
 else
-  with_shape=check
+  with_shape=yes
 fi;
-BUILD_SHAPE=yes
+BUILD_SHAPE=$with_shape
 
 
 
@@ -2884,9 +2884,9 @@ if test "${with_tDOM+set}" = set; then
   withval="$with_tDOM"
 
 else
-  with_tDOM=check
+  with_tDOM=yes
 fi;
-BUILD_TDOM=yes
+BUILD_TDOM=$with_tDOM
 
 
 
@@ -2895,9 +2895,9 @@ if test "${with_tcl+set}" = set; then
   withval="$with_tcl"
 
 else
-  with_tcl=check
+  with_tcl=yes
 fi;
-BUILD_TCL=yes
+BUILD_TCL=$with_tcl
 
 
 
@@ -2906,9 +2906,9 @@ if test "${with_tcllib+set}" = set; then
   withval="$with_tcllib"
 
 else
-  with_tcllib=check
+  with_tcllib=yes
 fi;
-BUILD_TCLLIB=yes
+BUILD_TCLLIB=$with_tcllib
 
 
 
@@ -2917,9 +2917,9 @@ if test "${with_tk+set}" = set; then
   withval="$with_tk"
 
 else
-  with_tk=check
+  with_tk=yes
 fi;
-BUILD_TK=yes
+BUILD_TK=$with_tk
 
 
 
@@ -2928,9 +2928,9 @@ if test "${with_tkimg+set}" = set; then
   withval="$with_tkimg"
 
 else
-  with_tkimg=check
+  with_tkimg=yes
 fi;
-BUILD_TKIMG=yes
+BUILD_TKIMG=$with_tkimg
 
 
 
@@ -2939,9 +2939,9 @@ if test "${with_tls+set}" = set; then
   withval="$with_tls"
 
 else
-  with_tls=check
+  with_tls=yes
 fi;
-BUILD_TLS=yes
+BUILD_TLS=$with_tls
 
 
 
@@ -2950,9 +2950,9 @@ if test "${with_vtk+set}" = set; then
   withval="$with_vtk"
 
 else
-  with_vtk=check
+  with_vtk=yes
 fi;
-BUILD_VTK=yes
+BUILD_VTK=$with_vtk
 
 
 
@@ -2961,9 +2961,9 @@ if test "${with_zlib+set}" = set; then
   withval="$with_zlib"
 
 else
-  with_zlib=check
+  with_zlib=yes
 fi;
-BUILD_ZLIB=yes
+BUILD_ZLIB=$with_zlib
 
 
 
