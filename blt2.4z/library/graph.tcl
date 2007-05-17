@@ -384,7 +384,9 @@ option add *zoomOutline.xor		yes
 proc blt::MarchingAnts { graph offset } {
     global zoomInfo
 
-    incr offset
+    if {[incr offset] >= 32765} {
+        set offset 0  ;# avoid error "bad distance" at 32767
+    }
     if { [$graph marker exists zoomOutline] } {
 	$graph marker configure zoomOutline -dashoffset $offset 
 	set interval $zoomInfo($graph,interval)
