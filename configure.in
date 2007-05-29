@@ -100,6 +100,10 @@ AC_ARG_WITH([zlib],[AS_HELP_STRING([--with-zlib[=DIR]], [use installed version o
 BUILD_ZLIB=$with_zlib
 AC_SUBST(BUILD_ZLIB)
 
+AC_ARG_WITH([voronoi],[AS_HELP_STRING([--with-voronoi[=DIR]], [use installed version of voronoi @<:@default=yes@:>@])],[],[with_voronoi=yes])
+BUILD_VORONOI=$with_voronoi
+AC_SUBST(BUILD_VORONOI)
+
 AC_ARG_WITH(matlab,      [  --with-matlab[=DIR]         Build Matlab bindings if MEX compiler is found])
 AC_ARG_WITH(matlab_arch, [  --with-matlab-arch[=ARCH]   Build Matlab bindings for ARCH architecture])
 MEX=
@@ -132,24 +136,6 @@ AC_SUBST(X86_64)
 AC_SUBST(MEX)
 AC_SUBST(MEX_ARCH)
 AC_SUBST(MATLAB_HOME)
-
-#AC_CONFIG_SUBDIRS(  tcl8.4.11/unix )
-#AC_CONFIG_SUBDIRS(  tk8.4.11/unix )
-#AC_CONFIG_SUBDIRS(  itcl3.2.1 )
-#AC_CONFIG_SUBDIRS(  tDOM-0.8.0/unix
-#                    blt2.4z
-#                    tkimg1.3
-#                    htmlwidget-3a14
-#                    tls1.5
-#                    expat-1.95.8
-#                    scew-0.4.0
-#                    shape0.4/unix
-#                    tcllib-1.9
-#                    vtk.bin
-#                    libb64-1.1
-#                    zlib-1.2.3  )
-#
-#dnl                    VTK4.4
 
 dnl read Makefile.in and write Makefile
 AC_OUTPUT(Makefile)

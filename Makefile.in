@@ -19,6 +19,7 @@ libdir			= @libdir@
 includedir		= @includedir@
 mandir			= @mandir@
 
+.PHONY: tcl tk itcl tdom blt tkimg htmlwidget shape expat scew tls tcllib vtk pymol zlib libb64 voronoi
 
 #definitions for installation on various systems
 
@@ -35,7 +36,7 @@ Tarfile_linux=rappture-linux-i686-$(build_date)
 Tarfile_mac=rappture-macosx-$(build_date)
 
 all: rappture
-pkgs: tcl tk itcl tdom blt tkimg htmlwidget shape expat scew tls tcllib vtk pymol zlib libb64
+pkgs: tcl tk itcl tdom blt tkimg htmlwidget shape expat scew tls tcllib vtk pymol zlib libb64 voronoi
 
 #################################################
 tcl:
@@ -262,6 +263,15 @@ ifeq (@BUILD_LIBB64@,yes)
 	@if ! test -e $(libdir)/libb64.so ; then \
 		cd $(libdir); ln -s libb64.so.0.0 libb64.so; \
 	fi
+endif
+
+#################################################
+voronoi:
+ifeq (@BUILD_VORONOI@,yes)
+	@echo "BUIDING voronoi ......."
+	make -C $(basedir)/voronoi clean;
+	make -C $(basedir)/voronoi;
+	cp $(basedir)/voronoi/voronoi $(bindir)/.;
 endif
 
 #############################################################################
