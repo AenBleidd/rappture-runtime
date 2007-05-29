@@ -272,7 +272,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="NOTES"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS RR_SRC_DIR CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT SET_MAKE CPP EGREP VERSION BUILD_BLT BUILD_EXPAT BUILD_HTMLWIDGET BUILD_ITCL BUILD_LIBB64 BUILD_PYMOL BUILD_SCEW BUILD_SHAPE BUILD_TDOM BUILD_TCL BUILD_TCLLIB BUILD_TK BUILD_TKIMG BUILD_TLS BUILD_VTK BUILD_ZLIB MEX MATLAB_HOME X86_64 MEX_ARCH LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS RR_SRC_DIR CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT SET_MAKE CPP EGREP VERSION BUILD_BLT BUILD_EXPAT BUILD_HTMLWIDGET BUILD_ITCL BUILD_LIBB64 BUILD_PYMOL BUILD_SCEW BUILD_SHAPE BUILD_TDOM BUILD_TCL BUILD_TCLLIB BUILD_TK BUILD_TKIMG BUILD_TLS BUILD_VTK BUILD_ZLIB BUILD_VORONOI MEX MATLAB_HOME X86_64 MEX_ARCH LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -825,6 +825,7 @@ Optional Packages:
   --with-tls=DIR        use installed version of tls [default=yes]
   --with-vtk=DIR        use installed version of vtk [default=yes]
   --with-zlib=DIR       use installed version of zlib [default=yes]
+  --with-voronoi=DIR    use installed version of voronoi [default=yes]
   --with-matlab=DIR         Build Matlab bindings if MEX compiler is found
   --with-matlab-arch=ARCH   Build Matlab bindings for ARCH architecture
 
@@ -928,7 +929,7 @@ esac
     else
       echo "$as_me: WARNING: no configuration information is in $ac_dir" >&2
     fi
-    cd $ac_popdir
+    cd "$ac_popdir"
   done
 fi
 
@@ -1861,8 +1862,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -1920,8 +1920,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2037,8 +2036,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2092,8 +2090,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2138,8 +2135,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2183,8 +2179,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2545,8 +2540,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2743,8 +2737,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -2967,6 +2960,17 @@ BUILD_ZLIB=$with_zlib
 
 
 
+# Check whether --with-voronoi or --without-voronoi was given.
+if test "${with_voronoi+set}" = set; then
+  withval="$with_voronoi"
+
+else
+  with_voronoi=yes
+fi;
+BUILD_VORONOI=$with_voronoi
+
+
+
 # Check whether --with-matlab or --without-matlab was given.
 if test "${with_matlab+set}" = set; then
   withval="$with_matlab"
@@ -3082,24 +3086,6 @@ fi
 
 
 
-
-#AC_CONFIG_SUBDIRS(  tcl8.4.11/unix )
-#AC_CONFIG_SUBDIRS(  tk8.4.11/unix )
-#AC_CONFIG_SUBDIRS(  itcl3.2.1 )
-#AC_CONFIG_SUBDIRS(  tDOM-0.8.0/unix
-#                    blt2.4z
-#                    tkimg1.3
-#                    htmlwidget-3a14
-#                    tls1.5
-#                    expat-1.95.8
-#                    scew-0.4.0
-#                    shape0.4/unix
-#                    tcllib-1.9
-#                    vtk.bin
-#                    libb64-1.1
-#                    zlib-1.2.3  )
-#
-#dnl                    VTK4.4
 
           ac_config_files="$ac_config_files Makefile"
 cat >confcache <<\_ACEOF
@@ -3764,6 +3750,7 @@ s,@BUILD_TKIMG@,$BUILD_TKIMG,;t t
 s,@BUILD_TLS@,$BUILD_TLS,;t t
 s,@BUILD_VTK@,$BUILD_VTK,;t t
 s,@BUILD_ZLIB@,$BUILD_ZLIB,;t t
+s,@BUILD_VORONOI@,$BUILD_VORONOI,;t t
 s,@MEX@,$MEX,;t t
 s,@MATLAB_HOME@,$MATLAB_HOME,;t t
 s,@X86_64@,$X86_64,;t t
@@ -3932,11 +3919,6 @@ esac
 
 
 
-  if test x"$ac_file" != x-; then
-    { echo "$as_me:$LINENO: creating $ac_file" >&5
-echo "$as_me: creating $ac_file" >&6;}
-    rm -f "$ac_file"
-  fi
   # Let's still pretend it is `configure' which instantiates (i.e., don't
   # use $as_me), people would be surprised to read:
   #    /* config.h.  Generated by config.status.  */
@@ -3975,6 +3957,12 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
 	 fi;;
       esac
     done` || { (exit 1); exit 1; }
+
+  if test x"$ac_file" != x-; then
+    { echo "$as_me:$LINENO: creating $ac_file" >&5
+echo "$as_me: creating $ac_file" >&6;}
+    rm -f "$ac_file"
+  fi
 _ACEOF
 cat >>$CONFIG_STATUS <<_ACEOF
   sed "$ac_vpsub
