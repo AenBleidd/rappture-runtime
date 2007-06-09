@@ -228,6 +228,10 @@ ifeq (@BUILD_PYMOL@,yes)
 	cd $(basedir)/pymol-1.00b19 && ./configure --prefix=$(prefix) --libdir=$(libdir)
 	make -C $(basedir)/pymol-1.00b19
 	make -C $(basedir)/pymol-1.00b19 install
+	@if ! test -d $(libdir)/pymol/modules ; then \
+		mkdir -p $(libdir)/pymol; \
+	fi
+	cp -rL $(basedir)/pymol-1.00b19/modules $(libdir)/pymol
 endif
 
 #################################################
