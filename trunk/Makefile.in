@@ -48,6 +48,9 @@ ifeq (@BUILD_TCL@,yes)
 	cd $(basedir)/tcl8.4.11/unix && ./configure --enable-shared --disable-threads --with-readline --prefix=$(prefix) @X86_64@ --libdir=$(libdir)
 	make -C $(basedir)/tcl8.4.11/unix
 	make -C $(basedir)/tcl8.4.11/unix install
+	cd $(basedir)/tcl8.4.11/unix && ./configure --disable-shared --disable-threads --with-readline --prefix=$(prefix) @X86_64@ --libdir=$(libdir)
+	make -C $(basedir)/tcl8.4.11/unix
+	make -C $(basedir)/tcl8.4.11/unix install
 	cd $(bindir); rm -f tclsh; ln -s tclsh8.4 tclsh
 	@if test "`uname`" == "Linux"; then \
 		cd $(libdir); rm -f libtcl8.4.so.0; ln -s libtcl8.4.so libtcl8.4.so.0; \
