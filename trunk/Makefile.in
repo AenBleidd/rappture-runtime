@@ -45,10 +45,10 @@ ifeq (@BUILD_TCL@,yes)
 	@if test -e $(basedir)/tcl8.4.11/unix/Makefile ; then \
 		make -C $(basedir)/tcl8.4.11/unix distclean; \
 	fi
-	cd $(basedir)/tcl8.4.11/unix && ./configure --enable-shared --disable-threads --with-readline --prefix=$(prefix) @X86_64@ --libdir=$(libdir)
+	cd $(basedir)/tcl8.4.11/unix && ./configure --disable-shared --disable-threads --with-readline --prefix=$(prefix) @X86_64@ --libdir=$(libdir)
 	make -C $(basedir)/tcl8.4.11/unix
 	make -C $(basedir)/tcl8.4.11/unix install
-	cd $(basedir)/tcl8.4.11/unix && ./configure --disable-shared --disable-threads --with-readline --prefix=$(prefix) @X86_64@ --libdir=$(libdir)
+	cd $(basedir)/tcl8.4.11/unix && ./configure --enable-shared --disable-threads --with-readline --prefix=$(prefix) @X86_64@ --libdir=$(libdir)
 	make -C $(basedir)/tcl8.4.11/unix
 	make -C $(basedir)/tcl8.4.11/unix install
 	cd $(bindir); rm -f tclsh; ln -s tclsh8.4 tclsh
