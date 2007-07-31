@@ -209,14 +209,18 @@ endif
 #############################################################################
 # Install vtk 4.4 from binary
 # cd $(basedir)/vtk.bin; make RAPPTURE=$(prefix)
-#	@if test -e $(basedir)/VTK4.4/Makefile ; then \
 #		make -C $(basedir)/VTK4.4 clean; \
-#	fi
 #############################################################################
 vtk:
 ifeq (@BUILD_VTK@,yes)
 	@echo "BUIDING VTK4.4..."
-	cd $(basedir)/VTK4.4 && cmake ../VTK4.4 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix) -DBUILD_SHARED_LIBS:BOOL=ON -DTCL_TCLSH:FILEPATH=$(prefix)/bin/tclsh -DVTK_WRAP_PYTHON:BOOL=ON -DVTK_WRAP_TCL:BOOL=ON -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 -DTCL_INCLUDE_PATH:PATH=$(includedir) -DTCL_LIBRARY:FILEPATH=$(libdir)/libtcl8.4.so -DTK_INCLUDE_PATH:PATH=$(includedir) -DTK_LIBRARY:FILEPATH=$(libdir)/libtk8.4.so -DVTK_USE_HYBRID:BOOL=ON;
+	@if test -e $(basedir)/VTK4.4/Makefile ; then \
+		cd $(basedir)/VTK4.4 && make clean;\
+	fi
+	@if test -e $(basedir)/VTK4.4/CMakeCache.txt ; then \
+		rm $(basedir)/VTK4.4/CMakeCache.txt;\
+	fi
+	cd $(basedir)/VTK4.4 && cmake ../VTK4.4 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix) -DBUILD_SHARED_LIBS:BOOL=ON -DTCL_TCLSH:FILEPATH=$(prefix)/bin/tclsh -DVTK_WRAP_TCL:BOOL=ON -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 -DTCL_INCLUDE_PATH:PATH=$(includedir) -DTCL_LIBRARY:FILEPATH=$(libdir)/libtcl8.4.so -DTK_INCLUDE_PATH:PATH=$(includedir) -DTK_LIBRARY:FILEPATH=$(libdir)/libtk8.4.so -DVTK_USE_HYBRID:BOOL=ON;
 	make -C $(basedir)/VTK4.4
 	make -C $(basedir)/VTK4.4 install
 endif
