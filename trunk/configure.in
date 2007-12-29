@@ -108,6 +108,7 @@ AC_ARG_WITH(matlab,      [  --with-matlab[=DIR]         Build Matlab bindings if
 AC_ARG_WITH(matlab_arch, [  --with-matlab-arch[=ARCH]   Build Matlab bindings for ARCH architecture])
 MEX=
 MEX_ARCH=
+MATLAB_HOME="no"
 if test "$with_matlab" != "no" ; then
     dnl WITH_MATLAB = "yes"
     if test -x "$with_matlab/bin/mex"
