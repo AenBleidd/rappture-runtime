@@ -3533,7 +3533,7 @@ fi
 
 MEX=
 MEX_ARCH=
-MATLAB_HOME="no"
+MATLAB_HOME="--without-matlab"
 if test "$with_matlab" != "no" ; then
         if test -x "$with_matlab/bin/mex"
     then
