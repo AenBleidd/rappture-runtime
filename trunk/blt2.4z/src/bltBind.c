@@ -177,7 +177,7 @@ PickCurrentItem(bindPtr, eventPtr)
 				 * MotionNotify. */
 {
     int buttonDown;
-    ClientData newItem;
+    ClientData newItem, oldItem;
     ClientData newContext;
 
     /*
@@ -269,6 +269,9 @@ PickCurrentItem(bindPtr, eventPtr)
 	return;
     }
 #endif
+    oldItem = bindPtr->currentItem;
+    Tcl_Preserve(oldItem);
+    Tcl_Preserve(newItem);
     /*
      * Simulate a LeaveNotify event on the previous current item and
      * an EnterNotify event on the new current item.  Remove the "current"
@@ -337,7 +340,7 @@ PickCurrentItem(bindPtr, eventPtr)
 	    bindPtr->currentItem = savedItem;
 	    bindPtr->currentContext = savedContext;
 	}
-	return;
+	goto done;
     }
     /*
      * Special note:  it's possible that
@@ -356,6 +359,9 @@ PickCurrentItem(bindPtr, eventPtr)
 	event.xcrossing.detail = NotifyAncestor;
 	DoEvent(bindPtr, &event, newItem, newContext);
     }
+ done:
+    Tcl_Release(oldItem);
+    Tcl_Release(newItem);
 }
 
 /*

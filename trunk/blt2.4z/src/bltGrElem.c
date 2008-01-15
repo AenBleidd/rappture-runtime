@@ -59,6 +59,7 @@ extern Element *Blt_BarElement();
 extern Element *Blt_LineElement();
 
 static Blt_VectorChangedProc VectorChangedProc;
+static Tcl_FreeProc FreeElement;
 
 EXTERN int Blt_VectorExists2 _ANSI_ARGS_((Tcl_Interp *interp, char *vecName));
 
@@ -1086,11 +1087,11 @@ NameToElement(graphPtr, name, elemPtrPtr)
  *----------------------------------------------------------------------
  */
 static void
-DestroyElement(graphPtr, elemPtr)
-    Graph *graphPtr;
+DestroyElement(elemPtr)
     Element *elemPtr;
 {
     Blt_ChainLink *linkPtr;
+    Graph *graphPtr = elemPtr->graphPtr;
 
     Blt_DeleteBindings(graphPtr->bindTable, elemPtr);
     Blt_LegendRemoveElement(graphPtr->legend, elemPtr);
@@ -1171,7 +1172,7 @@ CreateElement(graphPtr, interp, argc, argv, classUid)
     if (Blt_ConfigureWidgetComponent(interp, graphPtr->tkwin, elemPtr->name,
 	    "Element", elemPtr->specsPtr, argc - 4, argv + 4, 
 		(char *)elemPtr, 0) != TCL_OK) {
-	DestroyElement(graphPtr, elemPtr);
+	DestroyElement(elemPtr);
 	return TCL_ERROR;
     }
     (*elemPtr->procsPtr->configProc) (graphPtr, elemPtr);
@@ -1186,6 +1187,13 @@ CreateElement(graphPtr, interp, argc, argv, classUid)
     graphPtr->flags |= RESET_AXES;
     Tcl_SetResult(interp, elemPtr->name, TCL_VOLATILE);
     return TCL_OK;
+}
+
+static void
+FreeElement(DestroyData data) 
+{
+    Element *elemPtr = (Element *)data;
+    DestroyElement(elemPtr);
 }
 
 /*
@@ -1268,7 +1276,7 @@ Blt_DestroyElements(graphPtr)
 	hPtr != NULL; hPtr = Blt_NextHashEntry(&cursor)) {
 	elemPtr = (Element *)Blt_GetHashValue(hPtr);
 	elemPtr->hashPtr = NULL;
-	DestroyElement(graphPtr, elemPtr);
+	DestroyElement(elemPtr);
     }
     Blt_DeleteHashTable(&graphPtr->elements.table);
     Blt_DeleteHashTable(&graphPtr->elements.tagTable);
@@ -1952,7 +1960,7 @@ DeleteOp(graphPtr, interp, argc, argv)
 	if (NameToElement(graphPtr, argv[i], &elemPtr) != TCL_OK) {
 	    return TCL_ERROR;	/* Can't find named element */
 	}
-	DestroyElement(graphPtr, elemPtr);
+	Tcl_EventuallyFree(elemPtr, FreeElement);
     }
     Blt_EventuallyRedrawGraph(graphPtr);
     return TCL_OK;

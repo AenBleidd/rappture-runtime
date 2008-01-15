@@ -1046,6 +1046,8 @@ static MarkerClass ovalMarkerClass = {
 };
 #endif
 
+static Tcl_FreeProc FreeMarker;
+
 /*
  * ----------------------------------------------------------------------
  *
@@ -1536,6 +1538,13 @@ DestroyMarker(markerPtr)
 	Blt_Free(markerPtr->tags);
     }
     Blt_Free(markerPtr);
+}
+
+static void
+FreeMarker(DestroyData data) 
+{
+    Marker *markerPtr = (Marker *)data;
+    DestroyMarker(markerPtr);
 }
 
 /*
@@ -3280,7 +3289,7 @@ ChildCustodyProc(clientData, tkwin)
     Graph *graphPtr;
 
     graphPtr = markerPtr->graphPtr;
-    DestroyMarker(markerPtr);
+    Tcl_EventuallyFree(markerPtr, FreeMarker);
     /*
      * Not really needed. We should get an Expose event when the
      * child window is unmapped.
@@ -4460,7 +4469,7 @@ DeleteOp(graphPtr, interp, argc, argv)
 
     for (i = 3; i < argc; i++) {
 	if (NameToMarker(graphPtr, argv[i], &markerPtr) == TCL_OK) {
-	    DestroyMarker(markerPtr);
+	    Tcl_EventuallyFree(markerPtr, FreeMarker);
 	}
     }
     Tcl_ResetResult(interp);
