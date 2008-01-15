@@ -309,10 +309,11 @@ static Tk_ConfigSpec configSpecs[] =
 };
 
 /* Forward declarations */
-static void DestroyAxis _ANSI_ARGS_((Graph *graphPtr, Axis *axisPtr));
+static void DestroyAxis _ANSI_ARGS_((Axis *axisPtr));
 static int GetAxis _ANSI_ARGS_((Graph *graphPtr, char *name, Blt_Uid classUid,
 	Axis **axisPtrPtr));
-static void FreeAxis _ANSI_ARGS_((Graph *graphPtr, Axis *axisPtr));
+static void ReleaseAxis _ANSI_ARGS_((Axis *axisPtr));
+static Tcl_FreeProc FreeAxis;
 
 INLINE static int
 Round(register double x)
@@ -420,7 +421,7 @@ StringToAnyAxis(clientData, interp, tkwin, string, widgRec, offset)
 
     graphPtr = Blt_GetGraphFromWindowData(tkwin);
     if (*axisPtrPtr != NULL) {
-	FreeAxis(graphPtr, *axisPtrPtr);
+	ReleaseAxis(*axisPtrPtr);
     }
     if (string[0] == '\0') {
 	axisPtr = NULL;
@@ -461,7 +462,7 @@ StringToAxis(clientData, interp, tkwin, string, widgRec, offset)
 
     graphPtr = Blt_GetGraphFromWindowData(tkwin);
     if (*axisPtrPtr != NULL) {
-	FreeAxis(graphPtr, *axisPtrPtr);
+	ReleaseAxis(*axisPtrPtr);
     }
     if (GetAxis(graphPtr, string, classUid, axisPtrPtr) != TCL_OK) {
 	return TCL_ERROR;
@@ -1798,10 +1799,10 @@ ResetTextStyles(graphPtr, axisPtr)
  * ----------------------------------------------------------------------
  */
 static void
-DestroyAxis(graphPtr, axisPtr)
-    Graph *graphPtr;
+DestroyAxis(axisPtr)
     Axis *axisPtr;
 {
+    Graph *graphPtr = axisPtr->graphPtr;
     int flags;
 
     flags = Blt_GraphType(graphPtr);
@@ -1843,6 +1844,13 @@ DestroyAxis(graphPtr, axisPtr)
 	Blt_Free(axisPtr->tags);
     }
     Blt_Free(axisPtr);
+}
+
+static void
+FreeAxis(DestroyData data) 
+{
+    Axis *axisPtr = (Axis *)data;
+    DestroyAxis(axisPtr);
 }
 
 static double titleRotate[4] =	/* Rotation for each axis title */
@@ -3189,6 +3197,7 @@ CreateAxis(graphPtr, name, margin)
 
 	axisPtr->name = Blt_Strdup(name);
 	axisPtr->hashPtr = hPtr;
+	axisPtr->graphPtr = graphPtr;
 	axisPtr->classUid = NULL;
 	axisPtr->looseMin = axisPtr->looseMax = TICK_RANGE_TIGHT;
 	axisPtr->reqNumMinorTicks = 2;
@@ -3270,13 +3279,12 @@ GetAxis(graphPtr, axisName, classUid, axisPtrPtr)
 }
 
 static void
-FreeAxis(graphPtr, axisPtr)
-    Graph *graphPtr;
+ReleaseAxis(axisPtr)
     Axis *axisPtr;
 {
     axisPtr->refCount--;
     if ((axisPtr->deletePending) && (axisPtr->refCount == 0)) {
-	DestroyAxis(graphPtr, axisPtr);
+	Tcl_EventuallyFree(axisPtr, FreeAxis);
     }
 }
 
@@ -3294,7 +3302,7 @@ Blt_DestroyAxes(graphPtr)
 	hPtr != NULL; hPtr = Blt_NextHashEntry(&cursor)) {
 	axisPtr = (Axis *)Blt_GetHashValue(hPtr);
 	axisPtr->hashPtr = NULL;
-	DestroyAxis(graphPtr, axisPtr);
+	DestroyAxis(axisPtr);
     }
     Blt_DeleteHashTable(&graphPtr->axes.table);
     for (i = 0; i < 4; i++) {
@@ -3751,7 +3759,7 @@ CreateVirtualOp(graphPtr, argc, argv)
     Tcl_SetResult(graphPtr->interp, axisPtr->name, TCL_VOLATILE);
     return TCL_OK;
   error:
-    DestroyAxis(graphPtr, axisPtr);
+    DestroyAxis(axisPtr);
     return TCL_ERROR;
 }
 
@@ -3905,7 +3913,7 @@ DeleteVirtualOp(graphPtr, argc, argv)
 	}
 	axisPtr->deletePending = TRUE;
 	if (axisPtr->refCount == 0) {
-	    DestroyAxis(graphPtr, axisPtr);
+	    Tcl_EventuallyFree(axisPtr, FreeAxis);
 	}
     }
     return TCL_OK;
