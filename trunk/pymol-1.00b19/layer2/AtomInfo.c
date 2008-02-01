@@ -29,6 +29,8 @@ Z* -------------------------------------------------------------------
 #include"OVOneToAny.h"
 #include"OVContext.h"
 
+static int RapptureSetVDWRadius(const char *symbol, float *radiusPtr);
+
 struct _CAtomInfo {
   int NColor,CColor,DColor,HColor,OColor,SColor;
   int BrColor, ClColor, FColor, IColor;
@@ -2683,7 +2685,14 @@ void AtomInfoAssignParameters(PyMOLGlobals *G,AtomInfoType *I)
   case cAN_Mn: vdw=1.73F; break;
   case cAN_Mg: vdw=1.73F; break;
   case cAN_Zn: vdw=1.39F; break;
-  case cAN_LP: vdw=0.5F; break; /* lone pairs @ 0.5 same as MOE? */
+  case cAN_LP: 
+      vdw=1.70F; break; 
+      /* 
+       * gah@purdue.edu:  Try setting default to the same as Carbon. 
+       *		  Previous setting of 0.5 is too small with 
+       *		  0.25 sphere scale. 
+       */
+      /* lone pairs @ 0.5 same as MOE? */
   default: vdw=1.80F; break;
   }
   
@@ -2700,6 +2709,8 @@ void AtomInfoAssignParameters(PyMOLGlobals *G,AtomInfoType *I)
     if(!strcmp(e,"H")) vdw=1.1F;
   }
 
+  RapptureSetVDWRadius(e, &vdw);
+
   if(I->vdw==0.0) /* only assigned if not yet assigned */
     I->vdw = vdw;
   if(!I->protons)
@@ -2709,3 +2720,90 @@ void AtomInfoAssignParameters(PyMOLGlobals *G,AtomInfoType *I)
   /*  printf("I->name %s I->priority %d\n",I->name,I->priority);*/
 }
   
+/* 
+ *
+ * RapptureSetVDWRadius --
+ *
+ *	Set the van der Waals radius of the atom given the element symbol
+ *	(e.g. "Pb"). The values are taken from wikipedia (reference
+ *	http://www.webelements.com).
+ *
+ *	gah@purdue.edu: Several atoms (e.g. Ga, As) did not have a van der
+ *	Waals radius listed by default in pymol.  They defaulted to 0.5.  That
+ *	in conjunction with the setting of sphere_scale to 0.25, made the
+ *	spheres for these atoms to tiny to see properly.
+ *
+ */
+struct VdwRadii {
+    char *symbol;
+    float radius;
+};
+
+static struct VdwRadii vdwRadii[] = {
+    /* The rows in the this table must be sorted alphabetically low to high by
+     * the element symbol. */
+    "Ag", 	1.72f,
+    "Ar", 	1.88f,
+    "As", 	1.85f,
+    "Au", 	1.66f,
+    "Br", 	1.85f,
+    "C", 	1.70f,
+    "Cd", 	1.58f,
+    "Cl", 	1.75f,
+    "Cu", 	1.40f,
+    "F", 	1.47f,
+    "Ga", 	1.87f,
+    "H", 	1.20f, 	
+    "He", 	1.40f, 	
+    "Hg", 	1.55f,
+    "I", 	1.98f,
+    "In", 	1.93f,
+    "K", 	2.75f,
+    "Kr", 	2.02f,
+    "Li", 	1.82f,
+    "Mg", 	1.73f,
+    "N", 	1.55f,
+    "Na", 	2.27f,
+    "Ne", 	1.54f,
+    "Ni", 	1.63f,
+    "O", 	1.52f,
+    "P", 	1.80f,
+    "Pb", 	2.02f,
+    "Pd", 	1.63f,
+    "Pt", 	1.75f,
+    "S", 	1.80f,
+    "Se", 	1.90f,
+    "Si", 	2.10f,
+    "Sn", 	2.17f,
+    "Te", 	2.06f,
+    "Tl", 	1.96f,
+    "U", 	1.86f,
+    "Xe", 	2.16f,
+    "Zn", 	1.39f,
+};
+
+static int nVdwRadii = sizeof(vdwRadii) / sizeof(struct VdwRadii);
+
+static int
+RapptureSetVDWRadius(const char *symbol, float *radiusPtr) 
+{
+    int low, high;
+    
+    low = 0;
+    high = nVdwRadii - 1;
+    while (low <= high) {
+	int median, result;
+
+	median = (low + high) >> 1;
+	result = strcmp(symbol, vdwRadii[median].symbol);
+	if (result < 0) {
+	    high = median - 1;
+	} else if (result > 0) {
+	    low = median + 1;
+	} else {
+	    *radiusPtr = vdwRadii[median].radius;
+	    return 1;
+	}
+    }
+    return 0;
+}
