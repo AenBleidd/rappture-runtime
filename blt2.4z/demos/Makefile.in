@@ -4,6 +4,8 @@
 
 prefix =	@prefix@
 exec_prefix =	@exec_prefix@
+datadir = 	@datadir@
+datarootdir = 	@datarootdir@
 version =	@BLT_VERSION@
 libdir =	@libdir@
 scriptdir =	$(prefix)/lib/blt$(version)

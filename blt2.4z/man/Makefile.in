@@ -6,6 +6,8 @@ prefix  	= @prefix@
 mandir  	= @mandir@
 sectiondir 	= $(mandir)/mann
 srcdir		= @srcdir@
+datadir		= @datadir@
+datarootdir	= @datarootdir@
 version		= @BLT_VERSION@
 
 instdirs	= $(mandir) $(mandir)/mann $(mandir)/man3

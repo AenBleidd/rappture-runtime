@@ -21,6 +21,8 @@ version =	@BLT_MAJOR_VERSION@@BLT_MINOR_VERSION@
 # ------------------------------------------------------------------------
 
 bindir =	$(exec_prefix)/bin
+datadir =	@datadir@
+datarootdir =	@datarootdir@
 exec_prefix =	@exec_prefix@
 incdir =	$(prefix)/include
 libdir = 	@libdir@
