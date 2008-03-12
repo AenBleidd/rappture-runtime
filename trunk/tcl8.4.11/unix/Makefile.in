@@ -28,6 +28,8 @@ PATCH_LEVEL		= @TCL_PATCH_LEVEL@
 
 prefix			= @prefix@
 exec_prefix		= @exec_prefix@
+datadir			= @datadir@
+datarootdir		= @datarootdir@
 bindir			= @bindir@
 libdir			= @libdir@
 includedir		= @includedir@

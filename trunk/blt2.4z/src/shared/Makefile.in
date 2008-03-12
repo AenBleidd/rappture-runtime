@@ -21,6 +21,8 @@ SHLIB_LD =	@SHLIB_LD@
 LDFLAGS =	@LDFLAGS@ @LD_RUN_PATH@
 
 prefix =	@prefix@
+datadir = 	@datadir@
+datarootdir = 	@datarootdir@
 exec_prefix =	@exec_prefix@
 libdir =	@libdir@
 bindir =	$(exec_prefix)/bin
