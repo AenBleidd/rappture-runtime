@@ -648,6 +648,7 @@ MEX
 MATLAB_HOME
 X86_64
 MEX_ARCH
+MATLAB_SWITCHES
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -3534,18 +3535,19 @@ fi
 MEX=
 MEX_ARCH=
 MATLAB_HOME="--without-matlab"
+MATLAB_SWITCHES=""
 if test "$with_matlab" != "no" ; then
         if test -x "$with_matlab/bin/mex"
     then
         echo Found matlab in $with_matlab/bin/mex
         MEX="$with_matlab/bin/mex"
-        MATLAB_HOME="$with_matlab"
+        MATLAB_HOME="--with-matlab=$with_matlab"
     else
         if test -x "$with_matlab"
         then
             echo Found mex in $with_matlab
             MEX="$with_matlab"
-            MATLAB_HOME="$with_matlab"
+            MATLAB_HOME="--with-matlab=$with_matlab"
         else
             # Extract the first word of "mex", so it can be a program name with args.
 set dummy mex; ac_word=$2
@@ -3633,6 +3635,8 @@ fi
 if test "x$with_matlab_arch" != "x" ; then
     MEX_ARCH="--with-matlab-arch=$with_matlab_arch"
 fi
+MATLAB_SWITCHES="${MATLAB_HOME} ${MEX_ARCH}"
+
 
 
 
@@ -4340,11 +4344,12 @@ MEX!$MEX$ac_delim
 MATLAB_HOME!$MATLAB_HOME$ac_delim
 X86_64!$X86_64$ac_delim
 MEX_ARCH!$MEX_ARCH$ac_delim
+MATLAB_SWITCHES!$MATLAB_SWITCHES$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 73; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 74; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

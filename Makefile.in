@@ -178,7 +178,7 @@ ifeq (@BUILD_SCEW@,yes)
 			cd $(basedir)/scew-0.4.0 && autoconf -f; \
 		fi \
 	fi
-	cd $(basedir)/scew-0.4.0 && ./configure --prefix=$(prefix) --libdir=$(libdir)
+	cd $(basedir)/scew-0.4.0 && CFLAGS="-I$(prefix)/include -Wall -pipe -O2 -fPIC" CPPFLAGS="-I$(prefix)/include -fPIC" ./configure --prefix=$(prefix) --libdir=$(libdir)
 	make -C $(basedir)/scew-0.4.0
 	make -C $(basedir)/scew-0.4.0 install
 	cp $(basedir)/scew-0.4.0/scew/x*.h $(includedir)/scew/.
@@ -312,7 +312,7 @@ rappture: create_install_dir pkgs rp_update
 	@if test -e $(RP_SRC)/Makefile ; then \
 		make -C $(RP_SRC) distclean; \
 	fi
-	cd $(RP_SRC) && ./configure --prefix=$(prefix) --with-matlab=@MATLAB_HOME@ @MEX_ARCH@ --libdir=$(libdir);
+	cd $(RP_SRC) && ./configure --prefix=$(prefix) @MATLAB_SWITCHES@ --libdir=$(libdir);
 	make -C $(RP_SRC) install build_pkgs;
 
 create_install_dir:

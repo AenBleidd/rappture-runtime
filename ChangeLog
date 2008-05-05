@@ -1,0 +1,6 @@
+
+    * fixed the matlab flags, --without-matlab now works properly
+    * merged in fixes for compiling zlib, libb64, scew, and rappture bindings
+        on grid computers
+
+2008-03-30: Rappture 20080330 released
