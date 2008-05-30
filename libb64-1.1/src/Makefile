@@ -7,8 +7,8 @@ TARGETS = $(LIBRARIES) $(BINARIES)
 
 LINK.o = g++
 
-CFLAGS:= -I../include
-CXXFLAGS:= -I../include
+CFLAGS:= -I../include -fPIC
+CXXFLAGS:= -I../include -fPIC
 
 vpath %.h ../include/b64
 

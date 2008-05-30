@@ -172,12 +172,12 @@ ifeq (@BUILD_SCEW@,yes)
 	@if test -e $(basedir)/scew-0.4.0/Makefile ; then \
 		make -C $(basedir)/scew-0.4.0 distclean; \
 	fi
-	@if test "x@X86_64@" != "x"; then \
-		if ! test -e $(basedir)/scew-0.4.0/configure.in.orig; then \
-			patch -b -p0 < other/scew-0.4.0-patch-64; \
-			cd $(basedir)/scew-0.4.0 && autoconf -f; \
-		fi \
-	fi
+	#@if test "x@X86_64@" != "x"; then \
+	#	if ! test -e $(basedir)/scew-0.4.0/configure.in.orig; then \
+	#		patch -b -p0 < other/scew-0.4.0-patch-64; \
+	#		cd $(basedir)/scew-0.4.0 && autoconf -f; \
+	#	fi \
+	#fi
 	cd $(basedir)/scew-0.4.0 && CFLAGS="-I$(prefix)/include -Wall -pipe -O2 -fPIC" CPPFLAGS="-I$(prefix)/include -fPIC" ./configure --prefix=$(prefix) --libdir=$(libdir)
 	make -C $(basedir)/scew-0.4.0
 	make -C $(basedir)/scew-0.4.0 install
