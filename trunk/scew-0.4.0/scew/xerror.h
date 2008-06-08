@@ -34,7 +34,6 @@
 
 #include "error.h"
 
-
 /* Sets SCEW internal last error. */
 void
 set_last_error(scew_error code);

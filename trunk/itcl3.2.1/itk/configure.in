@@ -87,8 +87,8 @@ AC_CYGWIN
 # Determines the correct binary file extension (.o, .obj, .exe etc.)
 #--------------------------------------------------------------------
 
-AC_OBJEXT
-AC_EXEEXT
+#AC_OBJEXT
+#AC_EXEEXT
 
 #--------------------------------------------------------------------
 # "cygpath" is used on windows to generate native path names for include
