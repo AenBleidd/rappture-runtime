@@ -154,15 +154,18 @@ ifeq (@BUILD_SHAPE@,yes)
 endif
 
 #################################################
+expat_version=1.95.8
+expat_version=2.0.1
+
 expat:
 ifeq (@BUILD_EXPAT@,yes)
-	@echo "BUIDING expat-1.95.8 ......."
-	@if test -e $(basedir)/expat-1.95.8/Makefile ; then \
-		make -C $(basedir)/expat-1.95.8 distclean; \
+	@echo "BUIDING expat-$(expat_version) ......."
+	@if test -e $(basedir)/expat-$(expat_version)/Makefile ; then \
+		make -C $(basedir)/expat-$(expat_version) distclean; \
 	fi
-	cd $(basedir)/expat-1.95.8 && ./configure --prefix=$(prefix) --libdir=$(libdir)
-	make -C $(basedir)/expat-1.95.8
-	make -C $(basedir)/expat-1.95.8 install
+	cd $(basedir)/expat-$(expat_version) && ./configure --prefix=$(prefix) --libdir=$(libdir)
+	make -C $(basedir)/expat-$(expat_version)
+	make -C $(basedir)/expat-$(expat_version) install
 endif
 
 #################################################
@@ -271,10 +274,10 @@ ifeq (@BUILD_LIBB64@,yes)
 		mkdir -p $(libdir); \
 	fi; \
 	cp $(basedir)/libb64-1.1/src/libb64.a $(libdir)/.;
-	cp $(basedir)/libb64-1.1/src/libb64.so.0.0 $(libdir)/.;
 	cp $(basedir)/libb64-1.1/include/b64/*.h $(includedir)/b64/.;
-	@if ! test -e $(libdir)/libb64.so ; then \
-		cd $(libdir); ln -s libb64.so.0.0 libb64.so; \
+	if test -f "$(basedir)/libb64-1.1/src/libb64.so.0.0"; then \
+	  cp $(basedir)/libb64-1.1/src/libb64.so.0.0 $(libdir)/.; \
+	  cd $(libdir); rm -f libb64.so; ln -s libb64.so.0.0 libb64.so; \
 	fi
 endif
 
