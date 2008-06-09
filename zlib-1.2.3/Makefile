@@ -16,7 +16,7 @@
 # To install in $HOME instead of /usr/local, use:
 #    make install prefix=$HOME
 
-CC=gcc -arch i386 -arch ppc
+CC=gcc
 
 CFLAGS=-fPIC -DUSE_MMAP
 #CFLAGS=-O -DMAX_WBITS=14 -DMAX_MEM_LEVEL=7
@@ -25,13 +25,13 @@ CFLAGS=-fPIC -DUSE_MMAP
 #           -Wstrict-prototypes -Wmissing-prototypes
 
 LDFLAGS=-L. libz.a
-LDSHARED=gcc -arch i386 -arch ppc
+LDSHARED=gcc
 CPP=gcc -E
 
 LIBS=libz.a
-SHAREDLIB=libz.dylib
-SHAREDLIBV=libz.1.2.3.dylib
-SHAREDLIBM=libz.1.dylib
+SHAREDLIB=libz.so
+SHAREDLIBV=libz.so.1.2.3
+SHAREDLIBM=libz.so.1
 
 AR=ar rc
 RANLIB=ranlib
@@ -39,9 +39,9 @@ TAR=tar
 SHELL=/bin/sh
 EXE=
 
-prefix =/Users/rappture/gah/builds/20080508
+prefix =/usr/local/rappture
 exec_prefix =${prefix}
-libdir =/Users/rappture/gah/builds/20080508/lib
+libdir =/usr/local/rappture/lib
 includedir =${prefix}/include
 mandir =${prefix}/share/man
 man3dir = ${mandir}/man3
