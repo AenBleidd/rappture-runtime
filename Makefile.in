@@ -37,7 +37,10 @@ INSTALL_DIR_WEB=www-data@developer.nanohub.org:/var/www/downloads/rappture
 Tarfile_linux=rappture-linux-i686-$(build_date)
 Tarfile_mac=rappture-macosx-$(build_date)
 
-all: rappture
+all: pkgs
+
+everything: rappture
+
 pkgs: tcl tk itcl tdom blt tkimg htmlwidget shape expat scew tls tcllib vtk pymol zlib libb64 voronoi
 
 #################################################
@@ -311,7 +314,7 @@ rp_update:
 		svn checkout https://repo.nanohub.org/svn/rappture/trunk rappture; \
 	fi
 
-rappture: create_install_dir pkgs rp_update
+rappture: 
 	@if test -e $(RP_SRC)/Makefile ; then \
 		make -C $(RP_SRC) distclean; \
 	fi
