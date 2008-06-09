@@ -9,11 +9,11 @@
 # 	make tcl
 #
 #############################################################################
-basedir=/Users/rappture/gah/runtime
+basedir=/home/gah/rappture/runtime
 RP_SRC=$(basedir)/rappture
 
-prefix			= /Users/rappture/gah/builds/20080508
-exec_prefix		= /Users/rappture/gah/builds/20080508
+prefix			= /usr/local/rappture
+exec_prefix		= /usr/local/rappture
 datadir			= ${datarootdir}
 datarootdir		= ${prefix}/share
 bindir			= ${exec_prefix}/bin
@@ -175,12 +175,12 @@ ifeq (yes,yes)
 	@if test -e $(basedir)/scew-0.4.0/Makefile ; then \
 		make -C $(basedir)/scew-0.4.0 distclean; \
 	fi
-	@if test "x" != "x"; then \
-		if ! test -e $(basedir)/scew-0.4.0/configure.in.orig; then \
-			patch -b -p0 < other/scew-0.4.0-patch-64; \
-			cd $(basedir)/scew-0.4.0 && autoconf -f; \
-		fi \
-	fi
+	#@if test "x" != "x"; then \
+	#	if ! test -e $(basedir)/scew-0.4.0/configure.in.orig; then \
+	#		patch -b -p0 < other/scew-0.4.0-patch-64; \
+	#		cd $(basedir)/scew-0.4.0 && autoconf -f; \
+	#	fi \
+	#fi
 	cd $(basedir)/scew-0.4.0 && CFLAGS="-I$(prefix)/include -Wall -pipe -O2 -fPIC" CPPFLAGS="-I$(prefix)/include -fPIC" ./configure --prefix=$(prefix) --libdir=$(libdir)
 	make -C $(basedir)/scew-0.4.0
 	make -C $(basedir)/scew-0.4.0 install
@@ -311,9 +311,7 @@ rp_update:
 		svn checkout https://repo.nanohub.org/svn/rappture/trunk rappture; \
 	fi
 
-.PHONY: rappture
-
-rappture: #create_install_dir pkgs rp_update
+rappture: create_install_dir pkgs rp_update
 	@if test -e $(RP_SRC)/Makefile ; then \
 		make -C $(RP_SRC) distclean; \
 	fi
