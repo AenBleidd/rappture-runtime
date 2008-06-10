@@ -43,8 +43,8 @@ clean:
 distclean: clean
 	rm -f depend
 
-depend: $(SOURCES)
-	makedepend -f- $(CFLAGS) $(SOURCES) 2> /dev/null 1> depend
+#depend: $(SOURCES)
+#	makedepend -f- $(CFLAGS) $(SOURCES) 2> /dev/null 1> depend
 
 -include depend
 
