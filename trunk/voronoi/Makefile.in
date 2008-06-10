@@ -1,0 +1,47 @@
+
+bindir          = @bindir@
+datadir         = @datadir@
+datarootdir     = @datarootdir@
+exec_prefix     = @exec_prefix@
+includedir      = @includedir@
+libdir          = @libdir@
+mandir          = @mandir@
+prefix          = @prefix@
+srcdir		= @srcdir@
+
+INSTALL         = @INSTALL@
+
+CC              = @CC@
+CFLAGS		= @CFLAGS@ 
+CDEBUGFLAGS	= -Wall -g
+VPATH		= $(srcdir)
+RM		= rm -f
+INCLUDES    	= 
+LIBS		= -lm
+
+CC_SWITCHES 	= $(CFLAGS) $(CDEBUGFLAGS) $(DEFINES) $(INCLUDES)
+
+OBJS= 		\
+		edgelist.o \
+		geometry.o \
+		heap.o \
+		main.o \
+		memory.o \
+		output.o \
+		voronoi.o
+
+all: voronoi
+
+voronoi: $(OBJS)
+	$(CC) $(CC_SWITCHES) -o $@ $(OBJS) $(LIBS)
+
+test: voronoi 
+	$(RM) t.out
+	./voronoi -t < t > t.out
+	diff t.out t.gold
+
+clean:
+	$(RM) $(OBJS) voronoi t.out
+
+distclean: clean
+	$(RM) -r Makefile *~ autom4te.cache 
