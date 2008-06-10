@@ -35,13 +35,18 @@ all: voronoi
 voronoi: $(OBJS)
 	$(CC) $(CC_SWITCHES) -o $@ $(OBJS) $(LIBS)
 
+.c.o:
+	$(CC) $(CC_SWITCHES) -c $<
+
 test: voronoi 
 	$(RM) t.out
 	./voronoi -t < t > t.out
 	diff t.out t.gold
 
+install:
+	$(INSTALL) -m 555 voronoi $(bindir)
 clean:
 	$(RM) $(OBJS) voronoi t.out
 
 distclean: clean
-	$(RM) -r Makefile *~ autom4te.cache 
+	$(RM) -r Makefile *~ autom4te.cache config.log config.status

@@ -29,12 +29,53 @@ case $host_os in
 esac
 
 PATH=$PATH:$build_dir/bin
-cd runtime
-./configure --prefix=$build_dir $config_flags
-make 
-cd ../rappture
-./configure --prefix=$build_dir $config_flags
-make all
-make install
-#cp rappture/bin/*`date +%Y%m%d`*.tar.gz $base_dir"/tars/".
+
+stage1() {
+    pwd=`pwd`
+    mkdir -p stage1
+    cd stage1
+    STAGE=stage1 ../runtime/configure --prefix=$build_dir \
+	--exec_prefix=$build_dir
+    make all
+    make install
+    cd $pwd
+}
+
+stage2() {
+    pwd=`pwd`
+    mkdir -p stage2
+    cd stage2
+    STAGE=stage2 ../runtime/configure --prefix=$build_dir \
+	--exec_prefix=$build_dir
+    make all
+    make install
+    cd $pwd
+}
+
+stage3() {
+    pwd=`pwd`
+    mkdir -p stage3
+    cd stage3
+    STAGE=stage3 ../runtime/configure --prefix=$build_dir \
+	--exec_prefix=$build_dir
+    make all
+    make install
+    cd $pwd
+}
+
+rappture() {
+    pwd=`pwd`
+    mkdir -p laststage
+    cd laststage
+    ../rappture/configure --prefix=$build_dir \
+	--exec_prefix=$build_dir
+    make all
+    make install
+    cd $pwd
+}
+
+stage1
+stage2
+rappture
+
 exit 0

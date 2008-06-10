@@ -28,7 +28,7 @@ tls_SOURCES =	tls.c tlsIO.c tlsBIO.c \
 # strncasecmp.c
 SOURCES	=	$(tls_SOURCES)
 
-tls_SCRIPT_FILES = tls.tcl
+tls_SCRIPT_FILES = $(srcdir)/tls.tcl
 
 #========================================================================
 # Enumerate the names of the object files included in this package.

@@ -284,7 +284,7 @@ HEADERS = htmlprop.h html.h cssparse.h css.h cssInt.h \
           cssprop.h htmltokens.h swproc.h htmldefaultstyle.c
 
 %.@OBJEXT@: %.c $(HEADERS)
-	$(COMPILE) -c -I. -I$(srcdir)/src `@CYGPATH@ $<` -o $@
+	$(COMPILE) -c -I$(srcdir) -I. -I$(srcdir)/src `@CYGPATH@ $<` -o $@
 
 #========================================================================
 # The special targets to generate C code from tcl and lemon files are 

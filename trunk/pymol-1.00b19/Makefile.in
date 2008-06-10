@@ -106,7 +106,7 @@ libpymol_la_OBJECTS = $(am_libpymol_la_OBJECTS)
 libsglite_la_DEPENDENCIES = contrib/sglite/libsglite0.la
 am_libsglite_la_OBJECTS =
 libsglite_la_OBJECTS = $(am_libsglite_la_OBJECTS)
-DEFAULT_INCLUDES = -I.@am__isrc@
+DEFAULT_INCLUDES = -I$(srcdir) -I.@am__isrc@
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \

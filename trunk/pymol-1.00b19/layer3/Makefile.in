@@ -46,7 +46,7 @@ liblayer3_la_LIBADD =
 am_liblayer3_la_OBJECTS = Editor.lo Executive.lo PlugIOManager.lo \
 	Seeker.lo Selector.lo
 liblayer3_la_OBJECTS = $(am_liblayer3_la_OBJECTS)
-DEFAULT_INCLUDES = -I. -I$(top_builddir)@am__isrc@
+DEFAULT_INCLUDES = -I$(srcdir) -I$(top_builddir)@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -187,8 +187,14 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-INCLUDES = -I../ov/src -I../layer0 -I../layer1 -I../layer2 \
-   -I../layer4 -I../layer5 -I../contrib/uiuc/plugins/include
+INCLUDES 	= \
+		-I$(srcdir)/../ov/src \
+		-I$(srcdir)/../layer0 \
+		-I$(srcdir)/../layer1 \
+		-I$(srcdir)/../layer2 \
+		-I$(srcdir)/../layer4 \
+		-I$(srcdir)/../layer5 \
+		-I$(srcdir)/../contrib/uiuc/plugins/include
 
 noinst_LTLIBRARIES = liblayer3.la
 liblayer3_la_SOURCES = Editor.c \

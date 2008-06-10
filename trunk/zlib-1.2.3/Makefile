@@ -39,9 +39,9 @@ TAR=tar
 SHELL=/bin/sh
 EXE=
 
-prefix =/usr/local/rappture
+prefix =/home/gah/builds/20080609
 exec_prefix =${prefix}
-libdir =/usr/local/rappture/lib
+libdir =/home/gah/builds/20080609/lib
 includedir =${prefix}/include
 mandir =${prefix}/share/man
 man3dir = ${mandir}/man3
