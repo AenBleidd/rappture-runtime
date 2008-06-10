@@ -2,6 +2,8 @@ AC_INIT(NOTES)
 
 VERSION=0.0.1
 
+AC_PREFIX
+
 #------------------------------------------------------------------------
 # Handle the --prefix=... option
 #------------------------------------------------------------------------
@@ -106,40 +108,102 @@ AC_SUBST(BUILD_VORONOI)
 
 AC_ARG_WITH(matlab,      [  --with-matlab[=DIR]         Build Matlab bindings if MEX compiler is found])
 AC_ARG_WITH(matlab_arch, [  --with-matlab-arch[=ARCH]   Build Matlab bindings for ARCH architecture])
-MEX=
-MEX_ARCH=
-MATLAB_HOME="--without-matlab"
-MATLAB_SWITCHES=""
-if test "$with_matlab" != "no" ; then
-    dnl WITH_MATLAB = "yes"
-    if test -x "$with_matlab/bin/mex"
-    then
-        echo Found matlab in $with_matlab/bin/mex
-        MEX="$with_matlab/bin/mex"
-        MATLAB_HOME="--with-matlab=$with_matlab"
-    else
-        if test -x "$with_matlab"
-        then
-            echo Found mex in $with_matlab
-            MEX="$with_matlab"
-            MATLAB_HOME="--with-matlab=$with_matlab"
-        else
-            AC_PATH_PROG(MEX, mex)
-            AC_PATH_PROG(MATLAB_HOME, mex)
-        fi
-    fi
-fi
-if test "x$with_matlab_arch" != "x" ; then
-    MEX_ARCH="--with-matlab-arch=$with_matlab_arch"
-fi
-MATLAB_SWITCHES="${MATLAB_HOME} ${MEX_ARCH}"
-dnl AM_CONDITIONAL(WITH_MATLAB, test x$MEX != x)
+
+stage1_targets="EXPAT TCL TK VORONOI"
+stage2_targets="BLT SHAPE VORONOI HTMLWIDGET TDOM TCLLIB TKIMG TLS"
+stage3_targets="VTK"
+# PYMOL
+libdir=$exec_prefix/lib
+includedir=$prefix/include
+
+#ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$PWD/tcl8.4.11 --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
+
+BLT=blt2.4z
+EXPAT=expat-2.0.1
+HTMLWIDGET=htmlwidget-3a14
+ITCL=itcl3.2.1
+LIBB64=libb64-1.1
+PYMOL=pymol-1.00b19
+SHAPE=shape0.4/unix
+TCL=tcl8.4.11/unix
+TCLLIB=tcllib-1.9
+TDOM=tDOM-0.8.0
+TK=tk8.4.11/unix
+TKIMG=tkimg1.3
+TLS=tls1.5
+VORONOI=voronoi
+VTK=VTK4.4 
+ZLIB=zlib-1.2.3
+
+stage1_dirs=""
+for i in $stage1_targets; do
+  build=BUILD_${i}
+  var=${i}_DIR
+  eval ${var}=""
+  if test "${!build}" != "no"; then
+    eval ${var}=${!i}
+    stage1_dirs="$stage1_dirs ${!i}"
+  fi
+done
+stage2_dirs=""
+for i in $stage2_targets; do
+  build=BUILD_${i}
+  var=${i}_DIR
+  eval ${var}=""
+  if test "${!build}" != "no"; then
+    eval ${var}=${!i}
+    stage2_dirs="$stage2_dirs ${!i}"
+  fi
+done
+stage3_dirs=""
+for i in $stage3_targets; do
+  build=BUILD_${i}
+  var=${i}_DIR
+  eval ${var}=""
+  if test "${!build}" != "no"; then
+    eval ${var}=${!i}
+    stage3_dirs="$stage3_dirs ${!i}"
+  fi
+done
 
 AC_SUBST(X86_64)
-AC_SUBST(MEX)
-AC_SUBST(MEX_ARCH)
-AC_SUBST(MATLAB_HOME)
-AC_SUBST(MATLAB_SWITCHES)
 
-dnl read Makefile.in and write Makefile
-AC_OUTPUT(Makefile)
+my_subdirs=""
+my_makefile=""
+if test "${STAGE}" = "stage1"; then
+  my_subdirs=$stage1_dirs
+  my_makefile="Makefile:build/Makefile-stage1.in"
+  ac_configure_args="$ac_configure_args --enable-shared --disable-threads"
+fi
+if test "${STAGE}" = "stage2"; then
+  my_subdirs=$stage2_dirs
+  my_makefile="Makefile:build/Makefile-stage2.in"
+  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
+fi
+if test "${STAGE}" = "stage3"; then
+  my_subdirs=$stage3_dirs
+  my_makefile="Makefile:build/Makefile-stage3.in"
+fi
+
+AC_SUBST(BLT_DIR)
+AC_SUBST(EXPAT_DIR)
+AC_SUBST(HTMLWIDGET_DIR)
+AC_SUBST(ITCL_DIR)
+AC_SUBST(PYMOL_DIR)
+AC_SUBST(SHAPE_DIR)
+AC_SUBST(TCLLIB_DIR)
+AC_SUBST(TCL_DIR)
+AC_SUBST(TDOM_DIR)
+AC_SUBST(TKIMG_DIR)
+AC_SUBST(TK_DIR)
+AC_SUBST(TLS_DIR)
+AC_SUBST(VORONOI_DIR)
+AC_SUBST(VTK_DIR)
+AC_SUBST(ZLIB_DIR)
+
+if test "x${my_subdirs}" != "x"; then
+  AC_CONFIG_SUBDIRS([ ${my_subdirs} ])
+fi
+if test "x${my_makefile}" != "x"; then
+  AC_OUTPUT([ ${my_makefile} ])
+fi

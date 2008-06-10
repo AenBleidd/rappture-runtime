@@ -59,7 +59,7 @@ CC_SWITCHES = $(CFLAGS) ${CFLAGS_WARNING} ${SHLIB_CFLAGS} \
 	-I${TCL_SRC_DIR}/generic -I${TCL_SRC_DIR}/unix \
 	-I${TK_SRC_DIR}/generic -I${TK_SRC_DIR}/unix
 # ----------------------------------------------------------------------
-all: @PRIMARY_TARGET@ install
+all: @PRIMARY_TARGET@ 
 
 $(OBJS): $(INCLUDE_DIR)/shape.h $(INCLUDE_DIR)/panic.h $(GENERIC_DIR)/shapeInt.h
 
@@ -85,7 +85,7 @@ distclean: clean
 install: $(SOFILE)
 	rm -rf $(INSTALLDIR)/lib/shape0.4
 	mkdir -p $(INSTALLDIR)/lib/shape0.4
-	cp pkgIndex.tcl $(INSTALLDIR)/lib/shape0.4
+	cp $(SRC_DIR)/pkgIndex.tcl $(INSTALLDIR)/lib/shape0.4
 	cp $(SOFILE) $(INSTALLDIR)/lib/shape0.4
 
 # ----------------------------------------------------------------------

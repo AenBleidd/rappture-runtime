@@ -51,7 +51,7 @@ am_liblayer1_la_OBJECTS = Basis.lo ButMode.lo CGO.lo Character.lo \
 	Seq.lo Setting.lo Shaker.lo Symmetry.lo Text.lo TypeFace.lo \
 	View.lo Wizard.lo
 liblayer1_la_OBJECTS = $(am_liblayer1_la_OBJECTS)
-DEFAULT_INCLUDES = -I. -I$(top_builddir)@am__isrc@
+DEFAULT_INCLUDES = -I$(srcdir) -I$(top_builddir)@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -192,8 +192,14 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-INCLUDES = -I../ov/src -I../layer0 -I../layer2 -I../layer3 \
-   -I../layer4 -I../layer5 -I../contrib/uiuc/plugins/include
+INCLUDES 	= \
+		-I$(srcdir)/../ov/src \
+		-I$(srcdir)/../layer0 \
+		-I$(srcdir)/../layer2 \
+		-I$(srcdir)/../layer3 \
+		-I$(srcdir)/../layer4 \
+		-I$(srcdir)/../layer5 \
+		-I$(srcdir)/../contrib/uiuc/plugins/include
 
 noinst_LTLIBRARIES = liblayer1.la
 liblayer1_la_SOURCES = Basis.c \

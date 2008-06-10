@@ -48,7 +48,7 @@ am_libsglite0_la_OBJECTS = sgcb.lo sgcharmx.lo sgfile.lo sggen.lo \
 	sgmath.lo sgmetric.lo sgnorm.lo sgprop.lo sgss.lo sgstr.lo \
 	sgsymbols.lo sgtidy.lo sgtype.lo sgutil.lo runtests.lo
 libsglite0_la_OBJECTS = $(am_libsglite0_la_OBJECTS)
-DEFAULT_INCLUDES = -I. -I$(top_builddir)@am__isrc@
+DEFAULT_INCLUDES = -I$(srcdir) -I$(top_builddir)@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -189,7 +189,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-INCLUDES = -DPythonTypes -I../modules
+INCLUDES = -DPythonTypes -I$(srcdir)/../modules
 noinst_LTLIBRARIES = libsglite0.la
 libsglite0_la_SOURCES = sgcb.c \
 sgcharmx.c \

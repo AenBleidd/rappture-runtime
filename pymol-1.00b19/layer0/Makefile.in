@@ -49,7 +49,7 @@ am_liblayer0_la_OBJECTS = Block.lo Crystal.lo Debug.lo Deferred.lo \
 	Parse.lo Pixmap.lo Queue.lo Raw.lo Sphere.lo Tetsurf.lo \
 	Texture.lo Tracker.lo Triangle.lo Util.lo Vector.lo Word.lo
 liblayer0_la_OBJECTS = $(am_liblayer0_la_OBJECTS)
-DEFAULT_INCLUDES = -I. -I$(top_builddir)@am__isrc@
+DEFAULT_INCLUDES = -I$(srcdir) -I$(top_builddir)@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -190,8 +190,14 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-INCLUDES = -I../ov/src -I../layer1 -I../layer2 -I../layer3 \
-   -I../layer4 -I../layer5 -I../contrib/uiuc/plugins/include
+INCLUDES 	= \
+		-I$(srcdir)/../ov/src \
+		-I$(srcdir)/../layer1 \
+		-I$(srcdir)/../layer2 \
+		-I$(srcdir)/../layer3 \
+		-I$(srcdir)/../layer4 \
+		-I$(srcdir)/../layer5 \
+		-I$(srcdir)/../contrib/uiuc/plugins/include
 
 noinst_LTLIBRARIES = liblayer0.la
 liblayer0_la_SOURCES = Base.h  \
