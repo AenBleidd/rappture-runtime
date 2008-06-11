@@ -65,8 +65,8 @@ stage3() {
 
 rappture() {
     pwd=`pwd`
-    mkdir -p laststage
-    cd laststage
+    mkdir -p stage.rappture
+    cd stage.rappture
     ../rappture/configure --prefix=$build_dir \
 	--exec_prefix=$build_dir
     make all
