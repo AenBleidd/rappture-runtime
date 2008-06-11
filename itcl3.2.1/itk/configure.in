@@ -180,6 +180,7 @@ else
     AC_MSG_RESULT(${ac_cv_itclstub_LIB_FILE})
 fi
 itclstub_LIB_FILE=${ac_cv_itclstub_LIB_FILE}
+
 AC_SUBST(itclstub_LIB_FILE)
 
 SC_LIB_SPEC(tkstub, ${TK_BIN_DIR})

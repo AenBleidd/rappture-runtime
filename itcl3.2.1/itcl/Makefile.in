@@ -189,7 +189,7 @@ OBJEXT = @OBJEXT@
 # RANLIB = @RANLIB@
 # commented out by dsk on 11/22/2006 because mac builds need
 # to find ranlib, and make is not properly providing it
-RANLIB = files/ranlib.sh
+RANLIB = $(srcdir)/files/ranlib.sh
 SHLIB_CFLAGS = @SHLIB_CFLAGS@
 SHLIB_LD = @SHLIB_LD@
 SHLIB_LDFLAGS = @SHLIB_LDFLAGS@

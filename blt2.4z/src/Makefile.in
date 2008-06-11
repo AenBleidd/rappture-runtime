@@ -137,12 +137,11 @@ headers =	$(srcdir)/blt.h \
 		$(srcdir)/bltTree.h \
 		$(srcdir)/bltVector.h \
 		$(srcdir)/bltInt.h \
-		$(srcdir)/bltConfig.h \
+		bltConfig.h \
 		$(srcdir)/bltMath.h \
 		$(srcdir)/bltNsUtil.h \
 		$(srcdir)/bltText.h \
-		$(srcdir)/bltTkInt.h \
-		$(srcdir)/bltHash.h
+		$(srcdir)/bltTkInt.h 
 
 lib_a =		libBLT.a
 libvers_a =	libBLT$(version).a

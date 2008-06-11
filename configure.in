@@ -110,7 +110,7 @@ AC_ARG_WITH(matlab,      [  --with-matlab[=DIR]         Build Matlab bindings if
 AC_ARG_WITH(matlab_arch, [  --with-matlab-arch[=ARCH]   Build Matlab bindings for ARCH architecture])
 
 stage1_targets="EXPAT TCL TK VORONOI"
-stage2_targets="BLT SHAPE VORONOI HTMLWIDGET TDOM TCLLIB TKIMG TLS"
+stage2_targets="ITCL ITK BLT SHAPE VORONOI HTMLWIDGET TDOM TCLLIB TKIMG TLS"
 stage3_targets="VTK"
 # PYMOL
 libdir=$exec_prefix/lib
@@ -121,7 +121,8 @@ includedir=$prefix/include
 BLT=blt2.4z
 EXPAT=expat-2.0.1
 HTMLWIDGET=htmlwidget-3a14
-ITCL=itcl3.2.1
+ITCL=itcl3.3
+ITK=itk3.3
 LIBB64=libb64-1.1
 PYMOL=pymol-1.00b19
 SHAPE=shape0.4/unix
@@ -172,23 +173,24 @@ my_subdirs=""
 my_makefile=""
 if test "${STAGE}" = "stage1"; then
   my_subdirs=$stage1_dirs
-  my_makefile="Makefile:build/Makefile-stage1.in"
+  my_makefile="Makefile:stages/Makefile-stage1.in"
   ac_configure_args="$ac_configure_args --enable-shared --disable-threads"
 fi
 if test "${STAGE}" = "stage2"; then
   my_subdirs=$stage2_dirs
-  my_makefile="Makefile:build/Makefile-stage2.in"
+  my_makefile="Makefile:stages/Makefile-stage2.in"
   ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
 fi
 if test "${STAGE}" = "stage3"; then
   my_subdirs=$stage3_dirs
-  my_makefile="Makefile:build/Makefile-stage3.in"
+  my_makefile="Makefile:stages/Makefile-stage3.in"
 fi
 
 AC_SUBST(BLT_DIR)
 AC_SUBST(EXPAT_DIR)
 AC_SUBST(HTMLWIDGET_DIR)
 AC_SUBST(ITCL_DIR)
+AC_SUBST(ITK_DIR)
 AC_SUBST(PYMOL_DIR)
 AC_SUBST(SHAPE_DIR)
 AC_SUBST(TCLLIB_DIR)

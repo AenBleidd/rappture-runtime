@@ -1,0 +1,72 @@
+
+prefix			= @prefix@
+exec_prefix		= @exec_prefix@
+datadir			= @datadir@
+datarootdir		= @datarootdir@
+bindir			= @bindir@
+libdir			= @libdir@
+includedir		= @includedir@
+mandir			= @mandir@
+srcdir			= @srcdir@
+
+RM			= rm -f
+VPATH			= $(srcdir)
+INSTALL			= @INSTALL@
+
+BLT_DIR			= @BLT_DIR@
+HTMLWIDGET_DIR		= @HTMLWIDGET_DIR@
+ITCL_DIR		= @ITCL_DIR@
+ITK_DIR			= @ITK_DIR@
+SHAPE_DIR		= @SHAPE_DIR@
+TCLLIB_DIR		= @TCLLIB_DIR@
+TDOM_DIR		= @TDOM_DIR@
+TKIMG_DIR		= @TKIMG_DIR@
+TLS_DIR			= @TLS_DIR@
+
+ifneq ($(BLT_DIR),)
+   subdirs += $(BLT_DIR)
+endif
+ifneq ($(HTMLWIDGET_DIR),)
+   subdirs += $(HTMLWIDGET_DIR)
+endif
+ifneq ($(ITCL_DIR),)
+   subdirs += $(ITCL_DIR)
+endif
+ifneq ($(ITK_DIR),)
+   subdirs += $(ITK_DIR)
+endif
+ifneq ($(SHAPE_DIR),)
+   subdirs += $(SHAPE_DIR)
+endif
+ifneq ($(TCLLIB_DIR),)
+   subdirs += $(TCLLIB_DIR)
+endif
+ifneq ($(TDOM_DIR),)
+   subdirs += $(TDOM_DIR)
+endif
+ifneq ($(TKIMG_DIR),)
+   subdirs += $(TKIMG_DIR)
+endif
+ifneq ($(TLS_DIR),)
+   subdirs += $(TLS_DIR)
+endif
+
+all: 
+	for i in $(subdirs); do \
+	   $(MAKE) -C $$i all || exit 1 ; \
+ 	done
+
+install: 
+	for i in $(subdirs); do \
+	   $(MAKE) -C $$i install || exit 1 ; \
+ 	done
+
+clean: 
+	for i in $(subdirs); do \
+	   $(MAKE) -C $$i clean || exit 1 ; \
+ 	done
+
+distclean: 
+	for i in $(subdirs); do \
+	   $(MAKE) -C $$i distclean || exit 1 ; \
+ 	done
