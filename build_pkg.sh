@@ -3,9 +3,8 @@
 host_os=`uname -s`
 echo $system
 
-base_dir=$HOME
+base_dir=$PWD
 build_dir=$base_dir"/builds/"`date +%Y%m%d`
-build_dir=/usr/local/rappture2
 mkdir -p $build_dir
 
 stage1_flags=""
