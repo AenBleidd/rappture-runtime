@@ -1231,8 +1231,8 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-blt=DIR          Build blt2.4z [default=yes]
-  --with-expat=DIR        Build expat-2.0.1 [default=yes]
+  --with-blt=DIR          Build blt2.4z [default=yes]]
+  --with-expat=DIR        Build expat-2.0.1 [default=yes]]
   --with-htmlwidget=DIR   Build htmlwidget [default=yes]
   --with-itcl=DIR         Build itcl-3.3 [default=yes]
   --with-pymol=DIR        Build pymol [default=no]
@@ -3460,118 +3460,118 @@ fi
 
 # Check whether --with-blt was given.
 if test "${with_blt+set}" = set; then
-  withval=$with_blt;
+  withval=$with_blt; with_blt=$withval
 fi
 
 
 
 # Check whether --with-expat was given.
 if test "${with_expat+set}" = set; then
-  withval=$with_expat;
+  withval=$with_expat; with_expat=$withval
 fi
 
 
 
 # Check whether --with-htmlwidget was given.
 if test "${with_htmlwidget+set}" = set; then
-  withval=$with_htmlwidget;
+  withval=$with_htmlwidget; with_htmlwidget=$withval
 fi
 
 
 
 # Check whether --with-itcl was given.
 if test "${with_itcl+set}" = set; then
-  withval=$with_itcl;
+  withval=$with_itcl; with_itcl=$withval
 fi
 
 
 
 # Check whether --with-pymol was given.
 if test "${with_pymol+set}" = set; then
-  withval=$with_pymol;
+  withval=$with_pymol; with_pymol=$withval
 fi
 
 
 
 # Check whether --with-shape was given.
 if test "${with_shape+set}" = set; then
-  withval=$with_shape;
+  withval=$with_shape; with_shape=$withval
 fi
 
 
 
 # Check whether --with-tDOM was given.
 if test "${with_tDOM+set}" = set; then
-  withval=$with_tDOM;
+  withval=$with_tDOM; with_tdom=$withval
 fi
 
 
 
 # Check whether --with-tcl was given.
 if test "${with_tcl+set}" = set; then
-  withval=$with_tcl;
+  withval=$with_tcl; with_tcl=$withval
 fi
 
 
 
 # Check whether --with-tcllib was given.
 if test "${with_tcllib+set}" = set; then
-  withval=$with_tcllib;
+  withval=$with_tcllib; with_tcllib=$withval
 fi
 
 
 
 # Check whether --with-tk was given.
 if test "${with_tk+set}" = set; then
-  withval=$with_tk;
+  withval=$with_tk; with_tk=$withval
 fi
 
 
 
 # Check whether --with-tkimg was given.
 if test "${with_tkimg+set}" = set; then
-  withval=$with_tkimg;
+  withval=$with_tkimg; with_tkimg=$withval
 fi
 
 
 
 # Check whether --with-tls was given.
 if test "${with_tls+set}" = set; then
-  withval=$with_tls;
+  withval=$with_tls; with_tls=$withval
 fi
 
 
 
 # Check whether --with-vtk was given.
 if test "${with_vtk+set}" = set; then
-  withval=$with_vtk;
+  withval=$with_vtk; with_vtk=$withval
 fi
 
 
 
 # Check whether --with-zlib was given.
 if test "${with_zlib+set}" = set; then
-  withval=$with_zlib;
+  withval=$with_zlib; with_zlib=$withval
 fi
 
 
 
 # Check whether --with-voronoi was given.
 if test "${with_voronoi+set}" = set; then
-  withval=$with_voronoi;
+  withval=$with_voronoi; with_voronoi=$withval
 fi
 
 
 
 # Check whether --with-matlab was given.
 if test "${with_matlab+set}" = set; then
-  withval=$with_matlab;
+  withval=$with_matlab; with_matlab=$withval
 fi
 
 
 # Check whether --with-matlab_arch was given.
 if test "${with_matlab_arch+set}" = set; then
-  withval=$with_matlab_arch;
+  withval=$with_matlab_arch; with_matlab_arch=$withval
 fi
 
 
@@ -3604,7 +3604,7 @@ for i in $stage1_targets; do
   build=BUILD_${i}
   var=${i}_DIR
   eval ${var}=""
-  if test "${!build}" != "no"; then
+  if test "${!build}" = "yes"; then
     eval ${var}=${!i}
     stage1_dirs="$stage1_dirs ${!i}"
   fi
@@ -3614,7 +3614,7 @@ for i in $stage2_targets; do
   build=BUILD_${i}
   var=${i}_DIR
   eval ${var}=""
-  if test "${!build}" != "no"; then
+  if test "${!build}" = "yes"; then
     eval ${var}=${!i}
     stage2_dirs="$stage2_dirs ${!i}"
   fi
@@ -3624,7 +3624,7 @@ for i in $stage3_targets; do
   build=BUILD_${i}
   var=${i}_DIR
   eval ${var}=""
-  if test "${!build}" != "no"; then
+  if test "${!build}" = "yes"; then
     eval ${var}=${!i}
     stage3_dirs="$stage3_dirs ${!i}"
   fi
