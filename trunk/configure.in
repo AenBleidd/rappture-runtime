@@ -76,70 +76,87 @@ fi
 
 AC_ARG_WITH([blt],
   AS_HELP_STRING([--with-blt[=DIR]], 
-    [Build blt2.4z @<:@default=yes@:>@]))
+    [Build blt2.4z @<:@default=yes@:>@])],
+    [with_blt=$withval])
 
 AC_ARG_WITH([expat],
   AS_HELP_STRING([--with-expat[=DIR]], 
-    [Build expat-2.0.1 @<:@default=yes@:>@]))
+    [Build expat-2.0.1 @<:@default=yes@:>@])],
+    [with_expat=$withval])
 
 AC_ARG_WITH([htmlwidget],
   [AS_HELP_STRING([--with-htmlwidget[=DIR]], 
-    [Build htmlwidget @<:@default=yes@:>@])])
+    [Build htmlwidget @<:@default=yes@:>@])],
+    [with_htmlwidget=$withval])
 
 AC_ARG_WITH([itcl],
   [AS_HELP_STRING([--with-itcl[=DIR]], 
-    [Build itcl-3.3 @<:@default=yes@:>@])])
+    [Build itcl-3.3 @<:@default=yes@:>@])],
+    [with_itcl=$withval])
 
 AC_ARG_WITH([pymol],
   [AS_HELP_STRING([--with-pymol[=DIR]], 
-     [Build pymol @<:@default=no@:>@])])
+     [Build pymol @<:@default=no@:>@])],
+    [with_pymol=$withval])
 
 AC_ARG_WITH([shape],
   [AS_HELP_STRING([--with-shape[=DIR]], 
-    [Build shape-0.4 @<:@default=yes@:>@])])
+    [Build shape-0.4 @<:@default=yes@:>@])],
+    [with_shape=$withval])
 
 AC_ARG_WITH([tDOM],
   [AS_HELP_STRING([--with-tDOM[=DIR]], 
-    [Build tDOM-0.8.2 @<:@default=yes@:>@])])
+    [Build tDOM-0.8.2 @<:@default=yes@:>@])],
+    [with_tdom=$withval])
 
 AC_ARG_WITH([tcl],
   [AS_HELP_STRING([--with-tcl[=DIR]], 
-    [Build tcl8.4.11 @<:@default=yes@:>@])])
+    [Build tcl8.4.11 @<:@default=yes@:>@])],
+    [with_tcl=$withval])
 
 AC_ARG_WITH([tcllib],
   [AS_HELP_STRING([--with-tcllib[=DIR]], 
-    [Build tcllib @<:@default=yes@:>@])])
+    [Build tcllib @<:@default=yes@:>@])],
+    [with_tcllib=$withval])
 
 AC_ARG_WITH([tk],
   [AS_HELP_STRING([--with-tk[=DIR]], 
-    [Build tk8.4.11 @<:@default=yes@:>@])])
+    [Build tk8.4.11 @<:@default=yes@:>@])],
+    [with_tk=$withval])
 
 AC_ARG_WITH([tkimg],
   [AS_HELP_STRING([--with-tkimg[=DIR]], 
-    [Build tkimg-1.3 @<:@default=yes@:>@])])
+    [Build tkimg-1.3 @<:@default=yes@:>@])],
+    [with_tkimg=$withval])
 
 AC_ARG_WITH([tls],
   [AS_HELP_STRING([--with-tls[=DIR]], 
-    [Build tls @<:@default=yes@:>@])])
+    [Build tls @<:@default=yes@:>@])],
+    [with_tls=$withval])
 
 AC_ARG_WITH([vtk],
   [AS_HELP_STRING([--with-vtk[=DIR]], 
-    [Build vtk-4.4 @<:@default=no@:>@])])
+    [Build vtk-4.4 @<:@default=no@:>@])],
+    [with_vtk=$withval])
 
 AC_ARG_WITH([zlib],
   [AS_HELP_STRING([--with-zlib[=DIR]], 
-    [Build zlib-1.2.3 @<:@default=no@:>@])])
+    [Build zlib-1.2.3 @<:@default=no@:>@])],
+    [with_zlib=$withval])
 
 AC_ARG_WITH([voronoi],
   [AS_HELP_STRING([--with-voronoi[=DIR]], 
-    [Build voronoi @<:@default=no@:>@])])
+    [Build voronoi @<:@default=no@:>@])],
+    [with_voronoi=$withval])
 
 AC_ARG_WITH([matlab], 
   [AS_HELP_STRING([--with-matlab[=DIR]],
-    [Build MATLAB bindings if MEX compiler is found])])
+    [Build MATLAB bindings if MEX compiler is found])],
+    [with_matlab=$withval])
 AC_ARG_WITH([matlab_arch], 
   [AS_HELP_STRING([--with-matlab-arch[=ARCH]],
-    [Build MATLAB bindings for ARCH architecture])])
+    [Build MATLAB bindings for ARCH architecture])],
+    [with_matlab_arch=$withval])
 
 BUILD_BLT=$with_blt
 BUILD_EXPAT=$with_expat
@@ -170,7 +187,7 @@ for i in $stage1_targets; do
   build=BUILD_${i}
   var=${i}_DIR
   eval ${var}=""
-  if test "${!build}" != "no"; then
+  if test "${!build}" = "yes"; then
     eval ${var}=${!i}
     stage1_dirs="$stage1_dirs ${!i}"
   fi
@@ -180,7 +197,7 @@ for i in $stage2_targets; do
   build=BUILD_${i}
   var=${i}_DIR
   eval ${var}=""
-  if test "${!build}" != "no"; then
+  if test "${!build}" = "yes"; then
     eval ${var}=${!i}
     stage2_dirs="$stage2_dirs ${!i}"
   fi
@@ -190,7 +207,7 @@ for i in $stage3_targets; do
   build=BUILD_${i}
   var=${i}_DIR
   eval ${var}=""
-  if test "${!build}" != "no"; then
+  if test "${!build}" = "yes"; then
     eval ${var}=${!i}
     stage3_dirs="$stage3_dirs ${!i}"
   fi
