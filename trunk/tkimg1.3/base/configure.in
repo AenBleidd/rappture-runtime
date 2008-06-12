@@ -20,6 +20,10 @@ AC_CONFIG_AUX_DIR(tclconfig)
 CONFIGDIR=${srcdir}/tclconfig
 AC_SUBST(CONFIGDIR)
 
+
+AC_PROG_CC
+AC_PROG_CPP
+
 #--------------------------------------------------------------------
 # Setting our package name and version numbers.  The NODOT_VERSION is
 # required for constructing the library name on systems that don't like

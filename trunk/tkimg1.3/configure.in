@@ -7,6 +7,8 @@ AC_CONFIG_AUX_DIR(tclconfig)
 CONFIGDIR=${srcdir}/tclconfig
 AC_SUBST(CONFIGDIR)
 
+AC_PROG_CC
+AC_PROG_CPP
 # @(#) configure.in 1.0 97/2/11 12:50:30
 
 IMG_VERSION=1.3
@@ -32,6 +34,7 @@ AC_SUBST(IMG_MINOR_VERSION)
 TEA_SETUP_COMPILER
 
 ## All relevant packages are configuration subdirectories.
+
 
 # I. Support
 

@@ -9,14 +9,8 @@ mkdir -p $build_dir
 
 case $host_os in 
    *Darwin* )
-# Lots of broken configure scripts looking for /lib/cpp on the Mac.
-# Set CPP manually here.
-      CC="gcc -arch i386 -arch ppc"
-      CXX="g++ -arch i386 -arch ppc"
-      CPP="gcc -E"
-      CXXCPP="gcc -E"
-      F77="gfortran -arch i386 -arch ppc"
-      export CPP CC F77 CXX CXXCPP
+      F77="gfortran"
+      export F77 
       DYLD_LIBRARY_PATH=$build_dir/lib
       export DYLD_LIBRARY_PATH
       config_flags="--without-pymol --without-vtk --with-matlab=no"
@@ -34,8 +28,7 @@ stage1() {
     pwd=`pwd`
     mkdir -p stage1
     cd stage1
-    STAGE=stage1 ../runtime/configure --prefix=$build_dir \
-	--exec_prefix=$build_dir
+    ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir
     make all
     make install
     cd $pwd
@@ -45,8 +38,7 @@ stage2() {
     pwd=`pwd`
     mkdir -p stage2
     cd stage2
-    STAGE=stage2 ../runtime/configure --prefix=$build_dir \
-	--exec_prefix=$build_dir
+    ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir
     make all
     make install
     cd $pwd
@@ -56,8 +48,7 @@ stage3() {
     pwd=`pwd`
     mkdir -p stage3
     cd stage3
-    STAGE=stage3 ../runtime/configure --prefix=$build_dir \
-	--exec_prefix=$build_dir
+    ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir
     make all
     make install
     cd $pwd
