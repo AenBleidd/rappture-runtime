@@ -16,27 +16,19 @@ INSTALL			= @INSTALL@
 TCL_DIR			= @TCL_DIR@
 TK_DIR			= @TK_DIR@
 EXPAT_DIR		= @EXPAT_DIR@
-VORONOI_DIR		= @VORONOI_DIR@
 ZLIB_DIR		= @ZLIB_DIR@
-PYMOL_DIR		= @PYMOL_DIR@
 
+ifneq ($(ZLIB_DIR),)
+   subdirs += ($ZLIB_DIR)
+endif
+ifneq ($(EXPAT_DIR),)
+   subdirs += $(EXPAT_DIR)
+endif
 ifneq ($(TCL_DIR),)
    subdirs += $(TCL_DIR)
 endif
 ifneq ($(TK_DIR),)
    subdirs += $(TK_DIR)
-endif
-ifneq ($(EXPAT_DIR),)
-   subdirs += $(EXPAT_DIR)
-endif
-ifneq ($(PYMOL_DIR),)
-   subdirs += $(PYMOL_DIR)
-endif
-ifneq ($(ZLIB_DIR),)
-   subdirs += ($ZLIB_DIR)
-endif
-ifneq ($(VORONOI_DIR),)
-   subdirs += $(VORONOI_DIR)
 endif
 
 all: 

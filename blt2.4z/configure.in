@@ -183,7 +183,7 @@ case $target in
       blt_lib_prefix=""
     fi
     ;;
-  *-*-macosx)
+  *-*-macosx|*-darwin*)
     blt_platform="macosx"
     ;;
   *)
@@ -725,6 +725,9 @@ TCL_LIB_SPEC="-l${TCL_LIB_NAME}"
 TK_LIB_SPEC="-l${TK_LIB_NAME}"
 
 case $target in
+  *-darwin*)
+    SHLIB_SUFFIX="dylib"
+    ;;
   *-hpux*)
     SHLIB_SUFFIX="sl"
     ;;
@@ -1143,6 +1146,13 @@ case $target in
     SHLIB_LD_FLAGS='-shared -Wl,-E -Wl,--out-implib,$@'
     EXTRA_LIB_SPECS="-lwinspool"
     LDFLAGS=""
+    ;;
+
+  darwin-*)
+    SO_CFLAGS="-fno-common"
+    SO_LD_FLAGS="-dynamiclib"
+    SO_EXT=".dylib"
+    LDFLAGS="-Wl,-single_module"
     ;;
 
   *-dgux*)
