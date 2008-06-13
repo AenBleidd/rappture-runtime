@@ -25,6 +25,8 @@ dnl find and test the C compiler
 AC_PROG_CC
 AC_LANG_C
 
+AC_PATH_X
+
 # AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
@@ -38,7 +40,6 @@ EXPAT=expat-2.0.1
 HTMLWIDGET=htmlwidget-3a14
 ITCL=itcl3.3
 ITK=itk3.3
-LIBB64=libb64-1.1
 PYMOL=pymol-1.00b19
 SHAPE=shape0.4/unix
 TCL=tcl8.4.19/unix
@@ -54,21 +55,22 @@ ZLIB=zlib-1.2.3
 # Option default 
 # 
 BUILD_BLT=yes
-BUILD_VTK=no
+BUILD_EXPAT=no
+BUILD_HTMLWIDGET=yes
 BUILD_ITCL=yes
 BUILD_ITK=yes
-BUILD_HTMLWIDGET=yes
-BUILD_ZLIB=no
-BUILD_SHAPE=yes
-BUILD_VORONOI=yes
-BUILD_TLS=yes
-BUILD_TCL=yes
-BUILD_TK=yes
-BUILD_TCLLIB=yes
-BUILD_TKIMG=yes
-BUILD_TDOM=yes
-BUILD_PYMOL=no
 BUILD_MATLAB=yes
+BUILD_PYMOL=no
+BUILD_SHAPE=yes
+BUILD_TCL=yes
+BUILD_TCLLIB=yes
+BUILD_TDOM=yes
+BUILD_TK=yes
+BUILD_TKIMG=yes
+BUILD_TLS=yes
+BUILD_VORONOI=yes
+BUILD_VTK=no
+BUILD_ZLIB=no
 
 AC_ARG_ENABLE(64bit,       [  --enable-64bit              Enable 64bit support (where applicable)])
 X86_64=
