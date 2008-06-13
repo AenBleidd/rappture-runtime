@@ -10,7 +10,7 @@ mkdir -p $build_dir
 stage1_flags=""
 stage2_flags=""
 stage3_flags=""
-rappture_flags="--with-matlab=no"
+rappture_flags=""
 
 case $host_os in 
    *Darwin* )
