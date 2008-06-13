@@ -25,7 +25,7 @@ case $host_os in
       ;;
 esac
 
-PATH=$PATH:$build_dir/bin
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/X11R6/bin:/usr/X11/bin:/usr/openwin/bin:$PATH:$build_dir/bin
 
 stage1() {
     pwd=`pwd`
