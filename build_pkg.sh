@@ -14,8 +14,6 @@ rappture_flags=""
 
 case $host_os in 
    *Darwin* )
-      F77="gfortran"
-      export F77 
       DYLD_LIBRARY_PATH=$build_dir/lib
       export DYLD_LIBRARY_PATH
       ;;
@@ -33,8 +31,8 @@ stage1() {
     cd stage1
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$stage1_flags
-    make all
-    make install
+    make -w all
+    make -w install
     cd $pwd
 }
 
@@ -44,8 +42,8 @@ stage2() {
     cd stage2
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
 	$stage2_flags
-    make all
-    make install
+    make -w all
+    make -w install
     cd $pwd
 }
 
@@ -55,8 +53,8 @@ stage3() {
     cd stage3
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$stage3_flags
-    make all
-    make install
+    make -w all
+    make -w install
     cd $pwd
 }
 
@@ -66,8 +64,8 @@ rappture() {
     cd stage.rappture
     ../rappture/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$rappture_flags
-    make all
-    make install
+    make -w all
+    make -w install
     cd $pwd
 }
 
