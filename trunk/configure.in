@@ -223,6 +223,7 @@ if test "${STAGE}" = "stage3"; then
   my_makefile="Makefile:stages/Makefile-stage3.in"
 fi
 
+AC_PATH_X
 
 AC_SUBST(BLT_DIR)
 AC_SUBST(EXPAT_DIR)
