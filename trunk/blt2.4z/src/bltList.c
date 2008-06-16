@@ -68,7 +68,7 @@ FindArray(listPtr, key)
     CONST char *key;		/* Key to match */
 {
     register struct Blt_ListNodeStruct *nodePtr;
-    int nBytes;
+    size_t nBytes;
 
     nBytes = sizeof(int) * listPtr->type;
     for (nodePtr = listPtr->headPtr; nodePtr != NULL; 
@@ -114,7 +114,7 @@ FreeNode(nodePtr)
 /*LINTLIBRARY*/
 Blt_List 
 Blt_ListCreate(type)
-    int type;
+    size_t type;
 {
     struct Blt_ListStruct *listPtr;
 
@@ -151,7 +151,7 @@ Blt_ListCreateNode(listPtr, key)
     CONST char *key;		/* Unique key to reference object */
 {
     register struct Blt_ListNodeStruct *nodePtr;
-    int keySize;
+    size_t keySize;
 
     if (listPtr->type == BLT_STRING_KEYS) {
 	keySize = strlen(key) + 1;
@@ -250,7 +250,7 @@ Blt_ListDestroy(listPtr)
 void
 Blt_ListInit(listPtr, type)
     struct Blt_ListStruct *listPtr;
-    int type;
+    size_t type;
 {
     listPtr->nNodes = 0;
     listPtr->headPtr = listPtr->tailPtr = NULL;
