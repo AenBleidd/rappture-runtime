@@ -1,0 +1,29 @@
+AC_INIT(configure.in)
+AC_PREFIX
+
+#------------------------------------------------------------------------
+# Handle the --prefix=... option
+#------------------------------------------------------------------------
+
+if test "${prefix}" = "NONE"; then
+    prefix=/usr/local
+fi
+if test "${exec_prefix}" = "NONE"; then
+    exec_prefix=$prefix
+fi
+libdir=$exec_prefix/lib
+includedir=$prefix/include
+
+pymol=pymol-1.00b19
+PYMOL_DIR=$pymol
+
+#
+# Copy from the srcdir the source to pymol since it can't be built in a 
+# different directory from the sources.
+#
+rm -rf $pymol
+tar -C $srcdir -clf - $pymol | tar -xpf - 
+(cd $pymol; ./configure --prefix=$prefix --exec_prefix=$exec_prefix --enable-shared)
+
+AC_SUBST(PYMOL_DIR)
+AC_OUTPUT(Makefile)

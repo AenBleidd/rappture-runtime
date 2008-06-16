@@ -1,0 +1,15 @@
+
+This directory is wrapper for the zlib distribution.
+
+Zlib must be built in the same directory as its sources. 
+We use this directory to copy (via configure) of the sources
+to the build subdirectory.  The Makefile simply relays the
+make all/install/clean/distclean commands to the Makefile in the 
+copied directory.
+
+The good news is that you probably don't need to build zlib
+yourself as your system probably has a version already.
+
+--gah
+
+

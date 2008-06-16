@@ -1,0 +1,34 @@
+
+prefix			= @prefix@
+exec_prefix		= @exec_prefix@
+datadir			= @datadir@
+datarootdir		= @datarootdir@
+bindir			= @bindir@
+libdir			= @libdir@
+includedir		= @includedir@
+mandir			= @mandir@
+srcdir			= @srcdir@
+
+RM			= rm -f
+VPATH			= $(srcdir)
+INSTALL			= @INSTALL@
+
+PYMOL_DIR		= @PYMOL_DIR@
+
+.PHONY: pymol
+
+all: pymol
+
+pymol:
+	$(MAKE) -C $(PYMOL_DIR) all 
+
+install: 
+	$(MAKE) -C $(PYMOL_DIR) install 
+
+clean: 
+	$(MAKE) -C $(PYMOL_DIR) clean
+
+distclean: 
+	$(MAKE) -C $(PYMOL_DIR) distclean
+	$(RM) Makefile *~
+

@@ -19,7 +19,7 @@ EXPAT_DIR		= @EXPAT_DIR@
 ZLIB_DIR		= @ZLIB_DIR@
 
 ifneq ($(ZLIB_DIR),)
-   subdirs += ($ZLIB_DIR)
+   subdirs += $(ZLIB_DIR)
 endif
 ifneq ($(EXPAT_DIR),)
    subdirs += $(EXPAT_DIR)

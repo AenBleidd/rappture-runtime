@@ -3,7 +3,7 @@
 host_os=`uname -s`
 echo $system
 
-base_dir=$PWD
+base_dir=`pwd`
 build_dir=$base_dir"/builds/"`date +%Y%m%d`
 mkdir -p $build_dir
 
@@ -31,8 +31,8 @@ stage1() {
     cd stage1
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$stage1_flags
-    make -w all
-    make -w install
+    make -w all || exit 1
+    make -w install || exit 1
     cd $pwd
 }
 
@@ -42,8 +42,8 @@ stage2() {
     cd stage2
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
 	$stage2_flags
-    make -w all
-    make -w install
+    make -w all || exit 2
+    make -w install || exit 2
     cd $pwd
 }
 
@@ -53,8 +53,8 @@ stage3() {
     cd stage3
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$stage3_flags
-    make -w all
-    make -w install
+    make -w all || exit 3
+    make -w install || exit 3
     cd $pwd
 }
 
@@ -64,8 +64,8 @@ rappture() {
     cd stage.rappture
     ../rappture/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$rappture_flags
-    make -w all
-    make -w install
+    make -w all || exit 4
+    make -w install || exit 4
     cd $pwd
 }
 
