@@ -168,6 +168,14 @@ stage1_targets="EXPAT TCL TK ZLIB"
 stage2_targets="ITCL ITK BLT SHAPE VORONOI HTMLWIDGET TDOM TCLLIB TKIMG TLS"
 stage3_targets="VTK PYMOL"
 
+if test "${BUILD_EXPAT}" = "no" ; then
+  AC_CHECK_LIBRARY(expat, XML_ParserCreate, [BUILD_EXPAT="no"], 
+	[BUILD_EXPAT="yes"])
+fi
+if test "${BUILD_ZLIB}" = "no" ; then
+  AC_CHECK_LIBRARY(z, deflate, [BUILD_ZLIB="no"], [BUILD_ZLIB="yes"])
+fi
+
 #ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$PWD/tcl8.4.11 --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
 
 stage1_dirs=""

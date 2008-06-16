@@ -7,7 +7,7 @@ base_dir=$PWD
 build_dir=$base_dir"/builds/"`date +%Y%m%d`
 mkdir -p $build_dir
 
-stage1_flags=""
+stage1_flags="--with-expat"
 stage2_flags=""
 stage3_flags=""
 rappture_flags=""

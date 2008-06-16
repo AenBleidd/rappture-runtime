@@ -1427,7 +1427,7 @@ dnl AC_CHECK_TOOL(AR, ar, :)
 	    LDFLAGS="$LDFLAGS -prebind -Wl,-search_paths_first"
 	    LD_SEARCH_FLAGS=""
 	    LD_LIBRARY_PATH_VAR="DYLD_LIBRARY_PATH"
-	    CFLAGS_OPTIMIZE="-Os"
+	    CFLAGS_OPTIMIZE="-O2"
 	    ;;
 	NEXTSTEP-*)
 	    SHLIB_CFLAGS=""
