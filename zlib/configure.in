@@ -1,0 +1,29 @@
+AC_INIT(configure.in)
+AC_PREFIX
+
+#------------------------------------------------------------------------
+# Handle the --prefix=... option
+#------------------------------------------------------------------------
+
+if test "${prefix}" = "NONE"; then
+    prefix=/usr/local
+fi
+if test "${exec_prefix}" = "NONE"; then
+    exec_prefix=$prefix
+fi
+libdir=$exec_prefix/lib
+includedir=$prefix/include
+
+zlib=zlib-1.2.3
+ZLIB_DIR=$zlib
+
+#
+# Copy from the srcdir the source to zlib since it can't be build in a 
+# different directory from the sources.
+#
+rm -rf $zlib
+tar -C $srcdir -clf - $zlib | tar -xpf - 
+(cd $zlib; ./configure --prefix=$prefix --exec_prefix=$exec_prefix --shared)
+
+AC_SUBST(ZLIB_DIR)
+AC_OUTPUT(Makefile)

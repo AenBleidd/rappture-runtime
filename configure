@@ -646,13 +646,16 @@ CPPFLAGS
 ac_ct_CC
 EXEEXT
 OBJEXT
-XMKMF
-CPP
+INSTALL_PROGRAM
+INSTALL_SCRIPT
+INSTALL_DATA
 SET_MAKE
+CPP
 GREP
 EGREP
 VERSION
 X86_64
+XMKMF
 BLT_DIR
 EXPAT_DIR
 HTMLWIDGET_DIR
@@ -675,7 +678,6 @@ LTLIBOBJS'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
-with_x
 enable_64bit
 with_blt
 with_expat
@@ -694,6 +696,7 @@ with_vtk
 with_zlib
 with_voronoi
 with_matlab
+with_x
 '
       ac_precious_vars='build_alias
 host_alias
@@ -703,8 +706,8 @@ CFLAGS
 LDFLAGS
 LIBS
 CPPFLAGS
-XMKMF
-CPP'
+CPP
+XMKMF'
 ac_subdirs_all='${my_subdirs} '
 
 # Initialize some variables set by options.
@@ -1333,7 +1336,6 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-x                use the X Window System
   --with-blt=DIR          Build blt2.4z [default=yes]]
   --with-expat=DIR        Build expat-2.0.1 [default=yes]]
   --with-htmlwidget=DIR   Build htmlwidget [default=yes]
@@ -1351,6 +1353,7 @@ Optional Packages:
   --with-zlib=DIR         Build zlib-1.2.3 [default=no]
   --with-voronoi=DIR      Build voronoi [default=no]
   --with-matlab=DIR       Build matlab [default=no]
+  --with-x                use the X Window System
 
 Some influential environment variables:
   CC          C compiler command
@@ -1360,8 +1363,8 @@ Some influential environment variables:
   LIBS        libraries to pass to the linker, e.g. -l<library>
   CPPFLAGS    C/C++/Objective C preprocessor flags, e.g. -I<include dir> if
               you have headers in a nonstandard directory <include dir>
-  XMKMF       Path to xmkmf, Makefile generator for X Window System
   CPP         C preprocessor
+  XMKMF       Path to xmkmf, Makefile generator for X Window System
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -2851,6 +2854,162 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+ac_aux_dir=
+for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
+  if test -f "$ac_dir/install-sh"; then
+    ac_aux_dir=$ac_dir
+    ac_install_sh="$ac_aux_dir/install-sh -c"
+    break
+  elif test -f "$ac_dir/install.sh"; then
+    ac_aux_dir=$ac_dir
+    ac_install_sh="$ac_aux_dir/install.sh -c"
+    break
+  elif test -f "$ac_dir/shtool"; then
+    ac_aux_dir=$ac_dir
+    ac_install_sh="$ac_aux_dir/shtool install -c"
+    break
+  fi
+done
+if test -z "$ac_aux_dir"; then
+  { { $as_echo "$as_me:$LINENO: error: cannot find install-sh or install.sh in \"$srcdir\" \"$srcdir/..\" \"$srcdir/../..\"" >&5
+$as_echo "$as_me: error: cannot find install-sh or install.sh in \"$srcdir\" \"$srcdir/..\" \"$srcdir/../..\"" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+# These three variables are undocumented and unsupported,
+# and are intended to be withdrawn in a future Autoconf release.
+# They can cause serious problems if a builder's source tree is in a directory
+# whose full name contains unusual characters.
+ac_config_guess="$SHELL $ac_aux_dir/config.guess"  # Please don't use this var.
+ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
+ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
+
+
+# Find a good install program.  We prefer a C program (faster),
+# so one script is as good as another.  But avoid the broken or
+# incompatible versions:
+# SysV /etc/install, /usr/sbin/install
+# SunOS /usr/etc/install
+# IRIX /sbin/install
+# AIX /bin/install
+# AmigaOS /C/install, which installs bootblocks on floppy discs
+# AIX 4 /usr/bin/installbsd, which doesn't work without a -g flag
+# AFS /usr/afsws/bin/install, which mishandles nonexistent args
+# SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
+# OS/2's system install, which has a completely different semantic
+# ./install, which can be erroneously created by make from ./install.sh.
+# Reject install programs that cannot install multiple files.
+{ $as_echo "$as_me:$LINENO: checking for a BSD-compatible install" >&5
+$as_echo_n "checking for a BSD-compatible install... " >&6; }
+if test -z "$INSTALL"; then
+if test "${ac_cv_path_install+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  # Account for people who put trailing slashes in PATH elements.
+case $as_dir/ in
+  ./ | .// | /cC/* | \
+  /etc/* | /usr/sbin/* | /usr/etc/* | /sbin/* | /usr/afsws/bin/* | \
+  ?:\\/os2\\/install\\/* | ?:\\/OS2\\/INSTALL\\/* | \
+  /usr/ucb/* ) ;;
+  *)
+    # OSF1 and SCO ODT 3.0 have their own names for install.
+    # Don't use installbsd from OSF since it installs stuff as root
+    # by default.
+    for ac_prog in ginstall scoinst install; do
+      for ac_exec_ext in '' $ac_executable_extensions; do
+	if { test -f "$as_dir/$ac_prog$ac_exec_ext" && $as_test_x "$as_dir/$ac_prog$ac_exec_ext"; }; then
+	  if test $ac_prog = install &&
+	    grep dspmsg "$as_dir/$ac_prog$ac_exec_ext" >/dev/null 2>&1; then
+	    # AIX install.  It has an incompatible calling convention.
+	    :
+	  elif test $ac_prog = install &&
+	    grep pwplus "$as_dir/$ac_prog$ac_exec_ext" >/dev/null 2>&1; then
+	    # program-specific install script used by HP pwplus--don't use.
+	    :
+	  else
+	    rm -rf conftest.one conftest.two conftest.dir
+	    echo one > conftest.one
+	    echo two > conftest.two
+	    mkdir conftest.dir
+	    if "$as_dir/$ac_prog$ac_exec_ext" -c conftest.one conftest.two "`pwd`/conftest.dir" &&
+	      test -s conftest.one && test -s conftest.two &&
+	      test -s conftest.dir/conftest.one &&
+	      test -s conftest.dir/conftest.two
+	    then
+	      ac_cv_path_install="$as_dir/$ac_prog$ac_exec_ext -c"
+	      break 3
+	    fi
+	  fi
+	fi
+      done
+    done
+    ;;
+esac
+
+done
+IFS=$as_save_IFS
+
+rm -rf conftest.one conftest.two conftest.dir
+
+fi
+  if test "${ac_cv_path_install+set}" = set; then
+    INSTALL=$ac_cv_path_install
+  else
+    # As a last resort, use the slow shell script.  Don't cache a
+    # value for INSTALL within a source directory, because that will
+    # break other packages using the cache if that directory is
+    # removed, or if the value is a relative name.
+    INSTALL=$ac_install_sh
+  fi
+fi
+{ $as_echo "$as_me:$LINENO: result: $INSTALL" >&5
+$as_echo "$INSTALL" >&6; }
+
+# Use test -z because SunOS4 sh mishandles braces in ${var-val}.
+# It thinks the first close brace ends the variable substitution.
+test -z "$INSTALL_PROGRAM" && INSTALL_PROGRAM='${INSTALL}'
+
+test -z "$INSTALL_SCRIPT" && INSTALL_SCRIPT='${INSTALL}'
+
+test -z "$INSTALL_DATA" && INSTALL_DATA='${INSTALL} -m 644'
+
+{ $as_echo "$as_me:$LINENO: checking whether ${MAKE-make} sets \$(MAKE)" >&5
+$as_echo_n "checking whether ${MAKE-make} sets \$(MAKE)... " >&6; }
+set x ${MAKE-make}
+ac_make=`$as_echo "$2" | sed 's/+/p/g; s/[^a-zA-Z0-9_]/_/g'`
+if { as_var=ac_cv_prog_make_${ac_make}_set; eval "test \"\${$as_var+set}\" = set"; }; then
+  $as_echo_n "(cached) " >&6
+else
+  cat >conftest.make <<\_ACEOF
+SHELL = /bin/sh
+all:
+	@echo '@@@%%%=$(MAKE)=@@@%%%'
+_ACEOF
+# GNU make sometimes prints "make[1]: Entering...", which would confuse us.
+case `${MAKE-make} -f conftest.make 2>/dev/null` in
+  *@@@%%%=?*=@@@%%%*)
+    eval ac_cv_prog_make_${ac_make}_set=yes;;
+  *)
+    eval ac_cv_prog_make_${ac_make}_set=no;;
+esac
+rm -f conftest.make
+fi
+if eval test \$ac_cv_prog_make_${ac_make}_set = yes; then
+  { $as_echo "$as_me:$LINENO: result: yes" >&5
+$as_echo "yes" >&6; }
+  SET_MAKE=
+else
+  { $as_echo "$as_me:$LINENO: result: no" >&5
+$as_echo "no" >&6; }
+  SET_MAKE="MAKE=${MAKE-make}"
+fi
+
+
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -3085,284 +3244,6 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-{ $as_echo "$as_me:$LINENO: checking for X" >&5
-$as_echo_n "checking for X... " >&6; }
-
-
-# Check whether --with-x was given.
-if test "${with_x+set}" = set; then
-  withval=$with_x;
-fi
-
-# $have_x is `yes', `no', `disabled', or empty when we do not yet know.
-if test "x$with_x" = xno; then
-  # The user explicitly disabled X.
-  have_x=disabled
-else
-  case $x_includes,$x_libraries in #(
-    *\'*) { { $as_echo "$as_me:$LINENO: error: Cannot use X directory names containing '" >&5
-$as_echo "$as_me: error: Cannot use X directory names containing '" >&2;}
-   { (exit 1); exit 1; }; };; #(
-    *,NONE | NONE,*) if test "${ac_cv_have_x+set}" = set; then
-  $as_echo_n "(cached) " >&6
-else
-  # One or both of the vars are not set, and there is no cached value.
-ac_x_includes=no ac_x_libraries=no
-rm -f -r conftest.dir
-if mkdir conftest.dir; then
-  cd conftest.dir
-  cat >Imakefile <<'_ACEOF'
-incroot:
-	@echo incroot='${INCROOT}'
-usrlibdir:
-	@echo usrlibdir='${USRLIBDIR}'
-libdir:
-	@echo libdir='${LIBDIR}'
-_ACEOF
-  if (export CC; ${XMKMF-xmkmf}) >/dev/null 2>/dev/null && test -f Makefile; then
-    # GNU make sometimes prints "make[1]: Entering...", which would confuse us.
-    for ac_var in incroot usrlibdir libdir; do
-      eval "ac_im_$ac_var=\`\${MAKE-make} $ac_var 2>/dev/null | sed -n 's/^$ac_var=//p'\`"
-    done
-    # Open Windows xmkmf reportedly sets LIBDIR instead of USRLIBDIR.
-    for ac_extension in a so sl dylib la dll; do
-      if test ! -f "$ac_im_usrlibdir/libX11.$ac_extension" &&
-	 test -f "$ac_im_libdir/libX11.$ac_extension"; then
-	ac_im_usrlibdir=$ac_im_libdir; break
-      fi
-    done
-    # Screen out bogus values from the imake configuration.  They are
-    # bogus both because they are the default anyway, and because
-    # using them would break gcc on systems where it needs fixed includes.
-    case $ac_im_incroot in
-	/usr/include) ac_x_includes= ;;
-	*) test -f "$ac_im_incroot/X11/Xos.h" && ac_x_includes=$ac_im_incroot;;
-    esac
-    case $ac_im_usrlibdir in
-	/usr/lib | /lib) ;;
-	*) test -d "$ac_im_usrlibdir" && ac_x_libraries=$ac_im_usrlibdir ;;
-    esac
-  fi
-  cd ..
-  rm -f -r conftest.dir
-fi
-
-# Standard set of common directories for X headers.
-# Check X11 before X11Rn because it is often a symlink to the current release.
-ac_x_header_dirs='
-/usr/X11/include
-/usr/X11R6/include
-/usr/X11R5/include
-/usr/X11R4/include
-
-/usr/include/X11
-/usr/include/X11R6
-/usr/include/X11R5
-/usr/include/X11R4
-
-/usr/local/X11/include
-/usr/local/X11R6/include
-/usr/local/X11R5/include
-/usr/local/X11R4/include
-
-/usr/local/include/X11
-/usr/local/include/X11R6
-/usr/local/include/X11R5
-/usr/local/include/X11R4
-
-/usr/X386/include
-/usr/x386/include
-/usr/XFree86/include/X11
-
-/usr/include
-/usr/local/include
-/usr/unsupported/include
-/usr/athena/include
-/usr/local/x11r5/include
-/usr/lpp/Xamples/include
-
-/usr/openwin/include
-/usr/openwin/share/include'
-
-if test "$ac_x_includes" = no; then
-  # Guess where to find include files, by looking for Xlib.h.
-  # First, try using that file with no special directory specified.
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <X11/Xlib.h>
-_ACEOF
-if { (ac_try="$ac_cpp conftest.$ac_ext"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
-$as_echo "$ac_try_echo") >&5
-  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null && {
-	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       }; then
-  # We can compile using X headers with no special include directory.
-ac_x_includes=
-else
-  $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-  for ac_dir in $ac_x_header_dirs; do
-  if test -r "$ac_dir/X11/Xlib.h"; then
-    ac_x_includes=$ac_dir
-    break
-  fi
-done
-fi
-
-rm -f conftest.err conftest.$ac_ext
-fi # $ac_x_includes = no
-
-if test "$ac_x_libraries" = no; then
-  # Check for the libraries.
-  # See if we find them without any special options.
-  # Don't add to $LIBS permanently.
-  ac_save_LIBS=$LIBS
-  LIBS="-lX11 $LIBS"
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <X11/Xlib.h>
-int
-main ()
-{
-XrmInitialize ()
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
-$as_echo "$ac_try_echo") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext && {
-	 test "$cross_compiling" = yes ||
-	 $as_test_x conftest$ac_exeext
-       }; then
-  LIBS=$ac_save_LIBS
-# We can link X programs with no special library path.
-ac_x_libraries=
-else
-  $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	LIBS=$ac_save_LIBS
-for ac_dir in `$as_echo "$ac_x_includes $ac_x_header_dirs" | sed s/include/lib/g`
-do
-  # Don't even attempt the hair of trying to link an X program!
-  for ac_extension in a so sl dylib la dll; do
-    if test -r "$ac_dir/libX11.$ac_extension"; then
-      ac_x_libraries=$ac_dir
-      break 2
-    fi
-  done
-done
-fi
-
-rm -rf conftest.dSYM
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-fi # $ac_x_libraries = no
-
-case $ac_x_includes,$ac_x_libraries in #(
-  no,* | *,no | *\'*)
-    # Didn't find X, or a directory has "'" in its name.
-    ac_cv_have_x="have_x=no";; #(
-  *)
-    # Record where we found X for the cache.
-    ac_cv_have_x="have_x=yes\
-	ac_x_includes='$ac_x_includes'\
-	ac_x_libraries='$ac_x_libraries'"
-esac
-fi
-;; #(
-    *) have_x=yes;;
-  esac
-  eval "$ac_cv_have_x"
-fi # $with_x != no
-
-if test "$have_x" != yes; then
-  { $as_echo "$as_me:$LINENO: result: $have_x" >&5
-$as_echo "$have_x" >&6; }
-  no_x=yes
-else
-  # If each of the values was on the command line, it overrides each guess.
-  test "x$x_includes" = xNONE && x_includes=$ac_x_includes
-  test "x$x_libraries" = xNONE && x_libraries=$ac_x_libraries
-  # Update the cache value to reflect the command line values.
-  ac_cv_have_x="have_x=yes\
-	ac_x_includes='$x_includes'\
-	ac_x_libraries='$x_libraries'"
-  { $as_echo "$as_me:$LINENO: result: libraries $x_libraries, headers $x_includes" >&5
-$as_echo "libraries $x_libraries, headers $x_includes" >&6; }
-fi
-
-
-# AC_PROG_INSTALL
-{ $as_echo "$as_me:$LINENO: checking whether ${MAKE-make} sets \$(MAKE)" >&5
-$as_echo_n "checking whether ${MAKE-make} sets \$(MAKE)... " >&6; }
-set x ${MAKE-make}
-ac_make=`$as_echo "$2" | sed 's/+/p/g; s/[^a-zA-Z0-9_]/_/g'`
-if { as_var=ac_cv_prog_make_${ac_make}_set; eval "test \"\${$as_var+set}\" = set"; }; then
-  $as_echo_n "(cached) " >&6
-else
-  cat >conftest.make <<\_ACEOF
-SHELL = /bin/sh
-all:
-	@echo '@@@%%%=$(MAKE)=@@@%%%'
-_ACEOF
-# GNU make sometimes prints "make[1]: Entering...", which would confuse us.
-case `${MAKE-make} -f conftest.make 2>/dev/null` in
-  *@@@%%%=?*=@@@%%%*)
-    eval ac_cv_prog_make_${ac_make}_set=yes;;
-  *)
-    eval ac_cv_prog_make_${ac_make}_set=no;;
-esac
-rm -f conftest.make
-fi
-if eval test \$ac_cv_prog_make_${ac_make}_set = yes; then
-  { $as_echo "$as_me:$LINENO: result: yes" >&5
-$as_echo "yes" >&6; }
-  SET_MAKE=
-else
-  { $as_echo "$as_me:$LINENO: result: no" >&5
-$as_echo "no" >&6; }
-  SET_MAKE="MAKE=${MAKE-make}"
-fi
 
 
 { $as_echo "$as_me:$LINENO: checking for grep that handles long lines and -e" >&5
@@ -3773,42 +3654,42 @@ fi
 
 
 
-BLT=blt2.4z
-EXPAT=expat-2.0.1
-HTMLWIDGET=htmlwidget-3a14
-ITCL=itcl3.3
-ITK=itk3.3
-PYMOL=pymol-1.00b19
-SHAPE=shape0.4/unix
-TCL=tcl8.4.19/unix
-TCLLIB=tcllib-1.9
-TDOM=tDOM-0.8.2
-TK=tk8.4.19/unix
-TKIMG=tkimg1.3
-TLS=tls1.5
-VORONOI=voronoi
-VTK=VTK4.4
-ZLIB=zlib-1.2.3
+blt=blt2.4z
+expat=expat-2.0.1
+htmlwidget=htmlwidget-3a14
+itcl=itcl3.3
+itk=itk3.3
+pymol=pymol
+shape=shape0.4/unix
+tcl=tcl8.4.19/unix
+tcllib=tcllib-1.9
+tdom=tDOM-0.8.2
+tk=tk8.4.19/unix
+tkimg=tkimg1.3
+tls=tls1.5
+voronoi=voronoi
+vtk=VTK4.4
+zlib=zlib
 
 # Option default
 #
-BUILD_BLT=yes
-BUILD_EXPAT=no
-BUILD_HTMLWIDGET=yes
-BUILD_ITCL=yes
-BUILD_ITK=yes
-BUILD_MATLAB=yes
-BUILD_PYMOL=no
-BUILD_SHAPE=yes
-BUILD_TCL=yes
-BUILD_TCLLIB=yes
-BUILD_TDOM=yes
-BUILD_TK=yes
-BUILD_TKIMG=yes
-BUILD_TLS=yes
-BUILD_VORONOI=yes
-BUILD_VTK=no
-BUILD_ZLIB=no
+default_blt=yes
+default_expat=no
+default_htmlwidget=yes
+default_itcl=yes
+default_itk=yes
+default_matlab=yes
+default_pymol=no
+default_shape=yes
+default_tcl=yes
+default_tcllib=yes
+default_tdom=yes
+default_tk=yes
+default_tkimg=yes
+default_tls=yes
+default_voronoi=yes
+default_vtk=no
+default_zlib=no
 
 # Check whether --enable-64bit was given.
 if test "${enable_64bit+set}" = set; then
@@ -3824,154 +3705,335 @@ fi
 
 # Check whether --with-blt was given.
 if test "${with_blt+set}" = set; then
-  withval=$with_blt; BUILD_BLT=$withval
+  withval=$with_blt; with_blt=$withval
+else
+  with_blt=$default_blt
 fi
 
 
 
 # Check whether --with-expat was given.
 if test "${with_expat+set}" = set; then
-  withval=$with_expat; BUILD_EXPAT=$withval
+  withval=$with_expat; with_expat=$withval
+else
+  with_expat=$default_expat
 fi
 
 
 
 # Check whether --with-htmlwidget was given.
 if test "${with_htmlwidget+set}" = set; then
-  withval=$with_htmlwidget; BUILD_HTMLWIDGET=$withval
+  withval=$with_htmlwidget; with_htmlwidget=$withval
+else
+  with_htmlwidget=$default_htmlwidget
 fi
 
 
 
 # Check whether --with-itcl was given.
 if test "${with_itcl+set}" = set; then
-  withval=$with_itcl; BUILD_ITCL=$withval
+  withval=$with_itcl; with_itcl=$withval
+else
+  with_itcl=$default_itcl
 fi
 
 
 
 # Check whether --with-itk was given.
 if test "${with_itk+set}" = set; then
-  withval=$with_itk; BUILD_ITK=$withval
+  withval=$with_itk; with_itk=$withval
+else
+  with_itk=$default_itk
 fi
 
 
 
 # Check whether --with-pymol was given.
 if test "${with_pymol+set}" = set; then
-  withval=$with_pymol; BUILD_PYMOL=$withval
+  withval=$with_pymol; with_pymol=$withval
+else
+  with_pymol=$default_pymol
 fi
 
 
 
 # Check whether --with-shape was given.
 if test "${with_shape+set}" = set; then
-  withval=$with_shape; BUILD_SHAPE=$withval
+  withval=$with_shape; with_shape=$withval
+else
+  with_shape=$default_shape
 fi
 
 
 
 # Check whether --with-tDOM was given.
 if test "${with_tDOM+set}" = set; then
-  withval=$with_tDOM; BUILD_TDOM=$withval
+  withval=$with_tDOM; with_tdom=$withval
+else
+  with_tdom=$default_tdom
 fi
 
 
 
 # Check whether --with-tcl was given.
 if test "${with_tcl+set}" = set; then
-  withval=$with_tcl; BUILD_TCL=$withval
+  withval=$with_tcl; with_tcl=$withval
+else
+  with_tcl=$default_tcl
 fi
 
 
 
 # Check whether --with-tcllib was given.
 if test "${with_tcllib+set}" = set; then
-  withval=$with_tcllib; BUILD_TCLLIB=$withval
+  withval=$with_tcllib; with_tcllib=$withval
+else
+  with_tcllib=$default_tcllib
 fi
 
 
 
 # Check whether --with-tk was given.
 if test "${with_tk+set}" = set; then
-  withval=$with_tk; BUILD_TK=$withval
+  withval=$with_tk; with_tk=$withval
+else
+  with_tk=$default_tk
 fi
 
 
 
 # Check whether --with-tkimg was given.
 if test "${with_tkimg+set}" = set; then
-  withval=$with_tkimg; BUILD_TKIMG=$withval
+  withval=$with_tkimg; with_tkimg=$withval
+else
+  with_tkimg=$default_tkimg
 fi
 
 
 
 # Check whether --with-tls was given.
 if test "${with_tls+set}" = set; then
-  withval=$with_tls; BUILD_TLS=$withval
+  withval=$with_tls; with_tls=$withval
+else
+  with_tls=$default_tls
 fi
 
 
 
 # Check whether --with-vtk was given.
 if test "${with_vtk+set}" = set; then
-  withval=$with_vtk; BUILD_VTK=$withval
+  withval=$with_vtk; with_vtk=$withval
+else
+  with_vtk=$default_vtk
 fi
 
 
 
 # Check whether --with-zlib was given.
 if test "${with_zlib+set}" = set; then
-  withval=$with_zlib; BUILD_ZLIB=$withval
+  withval=$with_zlib; with_zlib=$withval
+else
+  with_zlib=$default_zlib
 fi
 
 
 
 # Check whether --with-voronoi was given.
 if test "${with_voronoi+set}" = set; then
-  withval=$with_voronoi; BUILD_VORONOI=$withval
+  withval=$with_voronoi; with_voronoi=$withval
+else
+  with_voronoi=$default_voronoi
 fi
 
 
 
 # Check whether --with-matlab was given.
 if test "${with_matlab+set}" = set; then
-  withval=$with_matlab; BUILD_MATLAB=$withval
+  withval=$with_matlab; with_matlab=$withval
+else
+  with_matlab=$default_matlab
 fi
 
 
-stage1_targets="EXPAT TCL TK ZLIB"
-stage2_targets="ITCL ITK BLT SHAPE VORONOI HTMLWIDGET TDOM TCLLIB TKIMG TLS"
-stage3_targets="VTK PYMOL"
+stage1_targets="expat tcl tk zlib"
+stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
+stage3_targets="vtk pymol"
+
+if test "${with_expat}" = "no" ; then
+  { $as_echo "$as_me:$LINENO: checking for XML_ParserCreate in -lexpat" >&5
+$as_echo_n "checking for XML_ParserCreate in -lexpat... " >&6; }
+if test "${ac_cv_lib_expat_XML_ParserCreate+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lexpat  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char XML_ParserCreate ();
+int
+main ()
+{
+return XML_ParserCreate ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 $as_test_x conftest$ac_exeext
+       }; then
+  ac_cv_lib_expat_XML_ParserCreate=yes
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_expat_XML_ParserCreate=no
+fi
+
+rm -rf conftest.dSYM
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:$LINENO: result: $ac_cv_lib_expat_XML_ParserCreate" >&5
+$as_echo "$ac_cv_lib_expat_XML_ParserCreate" >&6; }
+if test $ac_cv_lib_expat_XML_ParserCreate = yes; then
+  with_expat="no"
+else
+  with_expat="yes"
+fi
+
+fi
+if test "${with_zlib}" = "no" ; then
+  { $as_echo "$as_me:$LINENO: checking for deflate in -lz" >&5
+$as_echo_n "checking for deflate in -lz... " >&6; }
+if test "${ac_cv_lib_z_deflate+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lz  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char deflate ();
+int
+main ()
+{
+return deflate ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 $as_test_x conftest$ac_exeext
+       }; then
+  ac_cv_lib_z_deflate=yes
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_z_deflate=no
+fi
+
+rm -rf conftest.dSYM
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:$LINENO: result: $ac_cv_lib_z_deflate" >&5
+$as_echo "$ac_cv_lib_z_deflate" >&6; }
+if test $ac_cv_lib_z_deflate = yes; then
+  with_zlib="no"
+else
+  with_zlib="yes"
+fi
+
+fi
 
 #ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$PWD/tcl8.4.11 --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
 
 stage1_dirs=""
 for i in $stage1_targets; do
-  build=BUILD_${i}
-  var=${i}_DIR
+  withval=with_${i}
+  var=`echo ${i}_DIR | tr "a-z" "A-Z"`
   eval ${var}=""
-  if test "${!build}" = "yes"; then
+  if test "x${!withval}" != "xno"; then
     eval ${var}=${!i}
     stage1_dirs="$stage1_dirs ${!i}"
   fi
 done
 stage2_dirs=""
 for i in $stage2_targets; do
-  build=BUILD_${i}
-  var=${i}_DIR
+  withval=with_${i}
+  var=`echo ${i}_DIR | tr "a-z" "A-Z"`
   eval ${var}=""
-  if test "${!build}" = "yes"; then
+  if test "x${!withval}" != "xno"; then
     eval ${var}=${!i}
     stage2_dirs="$stage2_dirs ${!i}"
   fi
 done
 stage3_dirs=""
 for i in $stage3_targets; do
-  build=BUILD_${i}
-  var=${i}_DIR
+  withval=with_${i}
+  var=`echo ${i}_DIR | tr "a-z" "A-Z"`
   eval ${var}=""
-  if test "${!build}" = "yes"; then
+  if test "x${!withval}" != "xno"; then
     eval ${var}=${!i}
     stage3_dirs="$stage3_dirs ${!i}"
   fi
@@ -3986,6 +4048,12 @@ fi
 
 my_subdirs=""
 my_makefile=""
+if test "${STAGE}" = "x" ; then
+  { { $as_echo "$as_me:$LINENO: error: must specify build stage: use STAGE environment variable (ex. STAGE=stage1)" >&5
+$as_echo "$as_me: error: must specify build stage: use STAGE environment variable (ex. STAGE=stage1)" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
 if test "${STAGE}" = "stage1"; then
   my_subdirs=$stage1_dirs
   my_makefile="Makefile:stages/Makefile-stage1.in"
@@ -4264,37 +4332,6 @@ fi
 
 
 if test "x${my_subdirs}" != "x"; then
-  ac_aux_dir=
-for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
-  if test -f "$ac_dir/install-sh"; then
-    ac_aux_dir=$ac_dir
-    ac_install_sh="$ac_aux_dir/install-sh -c"
-    break
-  elif test -f "$ac_dir/install.sh"; then
-    ac_aux_dir=$ac_dir
-    ac_install_sh="$ac_aux_dir/install.sh -c"
-    break
-  elif test -f "$ac_dir/shtool"; then
-    ac_aux_dir=$ac_dir
-    ac_install_sh="$ac_aux_dir/shtool install -c"
-    break
-  fi
-done
-if test -z "$ac_aux_dir"; then
-  { { $as_echo "$as_me:$LINENO: error: cannot find install-sh or install.sh in \"$srcdir\" \"$srcdir/..\" \"$srcdir/../..\"" >&5
-$as_echo "$as_me: error: cannot find install-sh or install.sh in \"$srcdir\" \"$srcdir/..\" \"$srcdir/../..\"" >&2;}
-   { (exit 1); exit 1; }; }
-fi
-
-# These three variables are undocumented and unsupported,
-# and are intended to be withdrawn in a future Autoconf release.
-# They can cause serious problems if a builder's source tree is in a directory
-# whose full name contains unusual characters.
-ac_config_guess="$SHELL $ac_aux_dir/config.guess"  # Please don't use this var.
-ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
-ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
-
-
 
 
 subdirs="$subdirs ${my_subdirs}"
@@ -4811,6 +4848,7 @@ gives unlimited permission to copy, distribute and modify it."
 
 ac_pwd='$ac_pwd'
 srcdir='$srcdir'
+INSTALL='$INSTALL'
 test -n "\$AWK" || AWK=awk
 _ACEOF
 
@@ -5282,6 +5320,10 @@ ac_abs_srcdir=$ac_abs_top_srcdir$ac_dir_suffix
   # CONFIG_FILE
   #
 
+  case $INSTALL in
+  [\\/$]* | ?:[\\/]* ) ac_INSTALL=$INSTALL ;;
+  *) ac_INSTALL=$ac_top_build_prefix$INSTALL ;;
+  esac
 _ACEOF
 
 cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
@@ -5337,6 +5379,7 @@ s&@abs_top_srcdir@&$ac_abs_top_srcdir&;t t
 s&@builddir@&$ac_builddir&;t t
 s&@abs_builddir@&$ac_abs_builddir&;t t
 s&@abs_top_builddir@&$ac_abs_top_builddir&;t t
+s&@INSTALL@&$ac_INSTALL&;t t
 $ac_datarootdir_hack
 "
 eval sed \"\$ac_sed_extra\" "$ac_file_inputs" | $AWK -f "$tmp/subs.awk" >$tmp/out \

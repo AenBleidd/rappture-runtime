@@ -25,9 +25,7 @@ dnl find and test the C compiler
 AC_PROG_CC
 AC_LANG_C
 
-AC_PATH_X
-
-# AC_PROG_INSTALL
+AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
 AC_HEADER_STDC
@@ -35,42 +33,42 @@ AC_CHECK_FUNC(atol,,AC_MSG_ERROR(oops! no atol ?!?))
 
 AC_SUBST(VERSION)
 
-BLT=blt2.4z
-EXPAT=expat-2.0.1
-HTMLWIDGET=htmlwidget-3a14
-ITCL=itcl3.3
-ITK=itk3.3
-PYMOL=pymol-1.00b19
-SHAPE=shape0.4/unix
-TCL=tcl8.4.19/unix
-TCLLIB=tcllib-1.9
-TDOM=tDOM-0.8.2
-TK=tk8.4.19/unix
-TKIMG=tkimg1.3
-TLS=tls1.5
-VORONOI=voronoi
-VTK=VTK4.4 
-ZLIB=zlib-1.2.3
+blt=blt2.4z
+expat=expat-2.0.1
+htmlwidget=htmlwidget-3a14
+itcl=itcl3.3
+itk=itk3.3
+pymol=pymol
+shape=shape0.4/unix
+tcl=tcl8.4.19/unix
+tcllib=tcllib-1.9
+tdom=tDOM-0.8.2
+tk=tk8.4.19/unix
+tkimg=tkimg1.3
+tls=tls1.5
+voronoi=voronoi
+vtk=VTK4.4 
+zlib=zlib
 
 # Option default 
 # 
-BUILD_BLT=yes
-BUILD_EXPAT=no
-BUILD_HTMLWIDGET=yes
-BUILD_ITCL=yes
-BUILD_ITK=yes
-BUILD_MATLAB=yes
-BUILD_PYMOL=no
-BUILD_SHAPE=yes
-BUILD_TCL=yes
-BUILD_TCLLIB=yes
-BUILD_TDOM=yes
-BUILD_TK=yes
-BUILD_TKIMG=yes
-BUILD_TLS=yes
-BUILD_VORONOI=yes
-BUILD_VTK=no
-BUILD_ZLIB=no
+default_blt=yes
+default_expat=no
+default_htmlwidget=yes
+default_itcl=yes
+default_itk=yes
+default_matlab=yes
+default_pymol=no
+default_shape=yes
+default_tcl=yes
+default_tcllib=yes
+default_tdom=yes
+default_tk=yes
+default_tkimg=yes
+default_tls=yes
+default_voronoi=yes
+default_vtk=no
+default_zlib=no
 
 AC_ARG_ENABLE(64bit,       [  --enable-64bit              Enable 64bit support (where applicable)])
 X86_64=
@@ -81,129 +79,129 @@ fi
 
 AC_ARG_WITH([blt],
   AS_HELP_STRING([--with-blt[=DIR]], 
-    [Build blt2.4z @<:@default=yes@:>@])],
-    [BUILD_BLT=$withval])
+    [Build blt2.4z @<:@default=yes@:>@])], 
+	[with_blt=$withval], [with_blt=$default_blt])
 
 AC_ARG_WITH([expat],
   AS_HELP_STRING([--with-expat[=DIR]], 
-    [Build expat-2.0.1 @<:@default=yes@:>@])],
-    [BUILD_EXPAT=$withval])
+    [Build expat-2.0.1 @<:@default=yes@:>@])], 
+	[with_expat=$withval], [with_expat=$default_expat])
 
 AC_ARG_WITH([htmlwidget],
   [AS_HELP_STRING([--with-htmlwidget[=DIR]], 
-    [Build htmlwidget @<:@default=yes@:>@])],
-    [BUILD_HTMLWIDGET=$withval])
+    [Build htmlwidget @<:@default=yes@:>@])], 
+	[with_htmlwidget=$withval], [with_htmlwidget=$default_htmlwidget])
 
 AC_ARG_WITH([itcl],
   [AS_HELP_STRING([--with-itcl[=DIR]], 
-    [Build itcl-3.3 @<:@default=yes@:>@])],
-    [BUILD_ITCL=$withval])
+    [Build itcl-3.3 @<:@default=yes@:>@])], 
+	[with_itcl=$withval], [with_itcl=$default_itcl])
 
 AC_ARG_WITH([itk],
   [AS_HELP_STRING([--with-itk[=DIR]], 
-    [Build itk-3.3 @<:@default=yes@:>@])],
-    [BUILD_ITK=$withval])
+    [Build itk-3.3 @<:@default=yes@:>@])], 
+	[with_itk=$withval], [with_itk=$default_itk])
 
 AC_ARG_WITH([pymol],
   [AS_HELP_STRING([--with-pymol[=DIR]], 
-     [Build pymol @<:@default=no@:>@])],
-    [BUILD_PYMOL=$withval])
+     [Build pymol @<:@default=no@:>@])], 
+	[with_pymol=$withval], [with_pymol=$default_pymol])
 
 AC_ARG_WITH([shape],
   [AS_HELP_STRING([--with-shape[=DIR]], 
-    [Build shape-0.4 @<:@default=yes@:>@])],
-    [BUILD_SHAPE=$withval])
+    [Build shape-0.4 @<:@default=yes@:>@])], 
+	[with_shape=$withval], [with_shape=$default_shape])
 
 AC_ARG_WITH([tDOM],
   [AS_HELP_STRING([--with-tDOM[=DIR]], 
-    [Build tDOM-0.8.2 @<:@default=yes@:>@])],
-    [BUILD_TDOM=$withval])
+    [Build tDOM-0.8.2 @<:@default=yes@:>@])], 
+	[with_tdom=$withval], [with_tdom=$default_tdom])
 
 AC_ARG_WITH([tcl],
   [AS_HELP_STRING([--with-tcl[=DIR]], 
-    [Build tcl8.4.11 @<:@default=yes@:>@])],
-    [BUILD_TCL=$withval])
+    [Build tcl8.4.11 @<:@default=yes@:>@])], 
+	[with_tcl=$withval], [with_tcl=$default_tcl])
 
 AC_ARG_WITH([tcllib],
   [AS_HELP_STRING([--with-tcllib[=DIR]], 
-    [Build tcllib @<:@default=yes@:>@])],
-    [BUILD_TCLLIB=$withval])
+    [Build tcllib @<:@default=yes@:>@])], 
+	[with_tcllib=$withval], [with_tcllib=$default_tcllib])
 
 AC_ARG_WITH([tk],
   [AS_HELP_STRING([--with-tk[=DIR]], 
-    [Build tk8.4.11 @<:@default=yes@:>@])],
-    [BUILD_TK=$withval])
+    [Build tk8.4.11 @<:@default=yes@:>@])], 
+	[with_tk=$withval], [with_tk=$default_tk])
 
 AC_ARG_WITH([tkimg],
   [AS_HELP_STRING([--with-tkimg[=DIR]], 
-    [Build tkimg-1.3 @<:@default=yes@:>@])],
-    [BUILD_TKIMG=$withval])
+    [Build tkimg-1.3 @<:@default=yes@:>@])], 
+	[with_tkimg=$withval], [with_tkimg=$default_tkimg])
 
 AC_ARG_WITH([tls],
   [AS_HELP_STRING([--with-tls[=DIR]], 
-    [Build tls @<:@default=yes@:>@])],
-    [BUILD_TLS=$withval])
+    [Build tls @<:@default=yes@:>@])], 
+	[with_tls=$withval], [with_tls=$default_tls])
 
 AC_ARG_WITH([vtk],
   [AS_HELP_STRING([--with-vtk[=DIR]], 
-    [Build vtk-4.4 default=yes])],
-    [BUILD_VTK=$withval])
+    [Build vtk-4.4 default=yes])], 
+	[with_vtk=$withval], [with_vtk=$default_vtk])
 
 AC_ARG_WITH([zlib],
   [AS_HELP_STRING([--with-zlib[=DIR]], 
-    [Build zlib-1.2.3 @<:@default=no@:>@])],
-    [BUILD_ZLIB=$withval])
+    [Build zlib-1.2.3 @<:@default=no@:>@])], 
+	[with_zlib=$withval], [with_zlib=$default_zlib])
 
 AC_ARG_WITH([voronoi],
   [AS_HELP_STRING([--with-voronoi[=DIR]], 
-    [Build voronoi @<:@default=no@:>@])],
-    [BUILD_VORONOI=$withval])
+    [Build voronoi @<:@default=no@:>@])], 
+	[with_voronoi=$withval], [with_voronoi=$default_voronoi])
 
 AC_ARG_WITH([matlab],
   [AS_HELP_STRING([--with-matlab[=DIR]], 
-    [Build matlab @<:@default=no@:>@])],
-    [BUILD_MATLAB=$withval])
+    [Build matlab @<:@default=no@:>@])], 
+	[with_matlab=$withval], [with_matlab=$default_matlab])
 
-stage1_targets="EXPAT TCL TK ZLIB"
-stage2_targets="ITCL ITK BLT SHAPE VORONOI HTMLWIDGET TDOM TCLLIB TKIMG TLS"
-stage3_targets="VTK PYMOL"
+stage1_targets="expat tcl tk zlib"
+stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
+stage3_targets="vtk pymol"
 
-if test "${BUILD_EXPAT}" = "no" ; then
-  AC_CHECK_LIBRARY(expat, XML_ParserCreate, [BUILD_EXPAT="no"], 
-	[BUILD_EXPAT="yes"])
+if test "${with_expat}" = "no" ; then
+  AC_CHECK_LIB(expat, XML_ParserCreate, [with_expat="no"], 
+	[with_expat="yes"])
 fi
-if test "${BUILD_ZLIB}" = "no" ; then
-  AC_CHECK_LIBRARY(z, deflate, [BUILD_ZLIB="no"], [BUILD_ZLIB="yes"])
+if test "${with_zlib}" = "no" ; then
+  AC_CHECK_LIB(z, deflate, [with_zlib="no"], [with_zlib="yes"])
 fi
 
 #ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$PWD/tcl8.4.11 --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
 
 stage1_dirs=""
 for i in $stage1_targets; do
-  build=BUILD_${i}
-  var=${i}_DIR
+  withval=with_${i}
+  var=`echo ${i}_DIR | tr "a-z" "A-Z"`
   eval ${var}=""
-  if test "${!build}" = "yes"; then
+  if test "x${!withval}" != "xno"; then
     eval ${var}=${!i}
     stage1_dirs="$stage1_dirs ${!i}"
   fi
 done
 stage2_dirs=""
 for i in $stage2_targets; do
-  build=BUILD_${i}
-  var=${i}_DIR
+  withval=with_${i}
+  var=`echo ${i}_DIR | tr "a-z" "A-Z"`
   eval ${var}=""
-  if test "${!build}" = "yes"; then
+  if test "x${!withval}" != "xno"; then
     eval ${var}=${!i}
     stage2_dirs="$stage2_dirs ${!i}"
   fi
 done
 stage3_dirs=""
 for i in $stage3_targets; do
-  build=BUILD_${i}
-  var=${i}_DIR
+  withval=with_${i}
+  var=`echo ${i}_DIR | tr "a-z" "A-Z"`
   eval ${var}=""
-  if test "${!build}" = "yes"; then
+  if test "x${!withval}" != "xno"; then
     eval ${var}=${!i}
     stage3_dirs="$stage3_dirs ${!i}"
   fi
@@ -218,6 +216,10 @@ fi
 
 my_subdirs=""
 my_makefile=""
+if test "${STAGE}" = "x" ; then
+  AC_ERROR([must specify build stage: use STAGE environment variable (ex. STAGE=stage1)])
+fi
+
 if test "${STAGE}" = "stage1"; then
   my_subdirs=$stage1_dirs
   my_makefile="Makefile:stages/Makefile-stage1.in"
