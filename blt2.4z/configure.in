@@ -1065,6 +1065,7 @@ SHLIB_TCL_ONLY_LIB_SPECS=""
 LDFLAGS=""
 LD_RUN_PATH=""
 EXTRA_LIB_SPECS=""
+SHLIB_LIBRARY_PATH="LD_LIBRARY_PATH"
 
 build_shared="yes"
 library_name=libBLT${BLT_MAJOR_VERSION}${BLT_MINOR_VERSION}
@@ -1149,10 +1150,20 @@ case $target in
     ;;
 
   darwin-*)
-    SO_CFLAGS="-fno-common"
-    SO_LD_FLAGS="-dynamiclib"
-    SO_EXT=".dylib"
-    LDFLAGS="-Wl,-single_module"
+    SHLIB_CFLAGS="-fno-common"
+    SHILB_LD_FLAGS="-dylib"
+    SHLIB_SUFFIX=".dylib"
+
+    AC_MSG_CHECKING([if ld accepts -single_module flag])
+    save_LDFLAGS=$LDFLAGS
+    LDFLAGS="$SHLIB_LD_FLAGS -Wl,-single_module"
+    AC_TRY_LINK(, [int i;], [single_module=yes], [single_module=no])
+    if test "${single_module}" = "yes" ; then 
+      SHLIB_LD_FLAGS=$LDFLAGS
+    fi
+    AC_MSG_RESULT([$single_module])
+    SHLIB_LIBRARY_PATH="DYLD_LIBRARY_PATH"
+    LDFLAGS=""
     ;;
 
   *-dgux*)
