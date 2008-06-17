@@ -3946,7 +3946,7 @@ case $target in
   *-darwin*)
     SHLIB_LD="${CC}"
     SHLIB_CFLAGS="-fno-common"
-    SHLIB_LD_FLAGS="-dylib"
+    SHLIB_LD_FLAGS="-dynamiclib"
     SHLIB_SUFFIX=".dylib"
 
     echo $ac_n "checking if ld accepts -single_module flag""... $ac_c" 1>&6
