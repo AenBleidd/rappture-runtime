@@ -1149,7 +1149,7 @@ case $target in
     LDFLAGS=""
     ;;
 
-  darwin-*)
+  *-darwin*)
     SHLIB_CFLAGS="-fno-common"
     SHILB_LD_FLAGS="-dylib"
     SHLIB_SUFFIX=".dylib"
