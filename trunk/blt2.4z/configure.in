@@ -183,9 +183,6 @@ case $target in
       blt_lib_prefix=""
     fi
     ;;
-  *-*-macosx|*-darwin*)
-    blt_platform="macosx"
-    ;;
   *)
     blt_platform="unix"
     ;;
