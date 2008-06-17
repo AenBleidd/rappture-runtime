@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Fail script on error.
+set -e
+
 host_os=`uname -s`
 echo $system
 
@@ -31,8 +34,8 @@ stage1() {
     cd stage1
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$stage1_flags
-    make -w all || exit 1
-    make -w install || exit 1
+    make -w all
+    make -w install
     cd $pwd
 }
 
@@ -42,8 +45,8 @@ stage2() {
     cd stage2
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
 	$stage2_flags
-    make -w all || exit 2
-    make -w install || exit 2
+    make -w all
+    make -w install
     cd $pwd
 }
 
@@ -53,8 +56,8 @@ stage3() {
     cd stage3
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$stage3_flags
-    make -w all || exit 3
-    make -w install || exit 3
+    make -w all
+    make -w install
     cd $pwd
 }
 
