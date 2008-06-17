@@ -1061,7 +1061,6 @@ SHLIB_TARGET=""
 SHLIB_CFLAGS=""
 SHLIB_LIB_SPECS="${JPEG_LIB_SPEC}"
 SHLIB_TCL_ONLY_LIB_SPECS="${TCL_ONLY_LIB_SPECS}"
-SHLIB_TCL_ONLY_LIB_SPECS=""
 LDFLAGS=""
 LD_RUN_PATH=""
 EXTRA_LIB_SPECS=""
@@ -1151,7 +1150,7 @@ case $target in
 
   *-darwin*)
     SHLIB_CFLAGS="-fno-common"
-    SHILB_LD_FLAGS="-dylib"
+    SHLIB_LD_FLAGS="-dylib"
     SHLIB_SUFFIX=".dylib"
 
     AC_MSG_CHECKING([if ld accepts -single_module flag])
