@@ -1,0 +1,23 @@
+
+1. Add configure.in test for broken python installations
+
+2. Add configure.in test for ruby module installations (look for ruby.h)
+
+3. Add configure.in test for broken octave installations.
+
+4. Fix BLT to handle 64-bit archs.
+
+5. Fix BLT to use modern autoconf (2.4z requires autoconf-2.13)
+
+6. Upgrade pymol to modern version. Document patches made.
+
+7. Create tests to check for correct installation for each component.
+   tcl, tk, itcl, itk, blt, tdom, tkimg, htmlwidget, expat, zlib, etc.
+   Some tests may require X server to be present (that's okay).
+
+8. Create better shell scripts for builds. 
+   o rappture/runtime build and upgrade (ex. always start clean)
+   o direct install build
+   o user build
+
+9.  
