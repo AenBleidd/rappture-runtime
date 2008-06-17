@@ -1148,7 +1148,7 @@ case $target in
   *-darwin*)
     SHLIB_LD="${CC}"
     SHLIB_CFLAGS="-fno-common"
-    SHLIB_LD_FLAGS="-dylib"
+    SHLIB_LD_FLAGS="-dynamiclib"
     SHLIB_SUFFIX=".dylib"
 
     AC_MSG_CHECKING([if ld accepts -single_module flag])
