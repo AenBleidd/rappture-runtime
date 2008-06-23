@@ -1,5 +1,7 @@
 AC_INIT(NOTES)
 
+set -e 
+
 VERSION=0.0.1
 
 AC_PREFIX
@@ -177,7 +179,7 @@ fi
 #ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$PWD/tcl8.4.11 --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
 
 stage1_dirs=""
-for i in $stage1_targets; do
+for i in $stage1_targets ; do
   withval=with_${i}
   var=`echo ${i}_DIR | tr "a-z" "A-Z"`
   eval ${var}=""
@@ -187,7 +189,7 @@ for i in $stage1_targets; do
   fi
 done
 stage2_dirs=""
-for i in $stage2_targets; do
+for i in $stage2_targets ; do
   withval=with_${i}
   var=`echo ${i}_DIR | tr "a-z" "A-Z"`
   eval ${var}=""
@@ -197,7 +199,7 @@ for i in $stage2_targets; do
   fi
 done
 stage3_dirs=""
-for i in $stage3_targets; do
+for i in $stage3_targets ; do
   withval=with_${i}
   var=`echo ${i}_DIR | tr "a-z" "A-Z"`
   eval ${var}=""
@@ -236,6 +238,13 @@ if test "${STAGE}" = "stage3"; then
 fi
 
 AC_PATH_X
+
+if test "${x_includes}" = "NONE" ; then
+   AC_ERROR([can't find X11 headers, required by tk, blt, htmlwidget, pymol, shape, tkimg])
+fi
+if test "${x_libraries}" = "NONE" ; then
+   AC_ERROR([can't find X11 libraries, required by tk, blt, htmlwidget, pymol, shape, tkimg])
+fi
 
 AC_SUBST(BLT_DIR)
 AC_SUBST(EXPAT_DIR)

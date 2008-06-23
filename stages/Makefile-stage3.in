@@ -9,6 +9,7 @@ includedir		= @includedir@
 mandir			= @mandir@
 srcdir			= @srcdir@
 
+SHELL			= @SHELL@
 RM			= rm -f
 VPATH			= $(srcdir)
 INSTALL			= @INSTALL@
