@@ -56,8 +56,8 @@ stage3() {
     cd stage3
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$stage3_flags
-    make -w all
-    make -w install
+    make all
+    make install
     cd $pwd
 }
 
