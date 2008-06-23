@@ -34,8 +34,8 @@ stage1() {
     cd stage1
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$stage1_flags
-    make -w all
-    make -w install
+    make all
+    make install
     cd $pwd
 }
 
@@ -45,8 +45,8 @@ stage2() {
     cd stage2
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
 	$stage2_flags
-    make -w all
-    make -w install
+    make all
+    make install
     cd $pwd
 }
 
