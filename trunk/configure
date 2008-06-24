@@ -1804,8 +1804,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-set -e
-
 VERSION=0.0.1
 
 if test "x$prefix" = xNONE; then
@@ -3670,7 +3668,7 @@ tk=tk8.4.19/unix
 tkimg=tkimg1.3
 tls=tls1.5
 voronoi=voronoi
-vtk=VTK4.4
+vtk=vtk-5.0.4
 zlib=zlib
 
 # Option default
