@@ -1,7 +1,5 @@
 AC_INIT(NOTES)
 
-set -e 
-
 VERSION=0.0.1
 
 AC_PREFIX
@@ -49,7 +47,7 @@ tk=tk8.4.19/unix
 tkimg=tkimg1.3
 tls=tls1.5
 voronoi=voronoi
-vtk=VTK4.4 
+vtk=vtk-5.0.4 
 zlib=zlib
 
 # Option default 

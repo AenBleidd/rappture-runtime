@@ -36,6 +36,7 @@
 #include <sys/types.h>
 #endif
 
+#include <string.h>
 #include <string>
 #include <map>
 
