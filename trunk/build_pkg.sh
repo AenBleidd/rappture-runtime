@@ -15,6 +15,7 @@ stage2_flags=""
 stage3_flags=""
 rappture_flags=""
 
+MAKE=make
 case $host_os in 
    *Darwin* )
       DYLD_LIBRARY_PATH=$build_dir/lib
@@ -24,9 +25,16 @@ case $host_os in
       LD_LIBRARY_PATH=$build_dir/lib
       export LD_LIBRARY_PATH
       ;;
+   *FreeBSD* )
+      MAKE=gmake
+      LD_LIBRARY_PATH=$build_dir/lib
+      export LD_LIBRARY_PATH
+      ;;
 esac
 
 PATH=/usr/local/bin:/usr/bin:/bin:/usr/X11R6/bin:/usr/X11/bin:/usr/openwin/bin:$PATH:$build_dir/bin
+
+export MAKE PATH
 
 stage1() {
     pwd=`pwd`
@@ -34,8 +42,8 @@ stage1() {
     cd stage1
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$stage1_flags
-    make all
-    make install
+    $(MAKE) all
+    $(MAKE) install
     cd $pwd
 }
 
@@ -45,8 +53,8 @@ stage2() {
     cd stage2
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
 	$stage2_flags
-    make all
-    make install
+    $(MAKE) all
+    $(MAKE) install
     cd $pwd
 }
 
@@ -67,8 +75,8 @@ rappture() {
     cd stage.rappture
     ../rappture/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$rappture_flags
-    make -w all || exit 4
-    make -w install || exit 4
+    make all || exit 4
+    make install || exit 4
     cd $pwd
 }
 

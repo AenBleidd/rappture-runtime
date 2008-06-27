@@ -14,7 +14,11 @@ fi
 libdir=$exec_prefix/lib
 includedir=$prefix/include
 
+AC_PROG_INSTALL
+AC_PROG_RANLIB
+
 pymol=pymol-1.00b19
+#pymol=pymol-1.1.0trunk
 PYMOL_DIR=$pymol
 
 #
