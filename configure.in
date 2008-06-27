@@ -49,6 +49,7 @@ tls=tls1.5
 voronoi=voronoi
 vtk=vtk-5.0.4 
 zlib=zlib
+dx=dx-4.4.4
 
 # Option default 
 # 
@@ -69,6 +70,7 @@ default_tls=yes
 default_voronoi=yes
 default_vtk=no
 default_zlib=no
+default_dx=yes
 
 AC_ARG_ENABLE(64bit,       [  --enable-64bit              Enable 64bit support (where applicable)])
 X86_64=
@@ -162,9 +164,14 @@ AC_ARG_WITH([matlab],
     [Build matlab @<:@default=no@:>@])], 
 	[with_matlab=$withval], [with_matlab=$default_matlab])
 
+AC_ARG_WITH([dx],
+  [AS_HELP_STRING([--with-dx[=DIR]], 
+    [Build opendx @<:@default=no@:>@])], 
+	[with_dx=$withval], [with_dx=$default_dx])
+
 stage1_targets="expat tcl tk zlib"
 stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
-stage3_targets="vtk pymol"
+stage3_targets="vtk pymol dx"
 
 if test "${with_expat}" = "no" ; then
   AC_CHECK_LIB(expat, XML_ParserCreate, [with_expat="no"], 
@@ -260,6 +267,7 @@ AC_SUBST(TLS_DIR)
 AC_SUBST(VORONOI_DIR)
 AC_SUBST(VTK_DIR)
 AC_SUBST(ZLIB_DIR)
+AC_SUBST(DX_DIR)
 
 if test "x${my_subdirs}" != "x"; then
   AC_CONFIG_SUBDIRS( ${my_subdirs} )

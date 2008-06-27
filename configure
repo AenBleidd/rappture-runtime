@@ -672,6 +672,7 @@ TLS_DIR
 VORONOI_DIR
 VTK_DIR
 ZLIB_DIR
+DX_DIR
 subdirs
 LIBOBJS
 LTLIBOBJS'
@@ -696,6 +697,7 @@ with_vtk
 with_zlib
 with_voronoi
 with_matlab
+with_dx
 with_x
 '
       ac_precious_vars='build_alias
@@ -1353,6 +1355,7 @@ Optional Packages:
   --with-zlib=DIR         Build zlib-1.2.3 [default=no]
   --with-voronoi=DIR      Build voronoi [default=no]
   --with-matlab=DIR       Build matlab [default=no]
+  --with-dx=DIR           Build opendx [default=no]
   --with-x                use the X Window System
 
 Some influential environment variables:
@@ -3670,6 +3673,7 @@ tls=tls1.5
 voronoi=voronoi
 vtk=vtk-5.0.4
 zlib=zlib
+dx=dx-4.4.4
 
 # Option default
 #
@@ -3690,6 +3694,7 @@ default_tls=yes
 default_voronoi=yes
 default_vtk=no
 default_zlib=no
+default_dx=yes
 
 # Check whether --enable-64bit was given.
 if test "${enable_64bit+set}" = set; then
@@ -3855,9 +3860,18 @@ else
 fi
 
 
+
+# Check whether --with-dx was given.
+if test "${with_dx+set}" = set; then
+  withval=$with_dx; with_dx=$withval
+else
+  with_dx=$default_dx
+fi
+
+
 stage1_targets="expat tcl tk zlib"
 stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
-stage3_targets="vtk pymol"
+stage3_targets="vtk pymol dx"
 
 if test "${with_expat}" = "no" ; then
   { $as_echo "$as_me:$LINENO: checking for XML_ParserCreate in -lexpat" >&5
@@ -4324,6 +4338,7 @@ if test "${x_libraries}" = "NONE" ; then
 $as_echo "$as_me: error: can't find X11 libraries, required by tk, blt, htmlwidget, pymol, shape, tkimg" >&2;}
    { (exit 1); exit 1; }; }
 fi
+
 
 
 

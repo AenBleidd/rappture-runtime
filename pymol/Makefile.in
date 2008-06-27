@@ -9,6 +9,8 @@ includedir		= @includedir@
 mandir			= @mandir@
 srcdir			= @srcdir@
 
+destdir			= $(libdir)/pymol
+
 RM			= rm -f
 VPATH			= $(srcdir)
 INSTALL			= @INSTALL@
@@ -24,6 +26,9 @@ pymol:
 
 install: 
 	$(MAKE) -C $(PYMOL_DIR) install 
+	$(INSTALL) -d $(destdir)
+	tar -C $(PYMOL_DIR) -clf - modules | tar -C $(destdir) -xpf -
+	tar -C $(PYMOL_DIR) -clf - built | tar -C $(destdir) -xpf -
 
 clean: 
 	$(MAKE) -C $(PYMOL_DIR) clean
