@@ -42,8 +42,8 @@ stage1() {
     cd stage1
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$stage1_flags
-    $(MAKE) all
-    $(MAKE) install
+    $MAKE all
+    $MAKE install
     cd $pwd
 }
 
@@ -53,8 +53,8 @@ stage2() {
     cd stage2
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
 	$stage2_flags
-    $(MAKE) all
-    $(MAKE) install
+    $MAKE all
+    $MAKE install
     cd $pwd
 }
 
@@ -64,8 +64,8 @@ stage3() {
     cd stage3
     ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$stage3_flags
-    make all
-    make install
+    $MAKE all
+    $MAKE install
     cd $pwd
 }
 
@@ -75,8 +75,8 @@ rappture() {
     cd stage.rappture
     ../rappture/configure --prefix=$build_dir --exec_prefix=$build_dir \
     	$rappture_flags
-    make all || exit 4
-    make install || exit 4
+    $MAKE all || exit 4
+    $MAKE install || exit 4
     cd $pwd
 }
 
