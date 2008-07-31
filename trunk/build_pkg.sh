@@ -36,6 +36,8 @@ stage2_flags=""
 
 # stage3: pymol, vtk, dx if enabled
 stage3_flags="--with-vtk --with-pymol"
+# Don't build vtk or pymol yet on BAT.
+stage3_flags=""
 
 rappture_flags=""
 
