@@ -25,7 +25,9 @@ fi
 
 build_dir=$base_dir"/builds/"`date +%Y%m%d`
 mkdir -p $build_dir
-cd $build_dir
+
+# build_dir is temporary install directory for the rappture build.
+# We'll use this later to tar up the entire distribution.
 
 # stage1: tcl, tk
 # expat, zlib if enabled with --with-xxx
