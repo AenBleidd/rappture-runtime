@@ -1,5 +1,52 @@
 #!/bin/bash
 
+# This is a demonstration build script for the rappture runtime environment.  
+# Ideally it should be as simple as 
+#
+#	configure
+#	make
+#	make install
+#
+# Because of build dependencies, Tcl/Tk must be built and installed first.  
+# Therefore there are at least 2 stages of configure-make-makeinstall: one for Tcl/Tk, 
+# one for the rest of the runtime (and one for visualization - which is optional). 
+#
+#	mkdir stage1 stage2 stage3 
+#
+#  	cd stage1
+#	../runtime/configure
+#	make 
+# 	make install
+#
+#  	cd stage2
+#	../runtime/configure
+#	make 
+# 	make install
+#
+#  	cd stage3
+#	../runtime/configure
+#	make 
+# 	make install
+#
+# This is basically what this script does. 
+#
+# The build normally should be done outside of the runtime directory.  You can
+# use create a temporary directory and run configure from within it to create the
+# necessary Makefiles and auxillary files to build.  You can dispose of the directory
+# once the stage is built and installed.
+
+#
+# Notes:  There are several variations of this basic script.
+#	  1. a demonstation script to help build rappture.
+#	  2. a build script for the nanohub.
+#	  3. a build script for the Build-and-test environment.
+#
+# 	  This script should not perform all three functions. 
+#	  The demonstation script is supposed to be simple and obvious.
+#	  The nanohub script will handle the peculiarities of the nanohub 
+#	  deployment process.  The Build-and-test script is also peculiar 
+#	  to the build-and-test environment.
+
 # Fail script on error.
 set -e
 
