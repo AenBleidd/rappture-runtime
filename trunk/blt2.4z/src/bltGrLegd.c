@@ -226,7 +226,7 @@ extern Tcl_CmdProc Blt_GraphInstCmdProc;
 /*
  *--------------------------------------------------------------
  *
- * EventuallyRedrawLegend --
+ * Blt_EventuallyRedrawLegend --
  *
  *	Tells the Tk dispatcher to call the graph display routine at
  *	the next idle point.  This request is made only if the window
@@ -239,8 +239,8 @@ extern Tcl_CmdProc Blt_GraphInstCmdProc;
  *
  *--------------------------------------------------------------
  */
-static void
-EventuallyRedrawLegend(legendPtr)
+void
+Blt_EventuallyRedrawLegend(legendPtr)
     Legend *legendPtr;		/* Legend record */
 {
     if ((legendPtr->tkwin != NULL) && !(legendPtr->flags & REDRAW_PENDING)) {
@@ -276,7 +276,7 @@ LegendEventProc(clientData, eventPtr)
 
     if (eventPtr->type == Expose) {
 	if (eventPtr->xexpose.count == 0) {
-	    EventuallyRedrawLegend(legendPtr);
+	    Blt_EventuallyRedrawLegend(legendPtr);
 	}
     } else if (eventPtr->type == DestroyNotify) {
 	Graph *graphPtr = legendPtr->graphPtr;
@@ -299,7 +299,7 @@ LegendEventProc(clientData, eventPtr)
 	Blt_MoveBindingTable(legendPtr->bindTable, graphPtr->tkwin);
 	Blt_EventuallyRedrawGraph(graphPtr);
     } else if (eventPtr->type == ConfigureNotify) {
-	EventuallyRedrawLegend(legendPtr);
+	Blt_EventuallyRedrawLegend(legendPtr);
     }
 }
 
@@ -1068,7 +1068,7 @@ ConfigureLegend(graphPtr, legendPtr)
     Blt_ResetTextStyle(graphPtr->tkwin, &(legendPtr->style));
 
     if (legendPtr->site == LEGEND_WINDOW) {
-	EventuallyRedrawLegend(legendPtr);
+	Blt_EventuallyRedrawLegend(legendPtr);
     } else {
 	/*
 	 *  Update the layout of the graph (and redraw the elements) if
@@ -1263,26 +1263,34 @@ ActivateOp(graphPtr, interp, argc, argv)
     char *argv[];
 {
     Legend *legendPtr = graphPtr->legend;
-    Element *elemPtr;
-    unsigned int active, redraw;
-    Blt_HashEntry *hPtr;
-    Blt_HashSearch cursor;
-    register int i;
+    int active, redraw;
+    int i;
 
     active = (argv[2][0] == 'a') ? LABEL_ACTIVE : 0;
-    redraw = 0;
-    for (hPtr = Blt_FirstHashEntry(&(graphPtr->elements.table), &cursor);
-	hPtr != NULL; hPtr = Blt_NextHashEntry(&cursor)) {
-	elemPtr = Blt_GetHashValue(hPtr);
-	for (i = 3; i < argc; i++) {
-	    if (Tcl_StringMatch(elemPtr->name, argv[i])) {
+    redraw = FALSE;
+    for (i = 3; i < argc; i++) {
+	Blt_ChainLink *linkPtr;
+	const char *pattern;
+
+	pattern = argv[i];
+	for (linkPtr = Blt_ChainFirstLink(graphPtr->elements.displayList); 
+	     linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
+	    Element *elemPtr;
+	
+	    elemPtr = Blt_ChainGetValue(linkPtr);
+	    if (Tcl_StringMatch(elemPtr->name, pattern)) {
+		if (active) {
+		    if ((elemPtr->flags & LABEL_ACTIVE) == 0) {
+			elemPtr->flags |= LABEL_ACTIVE;
+			redraw = TRUE;
+		    }
+		} else {
+		    if (elemPtr->flags & LABEL_ACTIVE) {
+			elemPtr->flags &= ~LABEL_ACTIVE;
+			redraw = TRUE;
+		    }
+		}
 		break;
-	    }
-	}
-	if ((i < argc) && (active != (elemPtr->flags & LABEL_ACTIVE))) {
-	    elemPtr->flags ^= LABEL_ACTIVE;
-	    if (elemPtr->label != NULL) {
-		redraw++;
 	    }
 	}
     }
@@ -1293,21 +1301,28 @@ ActivateOp(graphPtr, interp, argc, argv)
 	 * set.  Otherwise redraw only the legend: it's either in an
 	 * external window or it's the only thing that need updating.
 	 */
-	if (graphPtr->flags & REDRAW_PENDING) {
+	if ((legendPtr->site != LEGEND_WINDOW) && 
+	    (graphPtr->flags & REDRAW_PENDING)) {
 	    if (legendPtr->site & LEGEND_IN_PLOT) {
 		graphPtr->flags |= REDRAW_BACKING_STORE;
 	    }
 	    graphPtr->flags |= REDRAW_WORLD; /* Redraw entire graph. */
 	} else {
-	    EventuallyRedrawLegend(legendPtr);
+	    Blt_EventuallyRedrawLegend(legendPtr);
 	}
     }
-    /* Return the names of all the active legend entries */
-    for (hPtr = Blt_FirstHashEntry(&(graphPtr->elements.table), &cursor);
-	hPtr != NULL; hPtr = Blt_NextHashEntry(&cursor)) {
-	elemPtr = Blt_GetHashValue(hPtr);
-	if (elemPtr->flags & LABEL_ACTIVE) {
-	    Tcl_AppendElement(interp, elemPtr->name);
+    {
+	Blt_ChainLink *linkPtr;
+
+	/* Return the names of all the active legend entries */
+	for (linkPtr = Blt_ChainFirstLink(graphPtr->elements.displayList); 
+	     linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
+	    Element *elemPtr;
+	
+	    elemPtr = Blt_ChainGetValue(linkPtr);
+	    if (elemPtr->flags & LABEL_ACTIVE) {
+		Tcl_AppendElement(interp, elemPtr->name);
+	    }
 	}
     }
     return TCL_OK;

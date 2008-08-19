@@ -1244,6 +1244,7 @@ RebuildDisplayList(graphPtr, newList)
     Blt_Free(nameArr);
     graphPtr->flags |= RESET_WORLD;
     Blt_EventuallyRedrawGraph(graphPtr);
+    Blt_EventuallyRedrawLegend(graphPtr->legend);
     Tcl_ResetResult(graphPtr->interp);
     return TCL_OK;
 }
@@ -1916,7 +1917,7 @@ DeactivateOp(graphPtr, interp, argc, argv)
 	if (NameToElement(graphPtr, argv[i], &elemPtr) != TCL_OK) {
 	    return TCL_ERROR;	/* Can't find named element */
 	}
-	elemPtr->flags &= ~ELEM_ACTIVE;
+	elemPtr->flags &= ~(ELEM_ACTIVE | ACTIVE_PENDING);
 	if (elemPtr->activeIndices != NULL) {
 	    Blt_Free(elemPtr->activeIndices);
 	    elemPtr->activeIndices = NULL;

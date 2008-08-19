@@ -112,94 +112,64 @@ PATH=/usr/local/bin:/usr/bin:/bin:/usr/X11R6/bin:/usr/X11/bin:/usr/openwin/bin:$
 export MAKE PATH
 
 stage1() {
-    pwd=`pwd`
+  pwd=`pwd`
+
+  if test -d "stage1" ; then
+    cd stage1
+  else 
     mkdir -p stage1
     cd stage1
-    $base_dir/runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
-    	$stage1_flags  2>&1 | tee config.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-
-    $MAKE all 2>&1 | tee make.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-
-    $MAKE install 2>&1 | tee install.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-
-    cd $pwd
+    ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
+	$stage1_flags  2>&1 | tee config.log
+  fi
+  $MAKE all 2>&1 | tee make.log
+  $MAKE install 2>&1 | tee install.log
+  cd $pwd
 }
 
 stage2() {
-    pwd=`pwd`
+  pwd=`pwd`
+  if test -d "stage2" ; then
+    cd stage2
+  else
     mkdir -p stage2
     cd stage2
-    $base_dir/runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
+    ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
 	$stage2_flags 2>&1 | tee config.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-
-    $MAKE all 2>&1 | tee make.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-
-    $MAKE install 2>&1 | tee install.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-
-    cd $pwd
+  fi
+  $MAKE all 2>&1 | tee make.log
+  $MAKE install 2>&1 | tee install.log
+  cd $pwd
 }
 
 stage3() {
-    pwd=`pwd`
+  pwd=`pwd`
+  if test -d "stage3" ; then
+    cd stage3
+  else
     mkdir -p stage3
     cd stage3
-    $base_dir/runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
-    	$stage3_flags 2>&1 | tee config.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-
-    $MAKE all 2>&1 | tee make.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-
-    $MAKE install 2>&1 | tee install.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-    cd $pwd
+    ../runtime/configure --prefix=$build_dir --exec_prefix=$build_dir \
+	$stage3_flags 2>&1 | tee config.log
+  fi
+  $MAKE all 2>&1 | tee make.log
+  $MAKE install 2>&1 | tee install.log
+  cd $pwd
 }
 
 rappture() {
-    pwd=`pwd`
+  pwd=`pwd`
+  if test -d "stage.rappture" ; then
+    cd stage.rappture
+  else
     mkdir -p stage.rappture
     cd stage.rappture
-    $base_dir/rappture/configure --prefix=$build_dir --exec_prefix=$build_dir \
-    	$rappture_flags 2>&1 | tee config.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-
-    $MAKE all 2>&1 | tee -a make.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-
-    $MAKE install 2>&1 | tee install.log
-    if [ ${PIPESTATUS[0]} -ne 0 ]; then
-	exit 4
-    fi
-
-    cd $pwd
+    ../rappture/configure --prefix=$build_dir --exec_prefix=$build_dir \
+     $rappture_flags 2>&1 | tee config.log
+  fi
+  $MAKE all 2>&1 | tee -a make.log
+  $MAKE install 2>&1 | tee install.log
+  cd $pwd
 }
 
 stage1
