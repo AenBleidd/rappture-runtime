@@ -921,7 +921,7 @@ CreateCheckBox(tvPtr, hPtr)
     cbPtr->classPtr = &checkBoxClass;
     cbPtr->gap = 4;
     cbPtr->size = 11;
-    cbPtr->lineWidth = 2;
+    cbPtr->lineWidth = 1;
     cbPtr->showValue = TRUE;
     cbPtr->name = Blt_Strdup(Blt_GetHashKey(&tvPtr->styleTable, hPtr));
     cbPtr->hashPtr = hPtr;
@@ -1131,7 +1131,7 @@ DrawCheckBox(tvPtr, drawable, entryPtr, valuePtr, stylePtr, x, y)
 	border = cbPtr->activeBorder;
 	fgColor = cbPtr->activeFgColor;
 	borderWidth = 1;
-	relief = TK_RELIEF_RAISED;
+	/*	relief = TK_RELIEF_RAISED; */
     } else if (stylePtr->flags & STYLE_HIGHLIGHT) {
 	gc = cbPtr->highlightGC;
 	border = cbPtr->highlightBorder;
@@ -1191,11 +1191,19 @@ DrawCheckBox(tvPtr, drawable, entryPtr, valuePtr, stylePtr, x, y)
     boxWidth = boxHeight = ODD(cbPtr->size);
     boxX = x + cbPtr->gap;
     boxY = y + (entryPtr->height - boxHeight) / 2;
+    if (valuePtr == tvPtr->activeValuePtr) {
+	XFillRectangle(tvPtr->display, drawable, 
+		Tk_3DBorderGC(tvPtr->tkwin, border, TK_3D_LIGHT_GC),
+		boxX, boxY, boxWidth, boxHeight);
+	XDrawRectangle(tvPtr->display, drawable, 
+		Tk_3DBorderGC(tvPtr->tkwin, border, TK_3D_DARK_GC),
+		boxX, boxY, boxWidth, boxHeight);
+    } else {
     XFillRectangle(tvPtr->display, drawable, cbPtr->fillGC, boxX, boxY, 
 		       boxWidth, boxHeight);
     XDrawRectangle(tvPtr->display, drawable, cbPtr->boxGC, boxX, boxY, 
 	boxWidth, boxHeight);
-
+    }
     if (bool) {
 	int midX, midY;
 	int i;

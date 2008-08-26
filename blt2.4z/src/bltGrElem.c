@@ -1074,6 +1074,15 @@ NameToElement(graphPtr, name, elemPtrPtr)
     return TCL_OK;
 }
 
+int
+Blt_GetElement(graphPtr, name, elemPtrPtr)
+    Graph *graphPtr;
+    char *name;
+    Element **elemPtrPtr;
+{
+    return NameToElement(graphPtr, name, elemPtrPtr);
+}
+
 /*
  *----------------------------------------------------------------------
  *
@@ -1176,8 +1185,8 @@ CreateElement(graphPtr, interp, argc, argv, classUid)
 	return TCL_ERROR;
     }
     (*elemPtr->procsPtr->configProc) (graphPtr, elemPtr);
-    Blt_ChainPrepend(graphPtr->elements.displayList, elemPtr);
-
+    elemPtr->linkPtr = 
+	Blt_ChainPrepend(graphPtr->elements.displayList, elemPtr);
     if (!elemPtr->hidden) {
 	/* If the new element isn't hidden then redraw the graph.  */
 	graphPtr->flags |= REDRAW_BACKING_STORE;
@@ -1231,14 +1240,23 @@ RebuildDisplayList(graphPtr, newList)
 	    "\"", (char *)NULL);
 	return TCL_ERROR;
     }
-    /* Clear the display list and mark all elements as hidden.  */
-    Blt_ChainReset(graphPtr->elements.displayList);
-
+    {
+	Blt_HashEntry *hPtr;
+	Blt_HashSearch cursor;
+	/* Clear the display list and mark all elements as hidden.  */
+	for (hPtr = Blt_FirstHashEntry(&graphPtr->elements.table, &cursor);
+	     hPtr != NULL; hPtr = Blt_NextHashEntry(&cursor)) {
+	    elemPtr = (Element *)Blt_GetHashValue(hPtr);
+	    elemPtr->linkPtr = NULL;
+	}
+	Blt_ChainReset(graphPtr->elements.displayList);
+    }
     /* Rebuild the display list, checking that each name it exists
      * (currently ignoring invalid element names).  */
     for (i = 0; i < nNames; i++) {
 	if (NameToElement(graphPtr, nameArr[i], &elemPtr) == TCL_OK) {
-	    Blt_ChainAppend(graphPtr->elements.displayList, elemPtr);
+	    elemPtr->linkPtr = Blt_ChainAppend(graphPtr->elements.displayList, 
+		elemPtr);
 	}
     }
     Blt_Free(nameArr);
@@ -1297,9 +1315,6 @@ Blt_MapElements(graphPtr)
     for (linkPtr = Blt_ChainFirstLink(graphPtr->elements.displayList);
 	linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
 	elemPtr = Blt_ChainGetValue(linkPtr);
-	if (elemPtr->hidden) {
-	    continue;
-	}
 	if ((graphPtr->flags & MAP_ALL) || (elemPtr->flags & MAP_ITEM)) {
 	    (*elemPtr->procsPtr->mapProc) (graphPtr, elemPtr);
 	    elemPtr->flags &= ~MAP_ITEM;

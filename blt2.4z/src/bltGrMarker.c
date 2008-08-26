@@ -4892,17 +4892,17 @@ Blt_DrawMarkers(graphPtr, drawable, under)
 	}
 	if (markerPtr->elemName != NULL) {
 	    Blt_HashEntry *hPtr;
+	    Element *elemPtr;
 
 	    /* Look up the named element and see if it's hidden */
 	    hPtr = Blt_FindHashEntry(&graphPtr->elements.table, 
 				     markerPtr->elemName);
-	    if (hPtr != NULL) {
-		Element *elemPtr;
-
-		elemPtr = (Element *)Blt_GetHashValue(hPtr);
-		if (elemPtr->hidden) {
-		    continue;
-		}
+	    if (hPtr == NULL) {
+		continue;
+	    }
+	    elemPtr = (Element *)Blt_GetHashValue(hPtr);
+	    if (elemPtr->hidden) {
+		continue;
 	    }
 	}
 

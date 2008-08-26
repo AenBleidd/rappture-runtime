@@ -291,6 +291,7 @@ proc blt::tv::Initialize { w } {
 	    break
 	}
     }
+    # CheckBox
     $w bind CheckBoxStyle <Enter> { 
 	set column [%W column current]
 	if { [%W column cget $column -edit] } {
@@ -317,7 +318,8 @@ proc blt::tv::Initialize { w } {
 	    %W edit -root %X %Y
 	    break
 	}
-    }
+    }					
+    # ComboBox
     $w bind ComboBoxStyle <ButtonPress-1> { 
 	set column [%W column current]
 	if { [%W column cget $column -edit] } {

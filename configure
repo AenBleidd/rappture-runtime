@@ -3870,8 +3870,8 @@ fi
 
 
 stage1_targets="expat tcl tk zlib"
-stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
-stage3_targets="vtk pymol dx"
+stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls vtk"
+stage3_targets="pymol dx"
 
 if test "${with_expat}" = "no" ; then
   { $as_echo "$as_me:$LINENO: checking for XML_ParserCreate in -lexpat" >&5
@@ -4837,7 +4837,7 @@ _ACEOF
 
 cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 # Files that config.status was made for.
-config_files="$ac_config_files"
+config_files="`echo $ac_config_files`"
 
 _ACEOF
 

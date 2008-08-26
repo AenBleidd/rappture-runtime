@@ -1695,11 +1695,9 @@ Blt_ResetAxes(graphPtr)
     for (linkPtr = Blt_ChainFirstLink(graphPtr->elements.displayList);
 	linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
 	elemPtr = Blt_ChainGetValue(linkPtr);
-	if (!elemPtr->hidden) {
-	    (*elemPtr->procsPtr->extentsProc) (elemPtr, &exts);
-	    GetDataLimits(elemPtr->axes.x, exts.left, exts.right);
-	    GetDataLimits(elemPtr->axes.y, exts.top, exts.bottom);
-	}
+	(*elemPtr->procsPtr->extentsProc) (elemPtr, &exts);
+	GetDataLimits(elemPtr->axes.x, exts.left, exts.right);
+	GetDataLimits(elemPtr->axes.y, exts.top, exts.bottom);
     }
     /*
      * Step 3:  Now that we know the range of data values for each axis,

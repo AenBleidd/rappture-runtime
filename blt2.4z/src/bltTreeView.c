@@ -5144,7 +5144,9 @@ unset className\n", className);
     Tcl_SetObjResult(interp, Tcl_NewStringObj(Tk_PathName(tvPtr->tkwin), -1));
     return TCL_OK;
   error:
-    Tk_DestroyWindow(tvPtr->tkwin);
+    if (tvPtr != NULL) {
+	Tk_DestroyWindow(tvPtr->tkwin);
+    }
     return TCL_ERROR;
 }
 
