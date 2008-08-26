@@ -341,7 +341,7 @@ typedef struct {
 static Blt_SwitchSpec moveSwitches[] = 
 {
     {BLT_SWITCH_CUSTOM, "-after", Blt_Offset(MoveData, node), 0, &nodeSwitch},
-    {BLT_SWITCH_INT_NONNEGATIVE, "-at", Blt_Offset(MoveData, movePos), 0},
+    {BLT_SWITCH_INT,	"-at", Blt_Offset(MoveData, movePos), 0},
     {BLT_SWITCH_CUSTOM, "-before", Blt_Offset(MoveData, node), 0, &nodeSwitch},
     {BLT_SWITCH_END, NULL, 0, 0}
 };

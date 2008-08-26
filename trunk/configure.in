@@ -170,8 +170,8 @@ AC_ARG_WITH([dx],
 	[with_dx=$withval], [with_dx=$default_dx])
 
 stage1_targets="expat tcl tk zlib"
-stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
-stage3_targets="vtk pymol dx"
+stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls vtk"
+stage3_targets="pymol dx"
 
 if test "${with_expat}" = "no" ; then
   AC_CHECK_LIB(expat, XML_ParserCreate, [with_expat="no"], 

@@ -1190,55 +1190,6 @@ Blt_CreateLegend(graphPtr)
     return TCL_OK;
 }
 
-/*
- *----------------------------------------------------------------------
- *
- * GetOp --
- *
- * 	Find the legend entry from the given argument.  The argument
- *	can be either a screen position "@x,y" or the name of an
- *	element.
- *
- *	I don't know how useful it is to test with the name of an
- *	element.
- *
- * Results:
- *	A standard Tcl result.
- *
- * Side Effects:
- *	Graph will be redrawn to reflect the new legend attributes.
- *
- *----------------------------------------------------------------------
- */
-/*ARGSUSED*/
-static int
-GetOp(graphPtr, interp, argc, argv)
-    Graph *graphPtr;
-    Tcl_Interp *interp;
-    int argc;			/* Not used. */
-    char *argv[];
-{
-    register Element *elemPtr;
-    Legend *legendPtr = graphPtr->legend;
-    int x, y;
-    char c;
-
-    if ((legendPtr->hidden) || (legendPtr->nEntries == 0)) {
-	return TCL_OK;
-    }
-    elemPtr = NULL;
-    c = argv[3][0];
-    if ((c == 'c') && (strcmp(argv[3], "current") == 0)) {
-	elemPtr = (Element *)Blt_GetCurrentItem(legendPtr->bindTable);
-    } else if ((c == '@') &&
-       (Blt_GetXY(interp, graphPtr->tkwin, argv[3], &x, &y) == TCL_OK)) { 
-	elemPtr = (Element *)PickLegendEntry(graphPtr, x, y, NULL);
-    }
-    if (elemPtr != NULL) {
-	Tcl_SetResult(interp, elemPtr->name, TCL_VOLATILE);
-    }
-    return TCL_OK;
-}
 
 /*
  *----------------------------------------------------------------------
@@ -1432,6 +1383,144 @@ ConfigureOp(graphPtr, interp, argc, argv)
 /*
  *----------------------------------------------------------------------
  *
+ * GetOp --
+ *
+ * 	Find the legend entry from the given argument.  The argument
+ *	can be either a screen position "@x,y" or the name of an
+ *	element.
+ *
+ *	I don't know how useful it is to test with the name of an
+ *	element.
+ *
+ * Results:
+ *	A standard Tcl result.
+ *
+ * Side Effects:
+ *	Graph will be redrawn to reflect the new legend attributes.
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+GetOp(graphPtr, interp, argc, argv)
+    Graph *graphPtr;
+    Tcl_Interp *interp;
+    int argc;			/* Not used. */
+    char *argv[];
+{
+    register Element *elemPtr;
+    Legend *legendPtr = graphPtr->legend;
+    int x, y;
+    char c;
+
+    if ((legendPtr->hidden) || (legendPtr->nEntries == 0)) {
+	return TCL_OK;
+    }
+    elemPtr = NULL;
+    c = argv[3][0];
+    if ((c == 'c') && (strcmp(argv[3], "current") == 0)) {
+	elemPtr = (Element *)Blt_GetCurrentItem(legendPtr->bindTable);
+    } else if ((c == '@') &&
+       (Blt_GetXY(interp, graphPtr->tkwin, argv[3], &x, &y) == TCL_OK)) { 
+	elemPtr = (Element *)PickLegendEntry(graphPtr, x, y, NULL);
+    }
+    if (elemPtr != NULL) {
+	Tcl_SetResult(interp, elemPtr->name, TCL_VOLATILE);
+    }
+    return TCL_OK;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * IconOp --
+ *
+ * 	Find the legend entry from the given argument.  The argument
+ *	can be either a screen position "@x,y" or the name of an
+ *	element.
+ *
+ *	I don't know how useful it is to test with the name of an
+ *	element.
+ *
+ * Results:
+ *	A standard Tcl result.
+ *
+ * Side Effects:
+ *	Graph will be redrawn to reflect the new legend attributes.
+ *
+ *	.g legend icon elemName photo
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+IconOp(graphPtr, interp, argc, argv)
+    Graph *graphPtr;
+    Tcl_Interp *interp;
+    int argc;			/* Not used. */
+    char *argv[];
+{
+    Blt_ColorImage image;
+    Element *elemPtr;
+    Legend *legendPtr = graphPtr->legend;
+    Pixmap pixmap;
+    Tk_FontMetrics fontMetrics;
+    Tk_PhotoHandle destPhoto;
+    int w, h, x, y, s;
+
+    if (Blt_GetElement(graphPtr, argv[3], &elemPtr) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    destPhoto = Blt_FindPhoto(interp, argv[4]);
+    if (destPhoto == NULL) {
+	Tcl_AppendResult(interp, "destination image \"", argv[4], "\" doesn't",
+	    " exist or is not a photo image", (char *)NULL);
+	return TCL_ERROR;
+    }
+    Tk_GetFontMetrics(legendPtr->style.font, &fontMetrics);
+    s = fontMetrics.ascent;
+    h = s + PADDING(legendPtr->ipadY) + 1;
+    w = s + s + 1 + PADDING(legendPtr->ipadX);
+    x = (w / 2);
+    y = (h / 2);
+    pixmap = Tk_GetPixmap(graphPtr->display, 
+	RootWindow(graphPtr->display, Tk_ScreenNumber(graphPtr->tkwin)),
+	w, h, Tk_Depth(graphPtr->tkwin));
+    XFillRectangle(graphPtr->display, pixmap, graphPtr->plotFillGC, 0, 0, w, h);
+    (*elemPtr->procsPtr->drawSymbolProc) (graphPtr, pixmap, elemPtr,
+	x, y, s);
+    image = Blt_DrawableToColorImage(graphPtr->tkwin, pixmap, 0, 0, w, h, 
+	1.0);
+    /* Make the background transparent. */
+    {
+	int x, y;
+	Pix32 *destPtr;
+	Pix32 color;
+
+	color.Red = graphPtr->plotBg->red >> 8;
+	color.Green = graphPtr->plotBg->green >> 8;
+	color.Blue = graphPtr->plotBg->blue >> 8;
+	color.Alpha = 0xFF;
+	
+	destPtr = Blt_ColorImageBits(image);
+	for (y = 0; y < h; y++) {
+	    for (x = 0; x < w; x++) {
+		if (destPtr->value == color.value) {
+		    destPtr->Alpha = 0;
+		}
+		destPtr++;
+	    }
+	}
+    }
+    Tk_FreePixmap(graphPtr->display, pixmap);
+    Blt_ColorImageToPhoto(image, destPhoto);
+    Blt_FreeColorImage(image);
+    return TCL_OK;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
  * Blt_LegendOp --
  *
  * Results:
@@ -1445,12 +1534,13 @@ ConfigureOp(graphPtr, interp, argc, argv)
 
 static Blt_OpSpec legendOps[] =
 {
-    {"activate", 1, (Blt_Op)ActivateOp, 3, 0, "?pattern?...",},
-    {"bind", 1, (Blt_Op)BindOp, 3, 6, "elemName sequence command",},
-    {"cget", 2, (Blt_Op)CgetOp, 4, 4, "option",},
-    {"configure", 2, (Blt_Op)ConfigureOp, 3, 0, "?option value?...",},
+    {"activate",   1, (Blt_Op)ActivateOp, 3, 0, "?pattern?...",},
+    {"bind",       1, (Blt_Op)BindOp, 3, 6, "elemName sequence command",},
+    {"cget",       2, (Blt_Op)CgetOp, 4, 4, "option",},
+    {"configure",  2, (Blt_Op)ConfigureOp, 3, 0, "?option value?...",},
     {"deactivate", 1, (Blt_Op)ActivateOp, 3, 0, "?pattern?...",},
-    {"get", 1, (Blt_Op)GetOp, 4, 4, "index",},
+    {"get",        1, (Blt_Op)GetOp, 4, 4, "index",},
+    {"icon",       1, (Blt_Op)IconOp, 5, 5, "elemName image",},
 };
 static int nLegendOps = sizeof(legendOps) / sizeof(Blt_OpSpec);
 

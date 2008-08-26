@@ -203,7 +203,7 @@ LastEntry(tvPtr, entryPtr, mask)
     next = Blt_TreeLastChild(entryPtr->node);
     while (next != NULL) {
 	nextPtr = Blt_NodeToEntry(tvPtr, next);
-	if ((nextPtr->flags & mask) != mask) {
+	if (nextPtr->flags & mask) {
 	    break;
 	}
 	entryPtr = nextPtr;

@@ -1684,6 +1684,7 @@ SortOp(vPtr, interp, objc, objv)
     int refSize, nBytes;
     int result;
     register int i, n;
+    int uniq;
 
     reverse = FALSE;
     if (objc > 2) {
@@ -1691,11 +1692,16 @@ SortOp(vPtr, interp, objc, objv)
 
 	string = Tcl_GetStringFromObj(objv[2], &length);
 	if (string[0] == '-') {
-	    if ((length > 1) && (strncmp(string, "-reverse", length) == 0)) {
+	    char c;
+
+	    c = string[1];
+	    if ((c == 'r') && (strncmp(string, "-reverse", length) == 0)) {
 		reverse = TRUE;
+	    } else if ((c == 'u') && (strncmp(string, "-uniq", length) == 0)) {
+		uniq = TRUE;
 	    } else {
 		Tcl_AppendResult(interp, "unknown flag \"", string,
-			 "\": should be \"-reverse\"", (char *)NULL);
+			 "\": should be \"-reverse or -uniq\"", (char *)NULL);
 		return TCL_ERROR;
 	    }
 	    objc--, objv++;
@@ -1720,6 +1726,27 @@ SortOp(vPtr, interp, objc, objv)
     mergeArr = Blt_Malloc(nBytes);
     assert(mergeArr);
     memcpy((char *)mergeArr, (char *)vPtr->valueArr, nBytes);
+    if (uniq) {
+	double x;
+	int count;
+
+	x = mergeArr[iArr[0]];
+	for (count = n = 1; n < refSize; n++) {
+	    int index;
+
+	    index = iArr[n];
+	    if (mergeArr[index] == x) {
+		continue;
+	    }
+	    iArr[count] = index;
+	    count++;
+	}
+	refSize = count;
+	nBytes = refSize * sizeof(double);
+    }
+    if (refSize != vPtr->length) {
+	vPtr->length = refSize;
+    }
     for (n = 0; n < refSize; n++) {
 	vPtr->valueArr[n] = mergeArr[iArr[n]];
     }
@@ -1737,10 +1764,7 @@ SortOp(vPtr, interp, objc, objv)
 	    goto error;
 	}
 	if (v2Ptr->length != refSize) {
-	    Tcl_AppendResult(interp, "vector \"", v2Ptr->name,
-		"\" is not the same size as \"", vPtr->name, "\"",
-		(char *)NULL);
-	    goto error;
+	    v2Ptr->length = refSize;
 	}
 	memcpy((char *)mergeArr, (char *)v2Ptr->valueArr, nBytes);
 	for (n = 0; n < refSize; n++) {

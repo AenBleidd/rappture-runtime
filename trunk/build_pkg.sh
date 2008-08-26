@@ -80,11 +80,11 @@ mkdir -p $build_dir
 # expat, zlib if enabled with --with-xxx
 stage1_flags=""
 
-# stage2: blt, htmlwidget, itk, shape, tcllib, tdom, tkimg, tls, vornoi
-stage2_flags=""
+# stage2: blt, htmlwidget, itk, shape, tcllib, tdom, tkimg, tls, vornoi, vtk
+stage2_flags="--with-vtk"
 
-# stage3: pymol, vtk, dx if enabled
-stage3_flags="--with-vtk --with-pymol"
+# stage3: pymol, dx if enabled
+stage3_flags="--with-pymol"
 # Don't build vtk or pymol yet on BAT.
 stage3_flags=""
 
@@ -176,11 +176,6 @@ stage1
 stage2
 stage3
 rappture
-
-# Need these links. 
-cd $build_dir/bin
-ln -sf wish8.4 wish
-ln -sf tclsh8.4 tclsh
 
 echo "To use this build, do one of the following"
 echo "export PATH=`pwd`:\$PATH"
