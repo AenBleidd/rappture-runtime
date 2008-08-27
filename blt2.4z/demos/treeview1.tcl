@@ -158,7 +158,7 @@ treeview .t \
 .t column configure mtime -hide no -bg \#ffeaea -relief raised
 .t column configure size gid nlink uid ino dev -justify left -edit yes
 .t column configure size type -justify left -edit yes
-.t column configure treeView -hide no -edit no -icon blt::tv::normalOpenFolder
+.t column configure treeView -hide no -edit yes -icon blt::tv::normalOpenFolder
 focus .t
 
 scrollbar .vs -orient vertical -command { .t yview }
@@ -178,9 +178,9 @@ $tree find root -glob *.c -addtag "c_files"
 $tree find root -glob *.h -addtag "header_files"
 $tree find root -glob *.tcl -addtag "tcl_files"
 
-.t entry configure "c_files" -foreground green4
-.t entry configure "header_files" -foreground cyan4
-.t entry configure "tcl_files" -foreground red4
+#.t entry configure "c_files" -foreground green4
+#.t entry configure "header_files" -foreground cyan4
+#.t entry configure "tcl_files" -foreground red4
 
 .t column bind all <ButtonRelease-3> {
     %W configure -flat no

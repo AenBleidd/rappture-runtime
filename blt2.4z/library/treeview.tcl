@@ -540,6 +540,7 @@ proc blt::tv::GetSelection { w } {
     return $text
 }
 
+
 proc blt::tv::EditColumn { w x y } {
     $w see current
     if { [winfo exists $w.edit] } {

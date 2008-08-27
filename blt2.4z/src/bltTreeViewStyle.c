@@ -833,27 +833,27 @@ DrawTextBox(tvPtr, drawable, entryPtr, valuePtr, stylePtr, x, y)
 /*
  *----------------------------------------------------------------------
  *
- * EditCombobox --
+ * EditTextBox --
  *
- *	Edits the "combobox".
+ *	Edits the "textbox".
  *
  * Results:
  *	None.
  *
  * Side Effects:
- *	The checkbox value is drawn.
+ *	The textbox is updated/edited.
  *
  *----------------------------------------------------------------------
  */
 /*ARGSUSED*/
 static int
-EditTextBox(tvPtr, entryPtr, valuePtr, stylePtr)
+EditTextBox(tvPtr, entryPtr, columnPtr, stylePtr)
     TreeView *tvPtr;
     TreeViewEntry *entryPtr;
-    TreeViewValue *valuePtr;
+    TreeViewColumn *columnPtr;
     TreeViewStyle *stylePtr;	/* Not used. */
 {
-    return Blt_TreeViewTextbox(tvPtr, entryPtr, valuePtr->columnPtr);
+    return Blt_TreeViewTextbox(tvPtr, entryPtr, columnPtr);
 }
 
 
@@ -1338,17 +1338,15 @@ PickCheckBox(entryPtr, valuePtr, stylePtr, worldX, worldY)
  *----------------------------------------------------------------------
  */
 static int
-EditCheckBox(tvPtr, entryPtr, valuePtr, stylePtr)
+EditCheckBox(tvPtr, entryPtr, columnPtr, stylePtr)
     TreeView *tvPtr;
     TreeViewEntry *entryPtr;
-    TreeViewValue *valuePtr;
+    TreeViewColumn *columnPtr;
     TreeViewStyle *stylePtr;
 {
-    TreeViewColumn *columnPtr;
     TreeViewCheckBox *cbPtr = (TreeViewCheckBox *)stylePtr;
     Tcl_Obj *objPtr;
 
-    columnPtr = valuePtr->columnPtr;
     if (Blt_TreeGetValueByKey(tvPtr->interp, tvPtr->tree, 
 	      entryPtr->node, columnPtr->key, &objPtr) != TCL_OK) {
 	return TCL_ERROR;
@@ -1788,13 +1786,13 @@ PickComboBox(entryPtr, valuePtr, stylePtr, worldX, worldY)
  */
 /*ARGSUSED*/
 static int
-EditComboBox(tvPtr, entryPtr, valuePtr, stylePtr)
+EditComboBox(tvPtr, entryPtr, columnPtr, stylePtr)
     TreeView *tvPtr;
     TreeViewEntry *entryPtr;
-    TreeViewValue *valuePtr;
+    TreeViewColumn *columnPtr;
     TreeViewStyle *stylePtr;	/* Not used. */
 {
-    return Blt_TreeViewTextbox(tvPtr, entryPtr, valuePtr->columnPtr);
+    return Blt_TreeViewTextbox(tvPtr, entryPtr, columnPtr);
 }
 
 /*
