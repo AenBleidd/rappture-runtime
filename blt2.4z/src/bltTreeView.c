@@ -4586,7 +4586,7 @@ DrawTreeEntry(
     if (!Blt_TreeViewDrawIcon(tvPtr, entryPtr, drawable, x, y)) {
 	x -= (DEF_ICON_WIDTH * 2) / 3;
     }
-    x += ICONWIDTH(level + 1) + 4;
+    x += ICONWIDTH(level + 1) + 2;
 
     /* Entry label. */
     DrawLabel(tvPtr, entryPtr, drawable, x, y);
