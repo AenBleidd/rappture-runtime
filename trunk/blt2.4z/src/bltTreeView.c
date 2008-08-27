@@ -2127,8 +2127,8 @@ TreeEventProc(ClientData clientData, Blt_TreeNotifyEvent *eventPtr)
 	/*FALLTHRU*/
     case TREE_NOTIFY_MOVE:
     case TREE_NOTIFY_SORT:
+	tvPtr->flags |= (TV_LAYOUT | TV_RESORT | TV_DIRTY);
 	Blt_TreeViewEventuallyRedraw(tvPtr);
-	tvPtr->flags |= (TV_LAYOUT | TV_DIRTY);
 	break;
     default:
 	/* empty */
