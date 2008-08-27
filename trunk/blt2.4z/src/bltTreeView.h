@@ -489,7 +489,7 @@ typedef void (StyleDrawProc) _ANSI_ARGS_((TreeView *tvPtr, Drawable drawable,
 	TreeViewEntry *entryPtr, TreeViewValue *valuePtr, 
 	TreeViewStyle *stylePtr, int x, int y));
 typedef int (StyleEditProc) _ANSI_ARGS_((TreeView *tvPtr, 
-	TreeViewEntry *entryPtr, TreeViewValue *valuePtr, 
+	TreeViewEntry *entryPtr, TreeViewColumn *columnPtr, 
 	TreeViewStyle *stylePtr));
 typedef void (StyleFreeProc) _ANSI_ARGS_((TreeView *tvPtr, 
 	TreeViewStyle *stylePtr));

@@ -1805,30 +1805,31 @@ EditOp(tvPtr, interp, objc, objv)
 	    }
 	    if ((worldX >= columnPtr->worldX) && 
 		(worldX < (columnPtr->worldX + columnPtr->width))) {
-		TreeViewValue *valuePtr;
+		TreeViewStyle *stylePtr;
 		
-		valuePtr = Blt_TreeViewFindValue(entryPtr, columnPtr);
-		if (valuePtr != NULL) {
-		    TreeViewStyle *stylePtr;
-		    
+		stylePtr = NULL;
+		if (columnPtr != &tvPtr->treeColumn) {
+		    TreeViewValue *valuePtr;
+
+		    valuePtr = Blt_TreeViewFindValue(entryPtr, columnPtr);
 		    stylePtr = valuePtr->stylePtr;
-		    if (stylePtr == NULL) {
-			stylePtr = columnPtr->stylePtr;
-		    }
-		    if ((stylePtr->classPtr->editProc != NULL) && (!isTest)) {
-			if ((*stylePtr->classPtr->editProc)(tvPtr, entryPtr, 
-				    valuePtr, stylePtr) != TCL_OK) {
-			    return TCL_ERROR;
-			}
-			Blt_TreeViewEventuallyRedraw(tvPtr);
-		    }
-		    Tcl_SetObjResult(interp, Tcl_NewIntObj(1));
-		    return TCL_OK;
+		} 
+		if (stylePtr == NULL) {
+		    stylePtr = columnPtr->stylePtr;
 		}
+		if ((stylePtr->classPtr->editProc != NULL) && (!isTest)) {
+		    if ((*stylePtr->classPtr->editProc)(tvPtr, entryPtr, 
+			columnPtr, stylePtr) != TCL_OK) {
+			return TCL_ERROR;
+		    }
+		    Blt_TreeViewEventuallyRedraw(tvPtr);
+		}
+		Tcl_SetIntObj(Tcl_GetObjResult(interp), 1);
+		return TCL_OK;
 	    }
 	}
     }
-    Tcl_SetObjResult(interp, Tcl_NewIntObj(0));
+    Tcl_SetIntObj(Tcl_GetObjResult(interp), 0);
     return TCL_OK;
 }
 
