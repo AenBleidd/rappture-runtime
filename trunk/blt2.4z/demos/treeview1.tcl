@@ -208,5 +208,5 @@ pack .top.sbar -side right -fill y
     -icon blt::tv::normalOpenFolder
 
 .t column configure uid -style combo
-.t column configure gid -style check 
+.t column configure gid -style check -edit yes 
 

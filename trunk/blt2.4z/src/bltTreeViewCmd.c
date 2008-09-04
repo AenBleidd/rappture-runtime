@@ -407,14 +407,11 @@ FindPath(tvPtr, rootPtr, path)
  *
  *----------------------------------------------------------------------
  */
-static Tcl_Obj *
+static INLINE Tcl_Obj *
 NodeToObj(node)
     Blt_TreeNode node;
 {
-    char string[200];
-
-    sprintf(string, "%d", Blt_TreeNodeId(node));
-    return Tcl_NewStringObj(string, -1);
+    return Tcl_NewLongObj(Blt_TreeNodeId(node));
 }
 
 
