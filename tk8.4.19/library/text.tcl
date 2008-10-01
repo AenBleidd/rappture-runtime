@@ -1,3 +1,4 @@
+
 # text.tcl --
 #
 # This file defines the default bindings for Tk text widgets and provides
