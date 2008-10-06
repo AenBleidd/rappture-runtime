@@ -146,7 +146,7 @@ AC_ARG_WITH([tls],
 
 AC_ARG_WITH([vtk],
   [AS_HELP_STRING([--with-vtk[=DIR]], 
-    [Build vtk-4.4 default=yes])], 
+    [Build vtk default=yes])], 
 	[with_vtk=$withval], [with_vtk=$default_vtk])
 
 AC_ARG_WITH([zlib],
