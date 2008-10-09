@@ -25,10 +25,13 @@ pymol:
 	$(MAKE) -C $(PYMOL_DIR) all 
 
 install: 
-	$(MAKE) -C $(PYMOL_DIR) install 
 	$(INSTALL) -d $(destdir)
-	tar -C $(PYMOL_DIR) -clf - modules | tar -C $(destdir) -xpf -
-	tar -C $(PYMOL_DIR) -clf - built | tar -C $(destdir) -xpf -
+	$(MAKE) -C $(PYMOL_DIR) install \
+		pymollibdir=$(destdir) \
+		champlibdir=$(destdir) \
+		moduleslibdir=$(destdir) \
+		sglitelibdir=$(destdir) \
+		pyopengllibdir=$(destdir)
 
 clean: 
 	$(MAKE) -C $(PYMOL_DIR) clean
