@@ -32,6 +32,7 @@ install:
 		moduleslibdir=$(destdir) \
 		sglitelibdir=$(destdir) \
 		pyopengllibdir=$(destdir)
+	tar -C $(PYMOL_DIR) -clf - modules | tar -C $(destdir) -xpf -
 
 clean: 
 	$(MAKE) -C $(PYMOL_DIR) clean
