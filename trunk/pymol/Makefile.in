@@ -15,6 +15,7 @@ RM			= rm -f
 VPATH			= $(srcdir)
 INSTALL			= @INSTALL@
 
+install_parts		= modules data test scripts examples LICENSE
 PYMOL_DIR		= @PYMOL_DIR@
 
 .PHONY: pymol
@@ -32,7 +33,7 @@ install:
 		moduleslibdir=$(destdir) \
 		sglitelibdir=$(destdir) \
 		pyopengllibdir=$(destdir)
-	tar -C $(PYMOL_DIR) -clf - modules | tar -C $(destdir) -xpf -
+	tar -C $(PYMOL_DIR) -clf - $(install_parts) | tar -C $(destdir) -xpf -
 
 clean: 
 	$(MAKE) -C $(PYMOL_DIR) clean
