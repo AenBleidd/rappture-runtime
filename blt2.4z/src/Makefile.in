@@ -168,7 +168,7 @@ all: $(bltsh) $(bltwish) @SHLIB_TARGET@
 build_shared:
 	(cd shared; $(MAKE) CFLAGS="$(CFLAGS)" all) 
 
-$(bltwish): $(lib_a) $(srcdir)/bltUnixMain.c
+$(bltwish): $(bltsh) $(lib_a) $(srcdir)/bltUnixMain.c
 	$(RM) $(bltwish)
 	$(CC) $(CC_SWITCHES) $(LDFLAGS) -o $(bltwish) \
 		-DTCLLIBPATH=\"$(TCLLIBPATH)\" \
