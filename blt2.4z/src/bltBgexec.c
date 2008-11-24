@@ -40,6 +40,7 @@
 
 #include "bltWait.h"
 #include "bltSwitch.h"
+#include "bltChain.h"
 
 #if (TCL_MAJOR_VERSION == 7)
 #define FILEHANDLER_USES_TCLFILES 1
@@ -237,6 +238,8 @@ static SignalId signalIds[] =
     {-1, "unknown signal"},
 };
 
+static Blt_Chain *activePipelines; /* List of bgexec structures in use. */
+
 /*
  * Sink buffer:
  *   ____________________
@@ -360,6 +363,8 @@ typedef struct {
     int *donePtr;
 
     Sink sink1, sink2;
+
+    Blt_ChainLink *linkPtr;
 
 } BackgroundInfo;
 
@@ -1309,7 +1314,7 @@ CollectData(bgPtr, sinkPtr)
     if ((sinkPtr->mark > sinkPtr->lastMark) && 
 	(sinkPtr->flags & SINK_NOTIFY)) {
 	unsigned char *data;
-	int length;
+	int length = 0;		/* Suppress compiler warning. */
 
 	if (sinkPtr->flags & SINK_BUFFERED) {
 	    /* For line-by-line updates, call NotifyOnUpdate for each
@@ -1429,6 +1434,9 @@ FreeBackgroundInfo(bgPtr)
     }
     if (bgPtr->procArr != NULL) {
 	Blt_Free(bgPtr->procArr);
+    }
+    if (bgPtr->linkPtr != NULL) {
+	Blt_ChainDeleteLink(activePipelines, bgPtr->linkPtr);
     }
     Blt_Free(bgPtr);
 }
@@ -1823,6 +1831,7 @@ BgexecCmd(clientData, interp, argc, argv)
     bgPtr->detached = detached;
     bgPtr->keepNewline = FALSE;
     bgPtr->statVar = Blt_Strdup(argv[1]);
+    bgPtr->linkPtr = Blt_ChainAppend(activePipelines, bgPtr);
 
     /* Try to clean up any detached processes */
     Tcl_ReapDetachedProcs();
@@ -1972,6 +1981,23 @@ BgexecCmd(clientData, interp, argc, argv)
     return TCL_ERROR;
 }
 
+static void
+BgexecExitProc(ClientData clientData)
+{
+    Blt_ChainLink *linkPtr, *nextPtr;
+
+    for (linkPtr = Blt_ChainFirstLink(activePipelines); linkPtr != NULL; 
+	 linkPtr = nextPtr) {
+	nextPtr = Blt_ChainNextLink(linkPtr);
+	BackgroundInfo *bgPtr;
+
+	bgPtr = Blt_ChainGetValue(linkPtr);
+	bgPtr->linkPtr = NULL;
+	DestroyBackgroundInfo(bgPtr);
+    }
+    Blt_ChainDestroy(activePipelines);
+}
+
 /*
  *----------------------------------------------------------------------
  *
@@ -1995,6 +2021,8 @@ Blt_BgexecInit(interp)
 {
     static Blt_CmdSpec cmdSpec = {"bgexec", BgexecCmd, };
 
+    activePipelines = Blt_ChainCreate();
+    Tcl_CreateExitHandler(BgexecExitProc, activePipelines);
     if (Blt_InitCmd(interp, "blt", &cmdSpec) == NULL) {
 	return TCL_ERROR;
     }
