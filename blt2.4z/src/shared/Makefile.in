@@ -129,7 +129,7 @@ all: build_lib build_demo
 
 build_demo: $(bltwish) $(bltsh)
 
-$(bltwish): $(lib_so)
+$(bltwish): $(bltsh) $(lib_so)
 	$(RM) $(bltwish)
 	$(CC) $(CC_SWITCHES) $(LDFLAGS) -o $(bltwish) \
 		$(srcdir)/bltUnixMain.c $(lib_so) $(LIBS) 
