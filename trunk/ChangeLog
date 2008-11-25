@@ -1,6 +1,18 @@
-
-    * fixed the matlab flags, --without-matlab now works properly
-    * merged in fixes for compiling zlib, libb64, scew, and rappture bindings
-        on grid computers
+2008-11-25: 
+	
+ * (Re)fixed cut/paste with menus (menu.tcl).  This is a bug in Tk 
+   distributions that's been there forever.  This fix was lost when I 
+   upgraded to tk8.4.19.
+ * Upgraded to latest (r3478) version of pymol from sourceforge.net.
+   This was done in the process of upgrading to 64-bit render servers.
+ * Changed how pymol is built.  Our pymol server specific changes are
+   now kept in a patch file applied on each build. This should make it easier
+   to upgrade from pymol versions on sourceforge.net.
+ * Added exit handler to BLT bgexec to kill remaining subprocesses on exit.
+   Some application were setting the magic status variable to kill the
+   remaining subprocesses but then called exit.  The variable trace never
+   fired as Tcl never got back to its event loop.
+ * Fixed Makefile.in in BLT to better handle parallel builds (-j6) in
+   gmake.
 
 2008-03-30: Rappture 20080330 released
