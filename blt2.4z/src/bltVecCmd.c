@@ -1554,10 +1554,10 @@ SortOp(vPtr, interp, argc, argv)
     int argc;
     char **argv;
 {
-    int *iArr;
-    double *mergeArr;
+    int *map;
+    double *copy;
     VectorObject *v2Ptr;
-    int refSize, nBytes;
+    int sortLength, nBytes;
     int result;
     register int i, n;
     int uniq;
@@ -1584,48 +1584,46 @@ SortOp(vPtr, interp, argc, argv)
 	argc--, argv++;
     }
     if (argc > 2) {
-	iArr = SortVectors(vPtr, interp, argc - 2, argv + 2);
+	map = SortVectors(vPtr, interp, argc - 2, argv + 2);
     } else {
-	iArr = Blt_VectorSortIndex(&vPtr, 1);
+	map = Blt_VectorSortIndex(&vPtr, 1);
     }
-    if (iArr == NULL) {
+    if (map == NULL) {
 	return TCL_ERROR;
     }
-    refSize = vPtr->length;
+    sortLength = vPtr->length;
 
     /*
      * Create an array to store a copy of the current values of the
      * vector. We'll merge the values back into the vector based upon
      * the indices found in the index array.
      */
-    nBytes = sizeof(double) * refSize;
-    mergeArr = Blt_Malloc(nBytes);
-    assert(mergeArr);
-    memcpy((char *)mergeArr, (char *)vPtr->valueArr, nBytes);
+    nBytes = sizeof(double) * sortLength;
+    copy = Blt_Malloc(nBytes);
+    assert(copy);
+    memcpy((char *)copy, (char *)vPtr->valueArr, nBytes);
     if (uniq) {
-	double x;
 	int count;
 
-	x = mergeArr[iArr[0]];
-	for (count = n = 1; n < refSize; n++) {
-	    int index;
+	for (count = n = 1; n < sortLength; n++) {
+	    int next, prev;
 
-	    index = iArr[n];
-	    if (mergeArr[index] == x) {
-		continue;
+	    next = map[n];
+	    prev = map[n - 1];
+	    if (copy[next] != copy[prev]) {
+		map[count] = next;
+		count++;
 	    }
-	    iArr[count] = index;
-	    count++;
 	}
-	refSize = count;
-	nBytes = refSize * sizeof(double);
+	sortLength = count;
+	nBytes = sortLength * sizeof(double);
     }
-    if (refSize != vPtr->length) {
-	vPtr->length = refSize;
+    if (sortLength != vPtr->length) {
+	vPtr->length = sortLength;
     }
 
-    for (n = 0; n < refSize; n++) {
-	vPtr->valueArr[n] = mergeArr[iArr[n]];
+    for (n = 0; n < sortLength; n++) {
+	vPtr->valueArr[n] = copy[map[n]];
     }
     if (vPtr->flush) {
 	Blt_VectorFlushCache(vPtr);
@@ -1633,18 +1631,18 @@ SortOp(vPtr, interp, argc, argv)
     Blt_VectorUpdateClients(vPtr);
 
     /* Now sort any other vectors in the same fashion.  The vectors
-     * must be the same size as the iArr though.  */
+     * must be the same size as the map though.  */
     result = TCL_ERROR;
     for (i = 2; i < argc; i++) {
 	if (Blt_VectorLookupName(vPtr->dataPtr, argv[i], &v2Ptr) != TCL_OK) {
 	    goto error;
 	}
-	if (v2Ptr->length != refSize) {
-	    v2Ptr->length = refSize;
+	if (v2Ptr->length != sortLength) {
+	    v2Ptr->length = sortLength;
 	}
-	memcpy((char *)mergeArr, (char *)v2Ptr->valueArr, nBytes);
-	for (n = 0; n < refSize; n++) {
-	    v2Ptr->valueArr[n] = mergeArr[iArr[n]];
+	memcpy((char *)copy, (char *)v2Ptr->valueArr, nBytes);
+	for (n = 0; n < sortLength; n++) {
+	    v2Ptr->valueArr[n] = copy[map[n]];
 	}
 	Blt_VectorUpdateClients(v2Ptr);
 	if (v2Ptr->flush) {
@@ -1653,8 +1651,8 @@ SortOp(vPtr, interp, argc, argv)
     }
     result = TCL_OK;
   error:
-    Blt_Free(mergeArr);
-    Blt_Free(iArr);
+    Blt_Free(copy);
+    Blt_Free(map);
     return result;
 }
 
