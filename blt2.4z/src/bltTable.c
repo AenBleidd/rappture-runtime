@@ -2845,11 +2845,7 @@ AdjustPartitions(infoPtr, adjustment)
 				 * the span. If negative, it represents the
 				 * amount of space to remove */
 {
-    register RowColumn *rcPtr;
-    int ration;			/* Amount of space to ration to each
-				 * row/column. */
     int delta;			/* Amount of space needed */
-    int spaceLeft;		/* Amount of space still available */
     int size;			/* Amount of space requested for a particular
 				 * row/column. */
     int nOpen;			/* Number of rows/columns that still can
@@ -2874,13 +2870,14 @@ AdjustPartitions(infoPtr, adjustment)
     totalWeight = 0.0;
     for (linkPtr = Blt_ChainFirstLink(chainPtr); linkPtr != NULL;
 	linkPtr = Blt_ChainNextLink(linkPtr)) {
+	RowColumn *rcPtr;
+
 	rcPtr = Blt_ChainGetValue(linkPtr);
 	if (rcPtr->weight > 0.0) {
-	    if (delta < 0) {
-		spaceLeft = rcPtr->size - rcPtr->nomSize;
-	    } else {
-		spaceLeft = rcPtr->nomSize - rcPtr->size;
-	    }
+	    int spaceLeft;	
+
+	    spaceLeft = (delta < 0) ? (rcPtr->size - rcPtr->nomSize) :
+		(rcPtr->nomSize - rcPtr->size);
 	    if (spaceLeft > 0) {
 		nOpen++;
 		totalWeight += rcPtr->weight;
@@ -2889,6 +2886,10 @@ AdjustPartitions(infoPtr, adjustment)
     }
 
     while ((nOpen > 0) && (totalWeight > 0.0) && (delta != 0)) {
+	Blt_ChainLink *linkPtr;
+	int ration;		/* Amount of space to ration to each
+				 * row/column. */
+
 	ration = (int)(delta / totalWeight);
 	if (ration == 0) {
 	    ration = (delta > 0) ? 1 : -1;
@@ -2896,13 +2897,18 @@ AdjustPartitions(infoPtr, adjustment)
 	for (linkPtr = Blt_ChainFirstLink(chainPtr);
 	    (linkPtr != NULL) && (delta != 0);
 	    linkPtr = Blt_ChainNextLink(linkPtr)) {
+	    RowColumn *rcPtr;
+
 	    rcPtr = Blt_ChainGetValue(linkPtr);
 	    if (rcPtr->weight > 0.0) {
+		int spaceLeft;	/* Amount of space still available */
+
 		spaceLeft = rcPtr->nomSize - rcPtr->size;
 		if (((delta > 0) && (spaceLeft > 0)) ||
 		    ((delta < 0) && (spaceLeft < 0))) {
 		    size = (int)(ration * rcPtr->weight);
-		    if (size > delta) {
+		    if (((delta > 0) && (size > delta)) ||
+			((delta < 0) && (size < delta))) {
 			size = delta;
 		    }
 		    if (ABS(size) < ABS(spaceLeft)) {
@@ -2930,8 +2936,12 @@ AdjustPartitions(infoPtr, adjustment)
     totalWeight = 0.0;
     for (linkPtr = Blt_ChainFirstLink(chainPtr); linkPtr != NULL;
 	linkPtr = Blt_ChainNextLink(linkPtr)) {
+	RowColumn *rcPtr;
+
 	rcPtr = Blt_ChainGetValue(linkPtr);
 	if (rcPtr->weight > 0.0) {
+	    int spaceLeft;	/* Amount of space still available */
+
 	    if (delta > 0) {
 		spaceLeft = rcPtr->maxSize - rcPtr->size;
 	    } else {
@@ -2944,15 +2954,23 @@ AdjustPartitions(infoPtr, adjustment)
 	}
     }
     while ((nOpen > 0) && (totalWeight > 0.0) && (delta != 0)) {
+	Blt_ChainLink *linkPtr;
+	int ration;		/* Amount of space to ration to each
+				 * row/column. */
+
 	ration = (int)(delta / totalWeight);
 	if (ration == 0) {
 	    ration = (delta > 0) ? 1 : -1;
 	}
-	linkPtr = Blt_ChainFirstLink(chainPtr);
-	for ( /*empty*/ ; (linkPtr != NULL) && (delta != 0);
-	    linkPtr = Blt_ChainNextLink(linkPtr)) {
+	for (linkPtr = Blt_ChainFirstLink(chainPtr); 
+	     (linkPtr != NULL) && (delta != 0); 
+	     linkPtr = Blt_ChainNextLink(linkPtr)) {
+	    RowColumn *rcPtr;
+
 	    rcPtr = Blt_ChainGetValue(linkPtr);
 	    if (rcPtr->weight > 0.0) {
+		int spaceLeft;	/* Amount of space still available */
+
 		if (delta > 0) {
 		    spaceLeft = rcPtr->maxSize - rcPtr->size;
 		} else {
@@ -2961,10 +2979,352 @@ AdjustPartitions(infoPtr, adjustment)
 		if (((delta > 0) && (spaceLeft > 0)) ||
 		    ((delta < 0) && (spaceLeft < 0))) {
 		    size = (int)(ration * rcPtr->weight);
-		    if (size > delta) {
+		    if (((delta > 0) && (size > delta)) ||
+			((delta < 0) && (size < delta))) {
 			size = delta;
 		    }
 		    if (ABS(size) < ABS(spaceLeft)) {
+			delta -= size;
+			rcPtr->size += size;
+		    } else {
+			delta -= spaceLeft;
+			rcPtr->size += spaceLeft;
+			nOpen--;
+			totalWeight -= rcPtr->weight;
+		    }
+		}
+	    }
+	}
+    }
+}
+
+
+/*
+ * ----------------------------------------------------------------------------
+ *
+ * GrowPartitions --
+ *
+ *	Adjust the span by the amount of the extra space needed.  If
+ *	the amount (adjustSpace) is negative, shrink the span,
+ *	otherwise expand it.  Size constraints on the partitions may
+ *	prevent any or all of the spacing adjustments.
+ *
+ *	This is very much like the GrowSpan procedure, but in this
+ *	case we are shrinking or expanding all the (row or column)
+ *	partitions. It uses a two pass approach, first giving space to
+ *	partitions which not are smaller/larger than their nominal
+ *	sizes. This is because constraints on the partitions may cause
+ *	resizing to be non-linear.
+ *
+ *	If there is still extra space, this means that all partitions
+ *	are at least to their nominal sizes.  The second pass will try
+ *	to add/remove the left over space evenly among all the
+ *	partitions which still have space available.
+ *
+ * Results:
+ *	None.
+ *
+ * Side Effects:
+ *	The size of the partitions in the span may be increased or
+ *	decreased.
+ *
+ * ----------------------------------------------------------------------------
+ */
+static void
+GrowPartitions(infoPtr, adjustment)
+    PartitionInfo *infoPtr;	/* Array of (column/row) partitions  */
+    int adjustment;		/* The amount of extra space to grow or shrink
+				 * the span. If negative, it represents the
+				 * amount of space to remove */
+{
+    int delta;			/* Amount of space needed */
+    int nOpen;			/* Number of rows/columns that still can
+				 * be adjusted. */
+    Blt_Chain *chainPtr;
+    Blt_ChainLink *linkPtr;
+    double totalWeight;
+
+    chainPtr = infoPtr->chainPtr;
+
+    /*
+     * ------------------------------------------------------------------------
+     *
+     * Pass 1: First adjust the size of rows/columns that still haven't
+     *	      reached their nominal size.
+     *
+     * ------------------------------------------------------------------------
+     */
+    delta = adjustment;
+
+    nOpen = 0;
+    totalWeight = 0.0;
+    for (linkPtr = Blt_ChainFirstLink(chainPtr); linkPtr != NULL;
+	linkPtr = Blt_ChainNextLink(linkPtr)) {
+	RowColumn *rcPtr;
+
+	rcPtr = Blt_ChainGetValue(linkPtr);
+	if ((rcPtr->weight > 0.0) && (rcPtr->nomSize > rcPtr->size)) {
+	    nOpen++;
+	    totalWeight += rcPtr->weight;
+	}
+    }
+
+    while ((nOpen > 0) && (totalWeight > 0.0) && (delta > 0)) {
+	Blt_ChainLink *linkPtr;
+	int ration;		/* Amount of space to ration to each
+				 * row/column. */
+
+	ration = (int)(delta / totalWeight);
+	if (ration == 0) {
+	    ration = 1;
+	}
+	for (linkPtr = Blt_ChainFirstLink(chainPtr); 
+	     (linkPtr != NULL) && (delta > 0);
+	    linkPtr = Blt_ChainNextLink(linkPtr)) {
+	    RowColumn *rcPtr;
+
+	    rcPtr = Blt_ChainGetValue(linkPtr);
+	    if (rcPtr->weight > 0.0) {
+		int spaceLeft;	/* Amount of space still available */
+
+		spaceLeft = rcPtr->nomSize - rcPtr->size;
+		if (spaceLeft > 0) {
+		    int size;
+
+		    size = (int)(ration * rcPtr->weight);
+		    if (size > delta) {
+			size = delta;
+		    }
+		    if (size < spaceLeft) {
+			delta -= size;
+			rcPtr->size += size;
+		    } else {
+			delta -= spaceLeft;
+			rcPtr->size += spaceLeft;
+			nOpen--;
+			totalWeight -= rcPtr->weight;
+		    }
+		}
+	    }
+	}
+    }
+    /*
+     * ------------------------------------------------------------------------
+     *
+     * Pass 2: Adjust the partitions with space still available
+     *
+     * ------------------------------------------------------------------------
+     */
+
+    nOpen = 0;
+    totalWeight = 0.0;
+    for (linkPtr = Blt_ChainFirstLink(chainPtr); linkPtr != NULL;
+	linkPtr = Blt_ChainNextLink(linkPtr)) {
+	RowColumn *rcPtr;
+
+	rcPtr = Blt_ChainGetValue(linkPtr);
+	if ((rcPtr->weight > 0.0) && (rcPtr->maxSize > rcPtr->size)) {
+	    nOpen++;
+	    totalWeight += rcPtr->weight;
+	}
+    }
+    while ((nOpen > 0) && (totalWeight > 0.0) && (delta > 0)) {
+	Blt_ChainLink *linkPtr;
+	int ration;		/* Amount of space to ration to each
+				 * row/column. */
+
+	ration = (int)(delta / totalWeight);
+	if (ration == 0) {
+	    ration = 1;
+	}
+	for (linkPtr = Blt_ChainFirstLink(chainPtr); 
+	     (linkPtr != NULL) && (delta > 0); 
+	     linkPtr = Blt_ChainNextLink(linkPtr)) {
+	    RowColumn *rcPtr;
+
+	    rcPtr = Blt_ChainGetValue(linkPtr);
+	    if (rcPtr->weight > 0.0) {
+		int spaceLeft;	/* Amount of space still available */
+
+		spaceLeft = rcPtr->maxSize - rcPtr->size;
+		if (spaceLeft > 0) {
+		    int size;
+
+		    size = (int)(ration * rcPtr->weight);
+		    if (size > delta) {
+			size = delta;
+		    }
+		    if (size < spaceLeft) {
+			delta -= size;
+			rcPtr->size += size;
+		    } else {
+			delta -= spaceLeft;
+			rcPtr->size += spaceLeft;
+			nOpen--;
+			totalWeight -= rcPtr->weight;
+		    }
+		}
+	    }
+	}
+    }
+}
+
+/*
+ * ----------------------------------------------------------------------------
+ *
+ * ShrinkPartitions --
+ *
+ *	Adjust the span by the amount of the extra space needed.  If
+ *	the amount (adjustSpace) is negative, shrink the span,
+ *	otherwise expand it.  Size constraints on the partitions may
+ *	prevent any or all of the spacing adjustments.
+ *
+ *	This is very much like the GrowSpan procedure, but in this
+ *	case we are shrinking or expanding all the (row or column)
+ *	partitions. It uses a two pass approach, first giving space to
+ *	partitions which not are smaller/larger than their nominal
+ *	sizes. This is because constraints on the partitions may cause
+ *	resizing to be non-linear.
+ *
+ *	If there is still extra space, this means that all partitions
+ *	are at least to their nominal sizes.  The second pass will try
+ *	to add/remove the left over space evenly among all the
+ *	partitions which still have space available.
+ *
+ * Results:
+ *	None.
+ *
+ * Side Effects:
+ *	The size of the partitions in the span may be increased or
+ *	decreased.
+ *
+ * ----------------------------------------------------------------------------
+ */
+static void
+ShrinkPartitions(infoPtr, adjustment)
+    PartitionInfo *infoPtr;	/* Array of (column/row) partitions  */
+    int adjustment;		/* The amount of extra space to grow or shrink
+				 * the span. If negative, it represents the
+				 * amount of space to remove */
+{
+    int delta;			/* Amount of space needed */
+    int nOpen;			/* Number of rows/columns that still can
+				 * be adjusted. */
+    Blt_Chain *chainPtr;
+    Blt_ChainLink *linkPtr;
+    double totalWeight;
+
+    chainPtr = infoPtr->chainPtr;
+
+    /*
+     * ------------------------------------------------------------------------
+     *
+     * Pass 1: First adjust the size of rows/columns that still haven't
+     *	      reached their nominal size.
+     *
+     * ------------------------------------------------------------------------
+     */
+    delta = adjustment;
+
+    nOpen = 0;
+    totalWeight = 0.0;
+    for (linkPtr = Blt_ChainFirstLink(chainPtr); linkPtr != NULL;
+	linkPtr = Blt_ChainNextLink(linkPtr)) {
+	RowColumn *rcPtr;
+
+	rcPtr = Blt_ChainGetValue(linkPtr);
+	if ((rcPtr->weight > 0.0) && (rcPtr->nomSize < rcPtr->size)) {
+	    nOpen++;
+	    totalWeight += rcPtr->weight;
+	}
+    }
+
+    while ((nOpen > 0) && (totalWeight > 0.0) && (delta < 0)) {
+	Blt_ChainLink *linkPtr;
+	int ration;		/* Amount of space to ration to each
+				 * row/column. */
+
+	ration = (int)(delta / totalWeight);
+	if (ration == 0) {
+	    ration = -1;
+	}
+	for (linkPtr = Blt_ChainFirstLink(chainPtr);
+	    (linkPtr != NULL) && (delta != 0);
+	    linkPtr = Blt_ChainNextLink(linkPtr)) {
+	    RowColumn *rcPtr;
+
+	    rcPtr = Blt_ChainGetValue(linkPtr);
+	    if (rcPtr->weight > 0.0) {
+		int spaceLeft;	/* Amount of space still available */
+
+		spaceLeft = rcPtr->nomSize - rcPtr->size;
+		if (spaceLeft < 0) {
+		    int size;
+
+		    size = (int)(ration * rcPtr->weight);
+		    if (size < delta) {
+			size = delta;
+		    }
+		    if (spaceLeft > size) {
+			delta -= size;
+			rcPtr->size += size;
+		    } else {
+			delta -= spaceLeft;
+			rcPtr->size += spaceLeft;
+			nOpen--;
+			totalWeight -= rcPtr->weight;
+		    }
+		}
+	    }
+	}
+    }
+    /*
+     * ------------------------------------------------------------------------
+     *
+     * Pass 2: Adjust the partitions with space still available
+     *
+     * ------------------------------------------------------------------------
+     */
+
+    nOpen = 0;
+    totalWeight = 0.0;
+    for (linkPtr = Blt_ChainFirstLink(chainPtr); linkPtr != NULL;
+	linkPtr = Blt_ChainNextLink(linkPtr)) {
+	RowColumn *rcPtr;
+
+	rcPtr = Blt_ChainGetValue(linkPtr);
+	if ((rcPtr->weight > 0.0) && (rcPtr->size > rcPtr->minSize)) {
+	    nOpen++;
+	    totalWeight += rcPtr->weight;
+	}
+    }
+    while ((nOpen > 0) && (totalWeight > 0.0) && (delta < 0)) {
+	Blt_ChainLink *linkPtr;
+	int ration;		/* Amount of space to ration to each
+				 * row/column. */
+
+	ration = (int)(delta / totalWeight);
+	if (ration == 0) {
+	    ration = -1;
+	}
+	for (linkPtr = Blt_ChainFirstLink(chainPtr); 
+	     (linkPtr != NULL) && (delta < 0); 
+	     linkPtr = Blt_ChainNextLink(linkPtr)) {
+	    RowColumn *rcPtr;
+
+	    rcPtr = Blt_ChainGetValue(linkPtr);
+	    if (rcPtr->weight > 0.0) {
+		int spaceLeft;	/* Amount of space still available */
+
+		spaceLeft = rcPtr->minSize - rcPtr->size;
+		if (spaceLeft < 0) {
+		    int size;
+
+		    size = (int)(ration * rcPtr->weight);
+		    if (size < delta) {
+			size = delta;
+		    }
+		    if (spaceLeft > size) {
 			delta -= size;
 			rcPtr->size += size;
 		    } else {
@@ -3486,7 +3846,7 @@ ArrangeTable(clientData)
 {
     Table *tablePtr = clientData;
     int width, height;
-    int offset;
+    int offset, delta;
     int padX, padY;
     int outerPad;
     RowColumn *columnPtr, *rowPtr;
@@ -3554,6 +3914,7 @@ ArrangeTable(clientData)
      * requirements), try to adjust size of the partitions to fit the
      * widget.
      */
+#ifdef notdef
     if (tablePtr->container.width != width) {
 	AdjustPartitions(&(tablePtr->columnInfo),
 	    tablePtr->container.width - width);
@@ -3564,6 +3925,32 @@ ArrangeTable(clientData)
 	    tablePtr->container.height - height);
 	height = GetTotalSpan(&(tablePtr->rowInfo)) + padY;
     }
+#else
+    /*
+     * If the previous geometry request was not fulfilled (i.e. the size of
+     * the container is different from partitions' space requirements), try to
+     * adjust size of the partitions to fit the widget.
+     */
+    delta = tablePtr->container.width - width;
+    if (delta != 0) {
+	if (delta > 0) {
+	    GrowPartitions(&tablePtr->columnInfo, delta);
+	} else {
+	    ShrinkPartitions(&tablePtr->columnInfo, delta);
+	}
+	width = GetTotalSpan(&tablePtr->columnInfo) + padX;
+    }
+    delta = tablePtr->container.height - height;
+    if (delta != 0) {
+	if (delta > 0) {
+	    GrowPartitions(&tablePtr->rowInfo, delta);
+	} else {
+	    ShrinkPartitions(&tablePtr->rowInfo, delta);
+	}
+	height = GetTotalSpan(&tablePtr->rowInfo) + padY;
+    }
+#endif
+
     /*
      * If after adjusting the size of the partitions the space
      * required does not equal the size of the widget, do one of the
@@ -3881,7 +4268,7 @@ DeleteOp(dataPtr, interp, argc, argv)
  *		table join .f r0 r3
  *		table join .f c2 c4
  * Results:
- *	Returns a standard Tcl result.
+, *	Returns a standard Tcl result.
  *
  * ----------------------------------------------------------------------------
  */
