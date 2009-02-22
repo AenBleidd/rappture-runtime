@@ -1,3 +1,4 @@
+
 /*
  * bltTable.c --
  *
@@ -3207,8 +3208,8 @@ ShrinkPartitions(infoPtr, adjustment)
 				 * the span. If negative, it represents the
 				 * amount of space to remove */
 {
-    int delta;			/* Amount of space needed */
-    int nOpen;			/* Number of rows/columns that still can
+    int extra;			/* Amount of space needed */
+    int nAdjust;		/* Number of rows/columns that still can
 				 * be adjusted. */
     Blt_Chain *chainPtr;
     Blt_ChainLink *linkPtr;
@@ -3224,9 +3225,9 @@ ShrinkPartitions(infoPtr, adjustment)
      *
      * ------------------------------------------------------------------------
      */
-    delta = adjustment;
+    extra = -adjustment;
 
-    nOpen = 0;
+    nAdjust = 0;
     totalWeight = 0.0;
     for (linkPtr = Blt_ChainFirstLink(chainPtr); linkPtr != NULL;
 	linkPtr = Blt_ChainNextLink(linkPtr)) {
@@ -3234,44 +3235,44 @@ ShrinkPartitions(infoPtr, adjustment)
 
 	rcPtr = Blt_ChainGetValue(linkPtr);
 	if ((rcPtr->weight > 0.0) && (rcPtr->nomSize < rcPtr->size)) {
-	    nOpen++;
+	    nAdjust++;
 	    totalWeight += rcPtr->weight;
 	}
     }
 
-    while ((nOpen > 0) && (totalWeight > 0.0) && (delta < 0)) {
+    while ((nAdjust > 0) && (totalWeight > 0.0) && (extra > 0)) {
 	Blt_ChainLink *linkPtr;
 	int ration;		/* Amount of space to ration to each
 				 * row/column. */
 
-	ration = (int)(delta / totalWeight);
+	ration = (int)(extra / totalWeight);
 	if (ration == 0) {
-	    ration = -1;
+	    ration = 1;
 	}
-	for (linkPtr = Blt_ChainFirstLink(chainPtr);
-	    (linkPtr != NULL) && (delta != 0);
+	for (linkPtr = Blt_ChainFirstLink(chainPtr); 
+	     (linkPtr != NULL) && (extra > 0);
 	    linkPtr = Blt_ChainNextLink(linkPtr)) {
 	    RowColumn *rcPtr;
 
 	    rcPtr = Blt_ChainGetValue(linkPtr);
 	    if (rcPtr->weight > 0.0) {
-		int spaceLeft;	/* Amount of space still available */
+		int avail;	/* Amount of space still available */
 
-		spaceLeft = rcPtr->nomSize - rcPtr->size;
-		if (spaceLeft < 0) {
-		    int size;
+		avail = rcPtr->size - rcPtr->nomSize;
+		if (avail > 0) {
+		    int slice;
 
-		    size = (int)(ration * rcPtr->weight);
-		    if (size < delta) {
-			size = delta;
+		    slice = (int)(ration * rcPtr->weight);
+		    if (slice > extra) {
+			slice = extra;
 		    }
-		    if (spaceLeft > size) {
-			delta -= size;
-			rcPtr->size += size;
+		    if (avail > slice) {
+			extra -= slice;
+			rcPtr->size -= slice;
 		    } else {
-			delta -= spaceLeft;
-			rcPtr->size += spaceLeft;
-			nOpen--;
+			extra -= avail;
+			rcPtr->size -= avail;
+			nAdjust--;
 			totalWeight -= rcPtr->weight;
 		    }
 		}
@@ -3286,7 +3287,7 @@ ShrinkPartitions(infoPtr, adjustment)
      * ------------------------------------------------------------------------
      */
 
-    nOpen = 0;
+    nAdjust = 0;
     totalWeight = 0.0;
     for (linkPtr = Blt_ChainFirstLink(chainPtr); linkPtr != NULL;
 	linkPtr = Blt_ChainNextLink(linkPtr)) {
@@ -3294,43 +3295,43 @@ ShrinkPartitions(infoPtr, adjustment)
 
 	rcPtr = Blt_ChainGetValue(linkPtr);
 	if ((rcPtr->weight > 0.0) && (rcPtr->size > rcPtr->minSize)) {
-	    nOpen++;
+	    nAdjust++;
 	    totalWeight += rcPtr->weight;
 	}
     }
-    while ((nOpen > 0) && (totalWeight > 0.0) && (delta < 0)) {
+    while ((nAdjust > 0) && (totalWeight > 0.0) && (extra > 0)) {
 	Blt_ChainLink *linkPtr;
 	int ration;		/* Amount of space to ration to each
 				 * row/column. */
 
-	ration = (int)(delta / totalWeight);
+	ration = (int)(extra / totalWeight);
 	if (ration == 0) {
-	    ration = -1;
+	    ration = 1;
 	}
 	for (linkPtr = Blt_ChainFirstLink(chainPtr); 
-	     (linkPtr != NULL) && (delta < 0); 
+	     (linkPtr != NULL) && (extra > 0); 
 	     linkPtr = Blt_ChainNextLink(linkPtr)) {
 	    RowColumn *rcPtr;
 
 	    rcPtr = Blt_ChainGetValue(linkPtr);
 	    if (rcPtr->weight > 0.0) {
-		int spaceLeft;	/* Amount of space still available */
+		int avail;	/* Amount of space still available */
 
-		spaceLeft = rcPtr->minSize - rcPtr->size;
-		if (spaceLeft < 0) {
-		    int size;
+		avail = rcPtr->size - rcPtr->minSize;
+		if (avail > 0) {
+		    int slice;
 
-		    size = (int)(ration * rcPtr->weight);
-		    if (size < delta) {
-			size = delta;
+		    slice = (int)(ration * rcPtr->weight);
+		    if (slice > extra) {
+			slice = extra;
 		    }
-		    if (spaceLeft > size) {
-			delta -= size;
-			rcPtr->size += size;
+		    if (avail > slice) {
+			extra -= slice;
+			rcPtr->size -= slice;
 		    } else {
-			delta -= spaceLeft;
-			rcPtr->size += spaceLeft;
-			nOpen--;
+			extra -= avail;
+			rcPtr->size -= avail;
+			nAdjust--;
 			totalWeight -= rcPtr->weight;
 		    }
 		}
