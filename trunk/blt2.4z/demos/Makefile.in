@@ -18,6 +18,8 @@ INSTALL =	@INSTALL@
 INSTALL_DATA =	@INSTALL_DATA@
 INSTALL_ROOT = 
 
+.NOTPARALLEL:
+
 instdirs =	$(prefix) \
 		$(exec_prefix) \
 		$(libdir) \
