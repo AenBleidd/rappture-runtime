@@ -1,47 +1,59 @@
-BASE_DIR	= $(HOME)
-DATE		= $(shell date +%Y%m%d)
-build_dir	= $(BASE_DIR)/builds/$(DATE)
-config_flags	= --without-pymol --without-vtk --with-matlab=no
 
-all: mkdirs stage1 stage2 stage3
+prefix			= /home/gah/builds/20090317
+exec_prefix		= /home/gah/builds/20090317
+datadir			= ${datarootdir}
+datarootdir		= ${prefix}/share
+bindir			= ${exec_prefix}/bin
+libdir			= /home/gah/builds/20090317/lib
+includedir		= /home/gah/builds/20090317/include
+mandir			= ${datarootdir}/man
+srcdir			= .
 
-mkdirs:
-	mkdir -p $(build_dir)
+SHELL			= /bin/sh
+RM			= rm -f
 
-install: install_stage1 install_stage2 install_stage2
+INSTALL			= /usr/bin/install -c
 
-stage1: config_stage1 build_stage1 install_stage1
-stage2: config_stage2 build_stage2 install_stage2
-stage3: config_stage3 build_stage3 install_stage3
+TCL_DIR			= tcl8.4.19/unix
+TK_DIR			= tk8.4.19/unix
+EXPAT_DIR		= 
+ZLIB_DIR		= 
+CMAKE_DIR		= 
 
-config_stage1:
-	STAGE=stage1 ./configure --prefix=$(build_dir) $(config_flags)
-config_stage2:
-	STAGE=stage2 ./configure --prefix=$(build_dir) $(config_flags)
-config_stage3:
-	STAGE=stage3 ./configure --prefix=$(build_dir) $(config_flags)
-build_stage1:
-	$(MAKE) -f build/Makefile-stage1 all
-build_stage2:
-	$(MAKE) -f build/Makefile-stage2 all
-build_stage3:
-	$(MAKE) -f build/Makefile-stage3 all
+ifneq ($(ZLIB_DIR),)
+   subdirs += $(ZLIB_DIR)
+endif
+ifneq ($(EXPAT_DIR),)
+   subdirs += $(EXPAT_DIR)
+endif
+ifneq ($(TCL_DIR),)
+   subdirs += $(TCL_DIR)
+endif
+ifneq ($(TK_DIR),)
+   subdirs += $(TK_DIR)
+endif
+ifneq ($(CMAKE_DIR),)
+   subdirs += $(CMAKE_DIR)
+endif
 
-install_stage1:
-	$(MAKE) -f build/Makefile-stage1 install
-install_stage2:
-	$(MAKE) -f build/Makefile-stage2 install
-install_stage3:
-	$(MAKE) -f build/Makefile-stage3 install
+all: 
+	for i in $(subdirs); do \
+	   $(MAKE) -C $$i all || exit 1 ; \
+ 	done
 
-clean:
-	-$(MAKE) -f build/Makefile-stage1 clean
-	-$(MAKE) -f build/Makefile-stage2 clean
-	-$(MAKE) -f build/Makefile-stage3 clean
+install: 
+	for i in $(subdirs); do \
+	   $(MAKE) -C $$i install || exit 1 ; \
+ 	done
 
-distclean:
-	-$(MAKE) -f build/Makefile-stage1 distclean
-	-$(MAKE) -f build/Makefile-stage2 distclean
-	-$(MAKE) -f build/Makefile-stage3 distclean
+clean: 
+	for i in $(subdirs); do \
+	   $(MAKE) -C $$i clean || exit 1 ; \
+ 	done
 
-package:
+distclean: 
+	for i in $(subdirs); do \
+	   $(MAKE) -C $$i distclean || exit 1 ; \
+ 	done
+
+
