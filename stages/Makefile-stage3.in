@@ -16,7 +16,11 @@ INSTALL			= @INSTALL@
 
 PYMOL_DIR		= @PYMOL_DIR@
 DX_DIR			= @DX_DIR@
+VTK_DIR			= @VTK_DIR@
 
+ifneq ($(VTK_DIR),)
+   subdirs += $(VTK_DIR)
+endif
 ifneq ($(PYMOL_DIR),)
    subdirs += $(PYMOL_DIR)
 endif

@@ -24,7 +24,6 @@ TDOM_DIR		= @TDOM_DIR@
 TKIMG_DIR		= @TKIMG_DIR@
 TLS_DIR			= @TLS_DIR@
 VORONOI_DIR 		= @VORONOI_DIR@
-VTK_DIR			= @VTK_DIR@
 
 ifneq ($(BLT_DIR),)
    subdirs += $(BLT_DIR)
@@ -55,9 +54,6 @@ ifneq ($(TLS_DIR),)
 endif
 ifneq ($(VORONOI_DIR),)
    subdirs += $(VORONOI_DIR)
-endif
-ifneq ($(VTK_DIR),)
-   subdirs += $(VTK_DIR)
 endif
 
 all: 

@@ -34,7 +34,7 @@ AC_CHECK_FUNC(atol,,AC_MSG_ERROR(oops! no atol ?!?))
 AC_SUBST(VERSION)
 
 blt=blt2.4z
-cmake=cmake-2.6.3
+cmake=cmake-2.4.8
 expat=expat-2.0.1
 htmlwidget=htmlwidget-3a14
 itcl=itcl3.3
@@ -48,14 +48,14 @@ tk=tk8.4.19/unix
 tkimg=tkimg1.3
 tls=tls1.5
 voronoi=voronoi
-vtk=vtk-5.2.1
+vtk=vtk-5.0.4
 zlib=zlib
 dx=dx-4.4.4
 
 # Option default 
 # 
 default_blt=yes
-default_cmake=auto
+default_cmake=yes
 default_expat=no
 default_htmlwidget=yes
 default_itcl=yes
@@ -88,7 +88,7 @@ AC_ARG_WITH([blt],
 
 AC_ARG_WITH([cmake],
   AS_HELP_STRING([--with-cmake[=DIR]], 
-     [Build cmake-2.6.3 @<:@default=auto@:>@]),
+     [Build cmake-2.6.3 @<:@default=yes@:>@]),
         [with_cmake=$withval], [with_cmake=$default_cmake])
 
 AC_ARG_WITH([expat],
@@ -176,25 +176,9 @@ AC_ARG_WITH([dx],
     [Build opendx @<:@default=no@:>@])], 
 	[with_dx=$withval], [with_dx=$default_dx])
 
-CMAKE=
-if test "$with_cmake" != "yes" ; then
-  if test "$with_cmake" = "auto" ; then
-    AC_PATH_PROG(CMAKE, cmake)
-  elif test "$with_cmake" != "no" ; then
-    AC_PATH_PROG(CMAKE, cmake, [$with_cmake/bin:$with_cmake])
-  fi
-fi
-if test "x${CMAKE}" = "x" ; then
-  with_cmake="yes"
-  CMAKE="cmake"
-else 
-  with_cmake="no"
-fi
-AC_SUBST(CMAKE)
-
 stage1_targets="expat tcl tk zlib cmake"
-stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls vtk"
-stage3_targets="pymol dx"
+stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
+stage3_targets="vtk pymol dx"
 
 if test "${with_expat}" = "no" ; then
   AC_CHECK_LIB(expat, XML_ParserCreate, [with_expat="no"], 
@@ -263,6 +247,7 @@ fi
 if test "${STAGE}" = "stage3"; then
   my_subdirs=$stage3_dirs
   my_makefile="Makefile:stages/Makefile-stage3.in"
+  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"i
 fi
 
 AC_PATH_X
