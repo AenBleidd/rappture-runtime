@@ -250,7 +250,14 @@ proc blt::PushZoom { graph } {
 	foreach axis [$graph $margin use] {
 	    set min [$graph axis cget $axis -min] 
 	    set max [$graph axis cget $axis -max]
-	    set c [list $graph axis configure $axis -min $min -max $max]
+	    # Save the current scale (log or linear) so that we can restore
+	    # it.  This is for the case where the user changes to logscale
+	    # while zooming.  A previously pushed axis limit could be
+	    # negative.  It seems better for popping the zoom stack to restore
+	    # a previous view (not convert the ranges).
+	    set logscale  [$graph axis cget $axis -logscale]
+	    set c [list $graph axis configure $axis]
+	    lappend c -min $min -max $max -logscale $logscale
 	    append cmd "$c\n"
 	}
     }
@@ -261,10 +268,10 @@ proc blt::PushZoom { graph } {
 	foreach axis [$graph $margin use] {
 	    set min [$graph axis invtransform $axis $x1]
 	    set max [$graph axis invtransform $axis $x2]
-	    if { $min > $max } { 
-		$graph axis configure $axis -min $max -max $min
-	    } else {
-		$graph axis configure $axis -min $min -max $max
+	    if { ![SetAxisRanges $graph $axis $min $max] } {
+		blt::PopZoom $graph
+		bell
+		return
 	    }
 	}
     }
@@ -272,16 +279,26 @@ proc blt::PushZoom { graph } {
 	foreach axis [$graph $margin use] {
 	    set min [$graph axis invtransform $axis $y1]
 	    set max [$graph axis invtransform $axis $y2]
-	    if { $min > $max } { 
-		$graph axis configure $axis -min $max -max $min
-	    } else {
-		$graph axis configure $axis -min $min -max $max
+	    if { ![SetAxisRanges $graph $axis $min $max] } {
+		blt::PopZoom $graph
+		bell
+		return
 	    }
 	}
     }
     busy hold $graph 
     update;				# This "update" redraws the graph
     busy release $graph
+}
+
+proc blt::SetAxisRanges { graph axis min max } {
+    if { $min > $max } { 
+	set tmp $max; set max $min; set min $tmp
+    }
+    if { [catch { $graph axis configure $axis -min $min -max $max }] != 0 } {
+	return 0
+    }
+    return 1
 }
 
 #
