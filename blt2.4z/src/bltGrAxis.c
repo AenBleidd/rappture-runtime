@@ -133,6 +133,7 @@ static Tk_CustomOption looseOption =
 /* Axis flags: */
 
 #define DEF_AXIS_COMMAND		(char *)NULL
+#define DEF_AXIS_CHECKLIMITS		"1"
 #define DEF_AXIS_DESCENDING		"no"
 #define DEF_AXIS_FOREGROUND		RGB_BLACK
 #define DEF_AXIS_FG_MONO		RGB_BLACK
@@ -184,6 +185,9 @@ static Tk_ConfigSpec configSpecs[] =
     {TK_CONFIG_CUSTOM, "-borderwidth", "borderWidth", "BorderWidth",
 	DEF_AXIS_BORDERWIDTH, Tk_Offset(Axis, borderWidth),
 	ALL_GRAPHS | TK_CONFIG_DONT_SET_DEFAULT, &bltDistanceOption},
+    {TK_CONFIG_BOOLEAN, "-checklimits", "checkLimits", "CheckLimits",
+	DEF_AXIS_CHECKLIMITS, Tk_Offset(Axis, checkLimits),
+	ALL_GRAPHS | TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_COLOR, "-color", "color", "Color",
 	DEF_AXIS_FOREGROUND, Tk_Offset(Axis, tickTextStyle.color),
 	TK_CONFIG_COLOR_ONLY | ALL_GRAPHS},
@@ -1167,17 +1171,31 @@ FixAxisRange(axisPtr)
      */
     min = axisPtr->valueRange.min;
     max = axisPtr->valueRange.max;
+    
+    axisPtr->pendingMin = axisPtr->reqMin;
+    axisPtr->pendingMax = axisPtr->reqMax;
+
+    /* Check the requested axis limits. Can't allow -min to be greater
+     * than -max, or have undefined log scale limits.  */
+    if (((DEFINED(axisPtr->pendingMin)) && (DEFINED(axisPtr->pendingMax))) &&
+	(axisPtr->pendingMin >= axisPtr->pendingMax)) {
+	axisPtr->pendingMin = axisPtr->pendingMax = VALUE_UNDEFINED;
+    }
+    if ((axisPtr->logScale) && (DEFINED(axisPtr->pendingMin)) &&
+	(axisPtr->pendingMin <= 0.0)) {
+	axisPtr->pendingMin = VALUE_UNDEFINED;
+    }
 
     if (min == DBL_MAX) {
-	if (DEFINED(axisPtr->reqMin)) {
-	    min = axisPtr->reqMin;
+	if (DEFINED(axisPtr->pendingMin)) {
+	    min = axisPtr->pendingMin;
 	} else {
 	    min = (axisPtr->logScale) ? 0.001 : 0.0;
 	}
     }
     if (max == -DBL_MAX) {
-	if (DEFINED(axisPtr->reqMax)) {
-	    max = axisPtr->reqMax;
+	if (DEFINED(axisPtr->pendingMax)) {
+	    max = axisPtr->pendingMax;
 	} else {
 	    max = 1.0;
 	}
@@ -1208,11 +1226,11 @@ FixAxisRange(axisPtr)
      */
     axisPtr->min = min;
     axisPtr->max = max;
-    if (DEFINED(axisPtr->reqMin)) {
-	axisPtr->min = axisPtr->reqMin;
+    if (DEFINED(axisPtr->pendingMin)) {
+	axisPtr->min = axisPtr->pendingMin;
     }
-    if (DEFINED(axisPtr->reqMax)) { 
-	axisPtr->max = axisPtr->reqMax;
+    if (DEFINED(axisPtr->pendingMax)) { 
+	axisPtr->max = axisPtr->pendingMax;
     }
 
     if (axisPtr->max < axisPtr->min) {
@@ -1225,10 +1243,10 @@ FixAxisRange(axisPtr)
 	 * user-defined limit.
 	 */
 
-	if (!DEFINED(axisPtr->reqMin)) {
+	if (!DEFINED(axisPtr->pendingMin)) {
 	    axisPtr->min = axisPtr->max - (FABS(axisPtr->max) * 0.1);
 	}
-	if (!DEFINED(axisPtr->reqMax)) {
+	if (!DEFINED(axisPtr->pendingMax)) {
 	    axisPtr->max = axisPtr->min + (FABS(axisPtr->max) * 0.1);
 	}
     }
@@ -1237,7 +1255,7 @@ FixAxisRange(axisPtr)
      * the axis limits. 
      */
     if ((axisPtr->windowSize > 0.0) && 
-	(!DEFINED(axisPtr->reqMin)) && (!DEFINED(axisPtr->reqMax))) {
+	(!DEFINED(axisPtr->pendingMin)) && (!DEFINED(axisPtr->pendingMax))) {
 	if (axisPtr->shiftBy < 0.0) {
 	    axisPtr->shiftBy = 0.0;
 	}
@@ -1470,13 +1488,13 @@ LogScaleAxis(axisPtr, min, max)
 	}
 	if ((axisPtr->looseMin == TICK_RANGE_TIGHT) ||
 	    ((axisPtr->looseMin == TICK_RANGE_LOOSE) && 
-	     (DEFINED(axisPtr->reqMin)))) {
+	     (DEFINED(axisPtr->pendingMin)))) {
 	    tickMin = min;
 	    nMajor++;
 	}
 	if ((axisPtr->looseMax == TICK_RANGE_TIGHT) ||
 	    ((axisPtr->looseMax == TICK_RANGE_LOOSE) &&
-	     (DEFINED(axisPtr->reqMax)))) {
+	     (DEFINED(axisPtr->pendingMax)))) {
 	    tickMax = max;
 	}
     }
@@ -1599,12 +1617,12 @@ LinearScaleAxis(axisPtr, min, max)
      */
     if ((axisPtr->looseMin == TICK_RANGE_TIGHT) ||
 	((axisPtr->looseMin == TICK_RANGE_LOOSE) &&
-	 (DEFINED(axisPtr->reqMin)))) {
+	 (DEFINED(axisPtr->pendingMin)))) {
 	axisMin = min;
     }
     if ((axisPtr->looseMax == TICK_RANGE_TIGHT) ||
 	((axisPtr->looseMax == TICK_RANGE_LOOSE) &&
-	 (DEFINED(axisPtr->reqMax)))) {
+	 (DEFINED(axisPtr->pendingMax)))) {
 	axisMax = max;
     }
     SetAxisRange(&axisPtr->axisRange, axisMin, axisMax);
@@ -3096,25 +3114,25 @@ ConfigureAxis(graphPtr, axisPtr)
 {
     char errMsg[200];
 
-    /* Check the requested axis limits. Can't allow -min to be greater
-     * than -max, or have undefined log scale limits.  */
-    if (((DEFINED(axisPtr->reqMin)) && (DEFINED(axisPtr->reqMax))) &&
-	(axisPtr->reqMin >= axisPtr->reqMax)) {
-	sprintf(errMsg, "impossible limits (min %g >= max %g) for axis \"%s\"",
-	    axisPtr->reqMin, axisPtr->reqMax, axisPtr->name);
-	Tcl_AppendResult(graphPtr->interp, errMsg, (char *)NULL);
-	/* Bad values, turn on axis auto-scaling */
-	axisPtr->reqMin = axisPtr->reqMax = VALUE_UNDEFINED;
-	return TCL_ERROR;
-    }
-    if ((axisPtr->logScale) && (DEFINED(axisPtr->reqMin)) &&
-	(axisPtr->reqMin <= 0.0)) {
-	sprintf(errMsg, "bad logscale limits (min=%g,max=%g) for axis \"%s\"",
-	    axisPtr->reqMin, axisPtr->reqMax, axisPtr->name);
-	Tcl_AppendResult(graphPtr->interp, errMsg, (char *)NULL);
-	/* Bad minimum value, turn on auto-scaling */
-	axisPtr->reqMin = VALUE_UNDEFINED;
-	return TCL_ERROR;
+    if (axisPtr->checkLimits) {
+	/* Check the requested axis limits. Can't allow -min to be greater
+	 * than -max, or have undefined log scale limits.  */
+	if (((DEFINED(axisPtr->reqMin)) && (DEFINED(axisPtr->reqMax))) &&
+	    (axisPtr->reqMin >= axisPtr->reqMax)) {
+	    sprintf(errMsg, 
+		"impossible limits (min %g >= max %g) for axis \"%s\"",
+		axisPtr->reqMin, axisPtr->reqMax, axisPtr->name);
+	    Tcl_AppendResult(graphPtr->interp, errMsg, (char *)NULL);
+	    return TCL_ERROR;
+	}
+	if ((axisPtr->logScale) && (DEFINED(axisPtr->reqMin)) &&
+	    (axisPtr->reqMin <= 0.0)) {
+	    sprintf(errMsg, 
+		"bad logscale limits (min=%g,max=%g) for axis \"%s\"",
+		axisPtr->reqMin, axisPtr->reqMax, axisPtr->name);
+	    Tcl_AppendResult(graphPtr->interp, errMsg, (char *)NULL);
+	    return TCL_ERROR;
+	}
     }
     axisPtr->tickTextStyle.theta = FMOD(axisPtr->tickTextStyle.theta, 360.0);
     if (axisPtr->tickTextStyle.theta < 0.0) {
@@ -3201,6 +3219,7 @@ CreateAxis(graphPtr, name, margin)
 	axisPtr->reqNumMinorTicks = 2;
 	axisPtr->scrollUnits = 10;
 	axisPtr->showTicks = TRUE;
+	axisPtr->checkLimits = TRUE;
 	axisPtr->reqMin = axisPtr->reqMax = VALUE_UNDEFINED;
 	axisPtr->scrollMin = axisPtr->scrollMax = VALUE_UNDEFINED;
 
@@ -4120,15 +4139,15 @@ ViewOp(graphPtr, argc, argv)
 	return TCL_ERROR;
     }
     if (AxisIsHorizontal(graphPtr, axisPtr) != axisPtr->descending) {
-	axisPtr->reqMin = (fract * worldWidth) + worldMin;
-	axisPtr->reqMax = axisPtr->reqMin + viewWidth;
+	axisPtr->pendingMin = (fract * worldWidth) + worldMin;
+	axisPtr->pendingMax = axisPtr->pendingMin + viewWidth;
     } else {
-	axisPtr->reqMax = worldMax - (fract * worldWidth);
-	axisPtr->reqMin = axisPtr->reqMax - viewWidth;
+	axisPtr->pendingMax = worldMax - (fract * worldWidth);
+	axisPtr->pendingMin = axisPtr->pendingMax - viewWidth;
     }
     if (axisPtr->logScale) {
-	axisPtr->reqMin = EXP10(axisPtr->reqMin);
-	axisPtr->reqMax = EXP10(axisPtr->reqMax);
+	axisPtr->pendingMin = EXP10(axisPtr->pendingMin);
+	axisPtr->pendingMax = EXP10(axisPtr->pendingMax);
     }
     graphPtr->flags |= (GET_AXIS_GEOMETRY | LAYOUT_NEEDED | RESET_AXES);
     Blt_EventuallyRedrawGraph(graphPtr);

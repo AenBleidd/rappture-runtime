@@ -208,6 +208,8 @@ typedef struct {
 				 * computed range of the axis
 				 * (determined by auto-scaling). */
 
+    double pendingMin, pendingMax;
+
     double scrollMin, scrollMax;/* Defines the scrolling reqion of the axis.
 				 * Normally the region is determined from 
 				 * the data limits. If specified, these 
@@ -281,6 +283,9 @@ typedef struct {
     Tk_3DBorder border;
     int borderWidth;
     int relief;
+    int checkLimits;		/* If non-zero, indicates to check the
+				 * user-defined limits and error out if they
+				 * are invalid. */
 } Axis;
 
 #define AXIS_CONFIG_MAJOR (1<<4) /* User specified major tick intervals. */
