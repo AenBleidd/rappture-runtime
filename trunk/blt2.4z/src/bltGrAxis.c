@@ -133,7 +133,7 @@ static Tk_CustomOption looseOption =
 /* Axis flags: */
 
 #define DEF_AXIS_COMMAND		(char *)NULL
-#define DEF_AXIS_CHECKLIMITS		"1"
+#define DEF_AXIS_CHECKLIMITS		"0"
 #define DEF_AXIS_DESCENDING		"no"
 #define DEF_AXIS_FOREGROUND		RGB_BLACK
 #define DEF_AXIS_FG_MONO		RGB_BLACK
@@ -3219,7 +3219,7 @@ CreateAxis(graphPtr, name, margin)
 	axisPtr->reqNumMinorTicks = 2;
 	axisPtr->scrollUnits = 10;
 	axisPtr->showTicks = TRUE;
-	axisPtr->checkLimits = TRUE;
+	axisPtr->checkLimits = FALSE;
 	axisPtr->reqMin = axisPtr->reqMax = VALUE_UNDEFINED;
 	axisPtr->scrollMin = axisPtr->scrollMax = VALUE_UNDEFINED;
 
