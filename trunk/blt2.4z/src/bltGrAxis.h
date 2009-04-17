@@ -208,7 +208,7 @@ typedef struct {
 				 * computed range of the axis
 				 * (determined by auto-scaling). */
 
-    double pendingMin, pendingMax;
+    double reqScrollMin, reqScrollMax;
 
     double scrollMin, scrollMax;/* Defines the scrolling reqion of the axis.
 				 * Normally the region is determined from 
