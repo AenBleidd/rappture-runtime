@@ -120,7 +120,6 @@ table configure . c3 r0 r4 r5 -resize none
 .g element bind all <Enter> {
     %W legend activate [%W element get current]
 }
-.g configure -plotpady { 1i 0 } 
 .g element bind all <Leave> {
     %W legend deactivate [%W element get current]
 }
