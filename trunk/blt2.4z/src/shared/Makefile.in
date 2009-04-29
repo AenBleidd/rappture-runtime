@@ -61,6 +61,7 @@ TCL_ONLY_OBJS =	bltAlloc.o \
 		bltArrayObj.o \
 		bltBgexec.o \
 		bltChain.o \
+		bltCsv.o \
 		bltDebug.o \
 		bltHash.o \
 		bltList.o \
@@ -210,6 +211,8 @@ bltObjConfig.o: $(srcdir)/bltObjConfig.c
 bltContainer.o: $(srcdir)/bltContainer.c
 	$(CC) -c $(CC_SWITCHES) $?
 bltCutbuffer.o: $(srcdir)/bltCutbuffer.c
+	$(CC) -c $(CC_SWITCHES) $?
+bltCsv.o: $(srcdir)/bltCsv.c
 	$(CC) -c $(CC_SWITCHES) $?
 bltDebug.o: $(srcdir)/bltDebug.c
 	$(CC) -c $(CC_SWITCHES) $?
