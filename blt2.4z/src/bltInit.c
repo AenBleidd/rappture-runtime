@@ -149,6 +149,9 @@ static Tcl_AppInitProc *tclCmds[] =
 #ifndef NO_CRC32
     Blt_Crc32Init,
 #endif
+#ifndef NO_CSV
+    Blt_CsvInit,
+#endif
     (Tcl_AppInitProc *) NULL
 };
 

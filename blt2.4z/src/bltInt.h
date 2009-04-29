@@ -854,6 +854,9 @@ extern Tcl_AppInitProc Blt_ContainerInit;
 #ifndef NO_CRC32
 extern Tcl_AppInitProc Blt_Crc32Init;
 #endif
+#ifndef NO_CSV
+extern Tcl_AppInitProc Blt_CsvInit;
+#endif
 #ifndef NO_CUTBUFFER
 extern Tcl_AppInitProc Blt_CutbufferInit;
 #endif
