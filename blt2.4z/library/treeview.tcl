@@ -447,7 +447,13 @@ proc blt::tv::MovePage { w where } {
 proc blt::tv::NextMatch { w key } {
     if {[string match {[ -~]} $key]} {
 	set last [$w index focus]
+	if { $last == "" } {
+	    return;			# No focus
+	}
 	set next [$w index next]
+	if { $next == "" } {
+	    set next $last
+	}
 	while { $next != $last } {
 	    set label [$w entry cget $next -label]
 	    set label [string index $label 0]
