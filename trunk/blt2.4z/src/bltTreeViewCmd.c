@@ -2953,6 +2953,7 @@ FixSelectionsApplyProc(tvPtr, entryPtr)
 	    (Blt_TreeIsAncestor(entryPtr->node, tvPtr->focusPtr->node))) {
 	    if (entryPtr != tvPtr->rootPtr) {
 		entryPtr = Blt_TreeViewParentEntry(entryPtr);
+		/* FIXME: this can't be right */
 		tvPtr->focusPtr = (entryPtr == NULL) 
 		    ? tvPtr->focusPtr : entryPtr;
 		Blt_SetFocusItem(tvPtr->bindTable, tvPtr->focusPtr, ITEM_ENTRY);
@@ -4373,9 +4374,12 @@ SelectionSetOp(tvPtr, interp, objc, objv)
     case 't':
 	tvPtr->flags |= TV_SELECT_TOGGLE;
 	break;
-    }
-    if (Blt_TreeViewGetEntry(tvPtr, objv[3], &firstPtr) != TCL_OK) {
+    } 
+    if (GetEntryFromObj(tvPtr, objv[3], &firstPtr) != TCL_OK) {
 	return TCL_ERROR;
+    }
+    if (firstPtr == NULL) {
+	return TCL_OK;
     }
     if ((firstPtr->flags & ENTRY_HIDDEN) && 
 	(!(tvPtr->flags & TV_SELECT_CLEAR))) {
