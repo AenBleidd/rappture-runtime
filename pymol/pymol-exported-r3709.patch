@@ -1,6 +1,6 @@
 diff -ur ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h
---- ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2009-03-14 16:46:51.000000000 -0400
-+++ ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2009-04-22 13:02:14.000000000 -0400
+--- ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2009-05-18 14:42:38.000000000 -0400
++++ ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2009-06-01 15:00:07.000000000 -0400
 @@ -74,7 +74,9 @@
      /* Na */ 1.36, 1.18, 2.0, 2.1, 1.8,
      /* S  */ 1.8, 2.27, 1.88, 1.76, 1.37, 2.0,
@@ -13,8 +13,8 @@ diff -ur ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h ../pymol/con
      /* Zr */ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
      /* Pd */ 1.63, 1.72, 1.58, 1.93, 2.17, 2.0, 
 diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
---- ./layer0/MyPNG.c	2009-03-04 00:15:27.000000000 -0500
-+++ ../pymol/layer0/MyPNG.c	2009-04-22 13:02:56.000000000 -0400
+--- ./layer0/MyPNG.c	2009-05-18 14:42:35.000000000 -0400
++++ ../pymol/layer0/MyPNG.c	2009-06-01 15:00:07.000000000 -0400
 @@ -50,6 +50,231 @@
  #include "Setting.h"
  
@@ -335,8 +335,8 @@ diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 -
 -
 diff -ur ./layer0/PyMOLGlobals.h ../pymol/layer0/PyMOLGlobals.h
---- ./layer0/PyMOLGlobals.h	2009-02-17 21:05:42.000000000 -0500
-+++ ../pymol/layer0/PyMOLGlobals.h	2009-04-22 13:02:14.000000000 -0400
+--- ./layer0/PyMOLGlobals.h	2009-05-18 14:42:35.000000000 -0400
++++ ../pymol/layer0/PyMOLGlobals.h	2009-06-01 15:00:07.000000000 -0400
 @@ -54,6 +54,11 @@
  typedef struct _CMain CMain;
  typedef struct _CPlugIOManager CPlugIOManager;
@@ -362,8 +362,8 @@ diff -ur ./layer0/PyMOLGlobals.h ../pymol/layer0/PyMOLGlobals.h
  
  /* if we're running PyMOL as a global singleton (old way / backward
 diff -ur ./layer1/Ortho.c ../pymol/layer1/Ortho.c
---- ./layer1/Ortho.c	2009-03-14 17:05:24.000000000 -0400
-+++ ../pymol/layer1/Ortho.c	2009-04-22 13:02:14.000000000 -0400
+--- ./layer1/Ortho.c	2009-05-18 14:42:37.000000000 -0400
++++ ../pymol/layer1/Ortho.c	2009-06-01 15:00:07.000000000 -0400
 @@ -2066,9 +2066,15 @@
  /*========================================================================*/
  void OrthoCommandIn(PyMOLGlobals *G,char *buffer)
@@ -381,8 +381,8 @@ diff -ur ./layer1/Ortho.c ../pymol/layer1/Ortho.c
  /*========================================================================*/
  void OrthoPasteIn(PyMOLGlobals *G,char *buffer)
 diff -ur ./layer1/P.c ../pymol/layer1/P.c
---- ./layer1/P.c	2009-03-29 21:41:32.000000000 -0400
-+++ ../pymol/layer1/P.c	2009-04-22 13:02:14.000000000 -0400
+--- ./layer1/P.c	2009-05-18 14:42:37.000000000 -0400
++++ ../pymol/layer1/P.c	2009-06-01 15:00:07.000000000 -0400
 @@ -617,13 +617,26 @@
  void PSleepUnlocked(PyMOLGlobals *G,int usec)
  { /* can only be called by the glut process */
@@ -412,8 +412,8 @@ diff -ur ./layer1/P.c ../pymol/layer1/P.c
      " PSleep-DEBUG: nap over.\n"
      ENDFD;
 diff -ur ./layer1/Scene.c ../pymol/layer1/Scene.c
---- ./layer1/Scene.c	2009-03-15 03:08:45.000000000 -0400
-+++ ../pymol/layer1/Scene.c	2009-04-22 13:02:14.000000000 -0400
+--- ./layer1/Scene.c	2009-05-18 14:42:37.000000000 -0400
++++ ../pymol/layer1/Scene.c	2009-06-01 15:00:07.000000000 -0400
 @@ -2066,6 +2066,8 @@
    SceneImageFinish(G,image);  
    return (image!=NULL);
@@ -513,8 +513,8 @@ diff -ur ./layer1/Scene.c ../pymol/layer1/Scene.c
  {
    if(!SceneClick(dm->block, dm->button, dm->x, dm->y, dm->mod, dm->when)) {
 diff -ur ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
---- ./layer2/AtomInfo.c	2009-02-03 03:42:43.000000000 -0500
-+++ ../pymol/layer2/AtomInfo.c	2009-04-22 13:02:14.000000000 -0400
+--- ./layer2/AtomInfo.c	2009-05-18 14:42:37.000000000 -0400
++++ ../pymol/layer2/AtomInfo.c	2009-06-02 07:26:58.000000000 -0400
 @@ -30,6 +30,10 @@
  #include"OVContext.h"
  #include"PyMOLObject.h"
@@ -558,7 +558,7 @@ diff -ur ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
  
    if(I->vdw==0.0) /* only assigned if not yet assigned */
      I->vdw = vdw;
-@@ -2901,3 +2917,95 @@
+@@ -2901,3 +2917,206 @@
    /*  printf("I->name %s I->priority %d\n",I->name,I->priority);*/
  }
    
@@ -587,44 +587,155 @@ diff -ur ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
 +static struct VdwRadii vdwRadii[] = {
 +    /* The rows in the this table must be sorted alphabetically low to high by
 +     * the element symbol. */
-+    "Ag", 	1.72f,
-+    "Ar", 	1.88f,
-+    "As", 	1.85f,
-+    "Au", 	1.66f,
-+    "Br", 	1.85f,
-+    "C", 	1.70f,
-+    "Cd", 	1.58f,
-+    "Cl", 	1.75f,
-+    "Cu", 	1.40f,
-+    "F", 	1.47f,
-+    "Ga", 	1.87f,
-+    "H", 	1.20f, 	
-+    "He", 	1.40f, 	
-+    "Hg", 	1.55f,
-+    "I", 	1.98f,
-+    "In", 	1.93f,
-+    "K", 	2.75f,
-+    "Kr", 	2.02f,
-+    "Li", 	1.82f,
-+    "Mg", 	1.73f,
-+    "N", 	1.55f,
-+    "Na", 	2.27f,
-+    "Ne", 	1.54f,
-+    "Ni", 	1.63f,
-+    "O", 	1.52f,
-+    "P", 	1.80f,
-+    "Pb", 	2.02f,
-+    "Pd", 	1.63f,
-+    "Pt", 	1.75f,
-+    "S", 	1.80f,
-+    "Se", 	1.90f,
-+    "Si", 	2.10f,
-+    "Sn", 	2.17f,
-+    "Te", 	2.06f,
-+    "Tl", 	1.96f,
-+    "U", 	1.86f,
-+    "Xe", 	2.16f,
-+    "Zn", 	1.39f,
++    "Ac",       2.00f,
++    "Ag",       1.72f,
++    "Ag",       1.72f,
++    "Al",       2.00f,
++    "Am",       2.00f,
++    "Ar",       1.88f,
++    "Ar",       1.88f,
++    "As",       1.85f,
++    "As",       1.85f,
++    "At",       2.00f,
++    "Au",       1.66f,
++    "Au",       1.66f,
++    "B",        2.00f,
++    "Ba",       2.00f,
++    "Be",       2.00f,
++    "Bh",       2.00f,
++    "Bi",       2.00f,
++    "Bk",       2.00f,
++    "Br",       1.85f,
++    "Br",       1.85f,
++    "C",        1.70f,
++    "C",        1.70f,
++    "Ca",       2.00f,
++    "Cd",       1.58f,
++    "Cd",       1.58f,
++    "Ce",       2.00f,
++    "Cf",       2.00f,
++    "Cl",       1.75f,
++    "Cl",       1.75f,
++    "Cm",       2.00f,
++    "Co",       2.00f,
++    "Cr",       2.00f,
++    "Cs",       2.00f,
++    "Cu",       1.40f,
++    "Cu",       1.40f,
++    "Db",       2.00f,
++    "Ds",       2.00f,
++    "Dy",       2.00f,
++    "Er",       2.00f,
++    "Es",       2.00f,
++    "Eu",       2.00f,
++    "F",        1.47f,
++    "F",        1.47f,
++    "Fe",       2.00f,
++    "Fe",       2.00f,
++    "Fm",       2.00f,
++    "Fr",       2.00f,
++    "Ga",       1.87f,
++    "Ga",       1.87f,
++    "Gd",       2.00f,
++    "Ge",       2.00f,
++    "H",        1.09f,
++    "H",        1.20f,  
++    "He",       1.40f,
++    "He",       1.40f,  
++    "Hf",       2.00f,
++    "Hg",       1.55f,
++    "Hg",       1.55f,
++    "Ho",       2.00f,
++    "Hs",       2.00f,
++    "I",        1.98f,
++    "I",        1.98f,
++    "In",       1.93f,
++    "In",       1.93f,
++    "Ir",       2.00f,
++    "K",        2.75f,
++    "K",        2.75f,
++    "Kr",       2.02f,
++    "Kr",       2.02f,
++    "La",       2.00f,
++    "Li",       1.82f,
++    "Li",       1.82f,
++    "Lr",       1.50f,
++    "Lu",       2.00f,
++    "Md",       2.00f,
++    "Mg",       1.73f,
++    "Mg",       1.73f,
++    "Mn",       2.00f,
++    "Mo",       2.00f,
++    "Mt",       2.00f,
++    "N",        1.55f,
++    "N",        1.55f,
++    "Na",       2.27f,
++    "Na",       2.27f,
++    "Nb",       2.00f,
++    "Nd",       2.00f,
++    "Ne",       1.54f,
++    "Ne",       1.54f,
++    "Ni",       1.63f,
++    "Ni",       1.63f,
++    "No",       2.00f,
++    "Np",       2.00f,
++    "O",        1.52f,
++    "O",        1.52f,
++    "Os",       2.00f,
++    "P",        1.80f,
++    "P",        1.80f,
++    "Pa",       2.00f,
++    "Pb",       2.02f,
++    "Pb",       2.02f,
++    "Pd",       1.63f,
++    "Pd",       1.63f,
++    "Pm",       2.00f,
++    "Po",       2.00f,
++    "Pr",       2.00f,
++    "Pt",       1.72f,
++    "Pt",       1.75f,
++    "Pu",       2.00f,
++    "Ra",       2.00f,
++    "Rb",       2.00f,
++    "Re",       2.00f,
++    "Rf",       2.00f,
++    "Rh",       2.00f,
++    "Rn",       2.00f,
++    "Ru",       2.00f,
++    "S",        1.80f,
++    "S",        1.80f,
++    "Sb",       2.00f,
++    "Sc",       2.00f,
++    "Se",       1.90f,
++    "Se",       1.90f,
++    "Sg",       2.00f,
++    "Si",       2.10f,
++    "Si",       2.10f,
++    "Sm",       2.00f,
++    "Sn",       2.17f,
++    "Sn",       2.17f,
++    "Sr",       2.00f,
++    "Ta",       2.00f,
++    "Tb",       2.00f,
++    "Tc",       2.00f,
++    "Te",       2.06f,
++    "Te",       2.06f,
++    "Th",       2.00f,
++    "Ti",       2.00f,
++    "Tl",       1.96f,
++    "Tl",       1.96f,
++    "Tm",       2.00f,
++    "U",        1.86f,
++    "U",        1.86f,
++    "V",        2.00f,
++    "W",        2.00f,
++    "Xe",       2.16f,
++    "Xe",       2.16f,
++    "Y",        2.00f,
++    "Yb",       2.00f,
++    "Zn",       1.39f,
++    "Zn",       1.39f,
++    "Zr",       2.00f
 +};
 +
 +static int nVdwRadii = sizeof(vdwRadii) / sizeof(struct VdwRadii);
@@ -655,8 +766,8 @@ diff -ur ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
 +
 +/*PYMOLSERVER*/
 diff -ur ./layer4/Cmd.c ../pymol/layer4/Cmd.c
---- ./layer4/Cmd.c	2009-04-03 21:54:22.000000000 -0400
-+++ ../pymol/layer4/Cmd.c	2009-04-22 13:02:14.000000000 -0400
+--- ./layer4/Cmd.c	2009-05-18 14:42:38.000000000 -0400
++++ ../pymol/layer4/Cmd.c	2009-06-01 15:00:07.000000000 -0400
 @@ -5993,6 +5993,77 @@
    return APIResultCode(result);
  }
@@ -758,8 +869,8 @@ diff -ur ./layer4/Cmd.c ../pymol/layer4/Cmd.c
    {"zoom",	                CmdZoom,                 METH_VARARGS },
    {NULL,		              NULL}     /* sentinel */        
 diff -ur ./layer5/PyMOL.c ../pymol/layer5/PyMOL.c
---- ./layer5/PyMOL.c	2009-03-14 19:50:39.000000000 -0400
-+++ ../pymol/layer5/PyMOL.c	2009-04-22 13:02:14.000000000 -0400
+--- ./layer5/PyMOL.c	2009-05-18 14:42:38.000000000 -0400
++++ ../pymol/layer5/PyMOL.c	2009-06-01 15:00:07.000000000 -0400
 @@ -2878,6 +2878,11 @@
        
        result->G->PyMOL = result; /* store the instance pointer */
@@ -784,8 +895,8 @@ diff -ur ./layer5/PyMOL.c ../pymol/layer5/PyMOL.c
  #ifdef TRACKER_UNIT_TEST
    TrackerUnitTest(G);
 diff -ur ./layer5/main.c ../pymol/layer5/main.c
---- ./layer5/main.c	2009-03-23 20:06:04.000000000 -0400
-+++ ../pymol/layer5/main.c	2009-04-22 13:02:14.000000000 -0400
+--- ./layer5/main.c	2009-05-18 14:42:38.000000000 -0400
++++ ../pymol/layer5/main.c	2009-06-01 15:00:07.000000000 -0400
 @@ -571,6 +571,105 @@
    }
  }
@@ -893,8 +1004,8 @@ diff -ur ./layer5/main.c ../pymol/layer5/main.c
  {
    PyMOLGlobals *G = SingletonPyMOLGlobals;
 diff -ur ./modules/pymol/api.py ../pymol/modules/pymol/api.py
---- ./modules/pymol/api.py	2009-03-29 21:41:32.000000000 -0400
-+++ ../pymol/modules/pymol/api.py	2009-04-22 13:02:14.000000000 -0400
+--- ./modules/pymol/api.py	2009-05-18 14:42:33.000000000 -0400
++++ ../pymol/modules/pymol/api.py	2009-06-01 15:00:07.000000000 -0400
 @@ -60,6 +60,8 @@
  
  #--------------------------------------------------------------------
@@ -934,8 +1045,8 @@ diff -ur ./modules/pymol/api.py ../pymol/modules/pymol/api.py
  #--------------------------------------------------------------------
  import editing
 diff -ur ./modules/pymol/cmd.py ../pymol/modules/pymol/cmd.py
---- ./modules/pymol/cmd.py	2008-07-25 17:43:25.000000000 -0400
-+++ ../pymol/modules/pymol/cmd.py	2009-04-22 13:02:14.000000000 -0400
+--- ./modules/pymol/cmd.py	2009-05-18 14:42:33.000000000 -0400
++++ ../pymol/modules/pymol/cmd.py	2009-06-01 15:00:07.000000000 -0400
 @@ -192,6 +192,9 @@
          _object_update_spawn = internal._object_update_spawn
          _object_update_thread = internal._object_update_thread
@@ -947,8 +1058,8 @@ diff -ur ./modules/pymol/cmd.py ../pymol/modules/pymol/cmd.py
          _ray_anti_spawn = internal._ray_anti_spawn
          _ray_hash_spawn = internal._ray_hash_spawn
 diff -ur ./modules/pymol/controlling.py ../pymol/modules/pymol/controlling.py
---- ./modules/pymol/controlling.py	2009-03-11 19:48:18.000000000 -0400
-+++ ../pymol/modules/pymol/controlling.py	2009-04-22 13:02:14.000000000 -0400
+--- ./modules/pymol/controlling.py	2009-05-18 14:42:33.000000000 -0400
++++ ../pymol/modules/pymol/controlling.py	2009-06-01 15:00:07.000000000 -0400
 @@ -803,3 +803,15 @@
          if _self._raising(r,_self): raise pymol.CmdException         
          return r
@@ -966,8 +1077,8 @@ diff -ur ./modules/pymol/controlling.py ../pymol/modules/pymol/controlling.py
 +        return r
 +#PYMOLSERVER
 diff -ur ./modules/pymol/exporting.py ../pymol/modules/pymol/exporting.py
---- ./modules/pymol/exporting.py	2009-03-21 17:10:30.000000000 -0400
-+++ ../pymol/modules/pymol/exporting.py	2009-04-22 13:02:14.000000000 -0400
+--- ./modules/pymol/exporting.py	2009-05-18 14:42:33.000000000 -0400
++++ ../pymol/modules/pymol/exporting.py	2009-06-01 15:00:07.000000000 -0400
 @@ -343,6 +343,56 @@
          if _self._raising(r,_self): raise QuietException
          return r
@@ -1026,8 +1137,8 @@ diff -ur ./modules/pymol/exporting.py ../pymol/modules/pymol/exporting.py
          r = DEFAULT_ERROR
          try:
 diff -ur ./modules/pymol/internal.py ../pymol/modules/pymol/internal.py
---- ./modules/pymol/internal.py	2009-02-09 00:54:00.000000000 -0500
-+++ ../pymol/modules/pymol/internal.py	2009-04-22 13:02:14.000000000 -0400
+--- ./modules/pymol/internal.py	2009-05-18 14:42:33.000000000 -0400
++++ ../pymol/modules/pymol/internal.py	2009-06-01 15:00:07.000000000 -0400
 @@ -476,6 +476,26 @@
          _self.unlock(-1,_self)
      return r
@@ -1056,8 +1167,8 @@ diff -ur ./modules/pymol/internal.py ../pymol/modules/pymol/internal.py
  
  def _quit(_self=cmd):
 diff -ur ./modules/pymol/keywords.py ../pymol/modules/pymol/keywords.py
---- ./modules/pymol/keywords.py	2009-03-20 21:25:13.000000000 -0400
-+++ ../pymol/modules/pymol/keywords.py	2009-04-22 13:02:14.000000000 -0400
+--- ./modules/pymol/keywords.py	2009-05-18 14:42:33.000000000 -0400
++++ ../pymol/modules/pymol/keywords.py	2009-06-01 15:00:07.000000000 -0400
 @@ -23,6 +23,10 @@
          'attach'        : [ self_cmd.attach            , 0 , 0 , ''  , parsing.STRICT ],
          'backward'      : [ self_cmd.backward          , 0 , 0 , ''  , parsing.STRICT ],
