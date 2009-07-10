@@ -133,8 +133,7 @@ ShowBusyWindow(busyPtr)
 	 * windows have been created in the meantime. Can't use
 	 * Tk_RestackWindow because it doesn't work under Win32.
 	 */
-	XRaiseWindow(Tk_Display(busyPtr->tkBusy), 
-	     Tk_WindowId(busyPtr->tkBusy));
+	XRaiseWindow(busyPtr->display, Tk_WindowId(busyPtr->tkBusy));
     }
 #ifdef WIN32
     {
@@ -153,6 +152,7 @@ ShowBusyWindow(busyPtr)
 	SetCursorPos(point.x, point.y);
     }
 #endif /* WIN32 */
+    XFlush(busyPtr->display);
 }
 
 static void
@@ -179,6 +179,7 @@ HideBusyWindow(busyPtr)
 	SetCursorPos(point.x, point.y);
     }
 #endif /* WIN32 */
+    XFlush(busyPtr->display);
 }
 
 /*
