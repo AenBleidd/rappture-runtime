@@ -675,7 +675,9 @@ ConfigureScale(interp, scalePtr, objc, objv)
      * special checks for possibly changed varNamePtr.
      */
 
-    TkScaleSetValue(scalePtr, scalePtr->value, 0, 1);
+    /* gah@purdue.edu: Changed invokeCommand flag to 0.  Now <Enter>/<Leave> 
+     * don't trigger the scale's command. */
+    TkScaleSetValue(scalePtr, scalePtr->value, 0, 0);
 
     /*
      * Reestablish the variable trace, if it is needed.
