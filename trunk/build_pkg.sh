@@ -8,8 +8,9 @@
 #	make install
 #
 # Because of build dependencies, Tcl/Tk must be built and installed first.  
-# Therefore there are at least 2 stages of configure-make-makeinstall: one for Tcl/Tk, 
-# one for the rest of the runtime (and one for visualization - which is optional). 
+# Therefore there are at least 2 stages of configure-make-makeinstall: 
+# one for Tcl/Tk, one for the rest of the runtime (and one for visualization - 
+# which is optional). 
 #
 #	mkdir stage1 stage2 stage3 
 #
@@ -31,9 +32,9 @@
 # This is basically what this script does. 
 #
 # The build normally should be done outside of the runtime directory.  You can
-# use create a temporary directory and run configure from within it to create the
-# necessary Makefiles and auxillary files to build.  You can dispose of the directory
-# once the stage is built and installed.
+# use create a temporary directory and run configure from within it to create 
+# the necessary Makefiles and auxillary files to build.  You can dispose of 
+# the directory once the stage is built and installed.
 
 #
 # Notes:  There are several variations of this basic script.
@@ -53,9 +54,10 @@ set -e
 host_os=`uname -s`
 echo $system
 
-# Look in current directory and up one level
-# for runtime and rappture directories. Set
-# base_dir.
+# The rappture and rappture-runtime packages must be in subdirectories
+# called "rappture" and "runtime" respectively. 
+# Look in current directory and up one level for runtime and rappture 
+# directories. Set base_dir.
 if [ -d runtime ]; then
     base_dir=`pwd`
 elif [ -d ../runtime ]; then
@@ -70,25 +72,40 @@ if [ ! -d $base_dir/rappture ]; then
     exit 1
 fi
 
+# build_dir is temporary install directory for the rappture build.
+# We use this later to tar up the entire distribution.
 build_dir=$base_dir"/builds/"`date +%Y%m%d`
+
+# The configure script AC_PATH_X macro uses xmkmf to determine where X 
+# is installed.  In Mac OS X 10.6 (Snow Leopard), Apple stopped 
+# including xmkmf/imake.
+# You can specify the paths to the X11 headers and libraries
+# with the variables "x_includes" and "x_libraries".
+# Example: 
+#          x_includes="/usr/X11R6/include"
+#          x_libraries="/usr/X11R6/lib"
+x_includes=""
+x_libraries=""
+
+if test "z${x_includes}" != "z" ; then
+   x_includes="--x-includes=${x_includes}"
+fi
+if test "z${x_libraries}" != "z" ; then
+   x_libraries="--x-libraries=${x_libraries}"
+fi
+
 mkdir -p $build_dir
 
-# build_dir is temporary install directory for the rappture build.
-# We'll use this later to tar up the entire distribution.
-
-# stage1: tcl, tk
+# Stage1: tcl, tk
 # expat, zlib if enabled with --with-xxx
-stage1_flags="--with-expat --with-zlib"
+stage1_flags="--with-expat --with-zlib ${x_includes} ${x_libraries}"
+# Stage2: blt, htmlwidget, itk, shape, tcllib, tdom, tkimg, tls, vornoi, vtk
+stage2_flags="${x_includes} ${x_libraries}"
 
-# stage2: blt, htmlwidget, itk, shape, tcllib, tdom, tkimg, tls, vornoi, vtk
-stage2_flags="--with-vtk"
+# Stage3: vtk, pymol, dx if enabled
+stage3_flags="--with-vtk ${x_includes} ${x_libraries}"
 
-# stage3: pymol, dx if enabled
-stage3_flags="--with-pymol"
-# Don't build vtk or pymol yet on BAT.
-stage3_flags=""
-
-rappture_flags=""
+rappture_flags="${x_includes} ${x_libraries}"
 
 MAKE=make
 case $host_os in 
@@ -178,6 +195,12 @@ stage3
 rappture
 
 echo "To use this build, do one of the following"
-echo "export PATH=`pwd`:\$PATH"
-echo "setenv PATH \"`pwd`:\$PATH\""
+echo "bash users:"
+echo "   . $build_dir/bin/rappture.env"
+echo"        or "
+echo "   export PATH=\"$build_dir/bin:\$PATH\""
+echo "csh users:"
+echo "   source $build_dir/bin/rappture-csh.env"
+echo"        or "
+echo "   set path = ( $build_dir/bin \$path )"
 exit 0
