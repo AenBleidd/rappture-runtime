@@ -667,6 +667,8 @@ PostScriptPreamble(graphPtr, fileName, psToken)
     dpiY = (HeightOfScreen(screenPtr) * MM_INCH) / HeightMMOfScreen(screenPtr);
     yPixelsToPica = PICA_INCH / dpiY;
 
+    psToken->xPicaToPixels = dpiX / PICA_INCH;
+    psToken->yPicaToPixels = dpiY / PICA_INCH;
     /*
      * The "BoundingBox" comment is required for EPS files. The box
      * coordinates are integers, so we need round away from the
@@ -865,7 +867,10 @@ GraphToPostScript(graphPtr, ident, psToken)
 	(2 * graphPtr->plotBorderWidth);
     height = (graphPtr->bottom - graphPtr->top + 1) + 
 	(2 * graphPtr->plotBorderWidth);
-
+    Blt_FormatToPostScript(psToken, "/xPicaToPixels %g def\n", 
+	psToken->xPicaToPixels);
+    Blt_FormatToPostScript(psToken, "/yPicaToPixels %g def\n", 
+	psToken->yPicaToPixels);
     Blt_FontToPostScript(psToken, graphPtr->titleTextStyle.font);
     Blt_RegionToPostScript(psToken, (double)x, (double)y, width, height);
     if (graphPtr->postscript->decorations) {

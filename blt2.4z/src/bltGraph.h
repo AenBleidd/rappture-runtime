@@ -239,6 +239,9 @@ typedef struct  {
 
     double pageScale;		/* Scale of page. Set if "-maxpect" option
 				 * is set, otherwise 1.0. */
+    double xPicaToPixels, yPicaToPixels; /* Scales back to convert pixels to 
+					  * pica */
+
 } PostScript;
 
 /*
