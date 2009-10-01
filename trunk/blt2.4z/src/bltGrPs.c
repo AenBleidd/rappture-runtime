@@ -57,9 +57,20 @@ static Tk_CustomOption formatOption =
 {
     StringToFormat, FormatToString, (ClientData)0,
 };
-extern Tk_CustomOption bltDistanceOption;
-extern Tk_CustomOption bltPositiveDistanceOption;
-extern Tk_CustomOption bltPadOption;
+
+static Tk_OptionParseProc StringToPica;
+static Tk_OptionPrintProc PicaToString;
+static Tk_CustomOption picaOption =
+{
+    StringToPica, PicaToString, (ClientData)0,
+};
+
+static Tk_OptionParseProc StringToPad;
+static Tk_OptionPrintProc PadToString;
+static Tk_CustomOption padOption =
+{
+    StringToPad, PadToString, (ClientData)0,
+};
 
 #define DEF_PS_CENTER		"yes"
 #define DEF_PS_COLOR_MAP	(char *)NULL
@@ -100,7 +111,7 @@ static Tk_ConfigSpec configSpecs[] =
 	TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_CUSTOM, "-height", "height", "Height",
 	DEF_PS_HEIGHT, Tk_Offset(PostScript, reqHeight),
-	TK_CONFIG_DONT_SET_DEFAULT, &bltDistanceOption},
+	TK_CONFIG_DONT_SET_DEFAULT, &picaOption},
     {TK_CONFIG_BOOLEAN, "-landscape", "landscape", "Landscape",
 	DEF_PS_LANDSCAPE, Tk_Offset(PostScript, landscape),
 	TK_CONFIG_DONT_SET_DEFAULT},
@@ -108,15 +119,15 @@ static Tk_ConfigSpec configSpecs[] =
 	DEF_PS_MAXPECT, Tk_Offset(PostScript, maxpect),
 	TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_CUSTOM, "-padx", "padX", "PadX",
-	DEF_PS_PADX, Tk_Offset(PostScript, padX), 0, &bltPadOption},
+	DEF_PS_PADX, Tk_Offset(PostScript, padX), 0, &padOption},
     {TK_CONFIG_CUSTOM, "-pady", "padY", "PadY",
-	DEF_PS_PADY, Tk_Offset(PostScript, padY), 0, &bltPadOption},
+	DEF_PS_PADY, Tk_Offset(PostScript, padY), 0, &padOption},
     {TK_CONFIG_CUSTOM, "-paperheight", "paperHeight", "PaperHeight",
 	DEF_PS_PAPERHEIGHT, Tk_Offset(PostScript, reqPaperHeight),
-	0, &bltPositiveDistanceOption},
+	0, &picaOption},
     {TK_CONFIG_CUSTOM, "-paperwidth", "paperWidth", "PaperWidth",
 	DEF_PS_PAPERWIDTH, Tk_Offset(PostScript, reqPaperWidth),
-	0, &bltPositiveDistanceOption},
+	0, &picaOption},
     {TK_CONFIG_BOOLEAN, "-preview", "preview", "Preview",
 	DEF_PS_PREVIEW, Tk_Offset(PostScript, addPreview),
 	TK_CONFIG_DONT_SET_DEFAULT},
@@ -125,7 +136,7 @@ static Tk_ConfigSpec configSpecs[] =
         TK_CONFIG_DONT_SET_DEFAULT, &formatOption},
     {TK_CONFIG_CUSTOM, "-width", "width", "Width",
 	DEF_PS_WIDTH, Tk_Offset(PostScript, reqWidth),
-	TK_CONFIG_DONT_SET_DEFAULT, &bltDistanceOption},
+	TK_CONFIG_DONT_SET_DEFAULT, &picaOption},
     {TK_CONFIG_END, NULL, NULL, NULL, NULL, 0, 0}
 };
 
@@ -143,6 +154,10 @@ extern void Blt_AxesToPostScript _ANSI_ARGS_((Graph *graphPtr,
 	PsToken psToken));
 extern void Blt_AxisLimitsToPostScript _ANSI_ARGS_((Graph *graphPtr,
 	PsToken psToken));
+extern int Blt_Ps_GetPica _ANSI_ARGS_((Tcl_Interp *interp, char *string, 
+	int *picaPtr));
+extern int Blt_Ps_GetPad _ANSI_ARGS_((Tcl_Interp *interp, char *string,
+	Blt_Pad *padPtr));
 /*
  *----------------------------------------------------------------------
  *
@@ -352,6 +367,108 @@ FormatToString(clientData, tkwin, widgRec, offset, freeProcPtr)
     }
     return "?unknown preview format?";
 }
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * StringToPica --
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+StringToPica(clientData, interp, tkwin, string, widgRec, offset)
+    ClientData clientData;	/* Not used. */
+    Tcl_Interp *interp;		/* Interpreter to send results back to */
+    Tk_Window tkwin;		/* Not used. */
+    char *string;		/* New value. */
+    char *widgRec;		/* Widget record */
+    int offset;			/* Offset of field in record */
+{
+    int *picaPtr = (int *)(widgRec + offset);
+
+    return Blt_Ps_GetPica(interp, string, picaPtr);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * PicaToString --
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static char *
+PicaToString(clientData, tkwin, widgRec, offset, freeProcPtr)
+    ClientData clientData;	/* Not used. */
+    Tk_Window tkwin;		/* Not used. */
+    char *widgRec;		/* PostScript structure record */
+    int offset;			/* field of colorMode in record */
+    Tcl_FreeProc **freeProcPtr;	/* Not used. */
+{
+    int pica = *(int *)(widgRec + offset);
+    char *result;
+
+    result = Blt_Strdup(Blt_Itoa(pica));
+    assert(result);
+    *freeProcPtr = (Tcl_FreeProc *)Blt_Free;
+    return result;
+}
+/*
+ *----------------------------------------------------------------------
+ *
+ * StringToPad --
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+StringToPad(clientData, interp, tkwin, string, widgRec, offset)
+    ClientData clientData;	/* Not used. */
+    Tcl_Interp *interp;		/* Interpreter to send results back to */
+    Tk_Window tkwin;		/* Not used. */
+    char *string;		/* New value. */
+    char *widgRec;		/* Widget record */
+    int offset;			/* Offset of field in record */
+{
+    Blt_Pad *padPtr = (Blt_Pad *) (widgRec + offset);
+
+    return Blt_Ps_GetPad(interp, string, padPtr);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * PadToString --
+ *
+ *	Convert the preview format into the string representing its
+ *	type.
+ *
+ * Results:
+ *	The string representing the preview format is returned.
+ *
+ *----------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static char *
+PadToString(clientData, tkwin, widgRec, offset, freeProcPtr)
+    ClientData clientData;	/* Not used. */
+    Tk_Window tkwin;		/* Not used. */
+    char *widgRec;		/* PostScript structure record */
+    int offset;			/* field of colorMode in record */
+    Tcl_FreeProc **freeProcPtr;	/* Not used. */
+{
+    Blt_Pad *padPtr = (Blt_Pad *)(widgRec + offset);
+    char string[200];
+    char *result;
+
+    sprintf(string, "%d %d", padPtr->side1, padPtr->side2);
+    result = Blt_Strdup(string);
+    assert(result);
+    *freeProcPtr = (Tcl_FreeProc *)Blt_Free;
+    return result;
+}
+
 
 void
 Blt_DestroyPostScript(graphPtr)
@@ -641,8 +758,6 @@ PostScriptPreamble(graphPtr, fileName, psToken)
     time_t ticks;
     char date[200];		/* Hold the date string from ctime() */
     CONST char *version;
-    double dpiX, dpiY;
-    double xPixelsToPica, yPixelsToPica; /* Scales to convert pixels to pica */
     Screen *screenPtr;
     char *nl;
     int paperHeightPixels;
@@ -659,27 +774,14 @@ PostScriptPreamble(graphPtr, fileName, psToken)
      * Round the pixels per inch (dpi) to an integral value before computing
      * the scale.
      */
-#define MM_INCH		25.4
-#define PICA_INCH	72.0
-    screenPtr = Tk_Screen(graphPtr->tkwin);
-    dpiX = (WidthOfScreen(screenPtr) * MM_INCH) / WidthMMOfScreen(screenPtr);
-    xPixelsToPica = PICA_INCH / dpiX;
-    dpiY = (HeightOfScreen(screenPtr) * MM_INCH) / HeightMMOfScreen(screenPtr);
-    yPixelsToPica = PICA_INCH / dpiY;
-
-    psToken->xPicaToPixels = dpiX / PICA_INCH;
-    psToken->yPicaToPixels = dpiY / PICA_INCH;
     /*
      * The "BoundingBox" comment is required for EPS files. The box
      * coordinates are integers, so we need round away from the
      * center of the box.
      */
     Blt_FormatToPostScript(psToken, "%%%%BoundingBox: %d %d %d %d\n",
-	(int)floor(psPtr->left * xPixelsToPica),
-	(int)floor((paperHeightPixels - psPtr->top) * yPixelsToPica),
-	(int)ceil(psPtr->right * xPixelsToPica),
-	(int)ceil((paperHeightPixels - psPtr->bottom) * yPixelsToPica));
-
+	psPtr->left,  paperHeightPixels - psPtr->top, 
+	psPtr->right, paperHeightPixels - psPtr->bottom);
     Blt_AppendToPostScript(psToken, "%%Pages: 0\n", (char *)NULL);
 
     version = Tcl_GetVar(graphPtr->interp, "blt_version", TCL_GLOBAL_ONLY);
@@ -743,8 +845,8 @@ PostScriptPreamble(graphPtr, fileName, psToken)
 	"% 1. Flip y-axis over by reversing the scale,\n",
 	"% 2. Translate the origin to the other side of the page,\n",
 	"%    making the origin the upper left corner\n", (char *)NULL);
-    Blt_FormatToPostScript(psToken, "%g -%g scale\n", xPixelsToPica, 
-	yPixelsToPica);
+    Blt_AppendToPostScript(psToken, "1 -1 scale\n", (char *)NULL);
+
     /* Papersize is in pixels.  Translate the new origin *after*
      * changing the scale. */
     Blt_FormatToPostScript(psToken, "0 %d translate\n\n", 
@@ -840,6 +942,9 @@ GraphToPostScript(graphPtr, ident, psToken)
 {
     int x, y, width, height;
     int result;
+    Screen *screenPtr;
+    double dpiX, dpiY;
+    double xPixelsToPica, yPixelsToPica; /* Scales to convert pixels to pica */
 
     /*   
      * We need to know how big a graph to print.  If the graph hasn't
@@ -853,6 +958,21 @@ GraphToPostScript(graphPtr, ident, psToken)
     if (graphPtr->width <= 1) {
 	graphPtr->width = Tk_ReqWidth(graphPtr->tkwin);
     }
+    /*
+     * Compute the scale factors to convert PostScript to X11 coordinates.
+     * Round the pixels per inch (dpi) to an integral value before computing
+     * the scale.
+     */
+#define MM_INCH		25.4
+#define PICA_INCH	72.0
+    screenPtr = Tk_Screen(graphPtr->tkwin);
+    dpiX = (WidthOfScreen(screenPtr) * MM_INCH) / WidthMMOfScreen(screenPtr);
+    xPixelsToPica = PICA_INCH / dpiX;
+    dpiY = (HeightOfScreen(screenPtr) * MM_INCH) / HeightMMOfScreen(screenPtr);
+    yPixelsToPica = PICA_INCH / dpiY;
+    graphPtr->width = (int)((Tk_Width(graphPtr->tkwin) * xPixelsToPica) + 0.5);
+    graphPtr->height=(int)((Tk_Height(graphPtr->tkwin) * yPixelsToPica) + 0.5);
+
     result = PostScriptPreamble(graphPtr, ident, psToken);
     if (result != TCL_OK) {
 	goto error;
@@ -867,10 +987,6 @@ GraphToPostScript(graphPtr, ident, psToken)
 	(2 * graphPtr->plotBorderWidth);
     height = (graphPtr->bottom - graphPtr->top + 1) + 
 	(2 * graphPtr->plotBorderWidth);
-    Blt_FormatToPostScript(psToken, "/xPicaToPixels %g def\n", 
-	psToken->xPicaToPixels);
-    Blt_FormatToPostScript(psToken, "/yPicaToPixels %g def\n", 
-	psToken->yPicaToPixels);
     Blt_FontToPostScript(psToken, graphPtr->titleTextStyle.font);
     Blt_RegionToPostScript(psToken, (double)x, (double)y, width, height);
     if (graphPtr->postscript->decorations) {
@@ -989,6 +1105,8 @@ CreateWindowsEPS(
     TkWinDCState state;
     int result;
     unsigned char *buffer, *psBuffer;
+    double dpiX, dpiY;
+    double xPixelsToPica, yPixelsToPica; /* Scales to convert pixels to pica */
     
     Blt_AppendToPostScript(psToken, "\n", (char *)NULL);
     psBuffer = Blt_PostScriptFromToken(psToken);
@@ -1034,8 +1152,22 @@ CreateWindowsEPS(
     drawableDC.hdc = hDC;
     drawableDC.type = TWD_WINDC;
     
-    graphPtr->width = Tk_Width(graphPtr->tkwin);
-    graphPtr->height = Tk_Height(graphPtr->tkwin);
+    /*
+     * Compute the scale factors to convert PostScript to X11 coordinates.
+     * Round the pixels per inch (dpi) to an integral value before computing
+     * the scale.
+     */
+#define MM_INCH		25.4
+#define PICA_INCH	72.0
+    screenPtr = Tk_Screen(graphPtr->tkwin);
+    dpiX = (WidthOfScreen(screenPtr) * MM_INCH) / WidthMMOfScreen(screenPtr);
+    xPixelsToPica = PICA_INCH / dpiX;
+    dpiY = (HeightOfScreen(screenPtr) * MM_INCH) / HeightMMOfScreen(screenPtr);
+    yPixelsToPica = PICA_INCH / dpiY;
+
+    graphPtr->width = (int)((Tk_Width(graphPtr->tkwin) * xPixelsToPica) + 0.5);
+    graphPtr->height=(int)((Tk_Height(graphPtr->tkwin) * yPixelsToPica) + 0.5);
+
     graphPtr->flags |= RESET_WORLD;
     Blt_LayoutGraph(graphPtr);
     Blt_DrawGraph(graphPtr, (Drawable)&drawableDC, FALSE);

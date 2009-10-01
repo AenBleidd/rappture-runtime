@@ -951,7 +951,7 @@ MakeLabel(graphPtr, axisPtr, value)
     labelPtr = Blt_Malloc(sizeof(TickLabel) + strlen(string));
     assert(labelPtr);
     strcpy(labelPtr->string, string);
-    labelPtr->anchorPos.x = labelPtr->anchorPos.y = DBL_MAX;
+    labelPtr->anchorPos.x = labelPtr->anchorPos.y = bltNaN;
     return labelPtr;
 }
 
@@ -2206,6 +2206,8 @@ MapAxis(graphPtr, axisPtr, offset, margin)
 		t1 += axisPtr->majorSweep.step * 0.5;
 	    }
 	    if (!InRange(t1, &axisPtr->axisRange)) {
+		fprintf(stderr, "value=%g not in range %g:%g\n", t1, 
+			axisPtr->axisRange.min, axisPtr->axisRange.max);
 		continue;
 	    }
 	    labelPtr = Blt_ChainGetValue(linkPtr);
@@ -2219,6 +2221,8 @@ MapAxis(graphPtr, axisPtr, offset, margin)
 		labelPtr->anchorPos.x = labelPos;
 		labelPtr->anchorPos.y = seg.p.y;
 	    }
+	    fprintf(stderr, "value=%g, x=%g, y=%g\n", t1, 
+		    labelPtr->anchorPos.x, labelPtr->anchorPos.y);
 	}
     }
     if (AxisIsHorizontal(graphPtr, axisPtr)) {

@@ -52,9 +52,6 @@ struct PsTokenStruct {
 
     PsColorMode colorMode;	/* Mode: color or greyscale */
 
-    double xPicaToPixels, yPicaToPixels; /* Scales back to convert pixels to 
-					  * pica */
-
 #define PSTOKEN_BUFSIZ	((BUFSIZ*2)-1)
     /*
      * Utility space for building strings.  Currently used to create

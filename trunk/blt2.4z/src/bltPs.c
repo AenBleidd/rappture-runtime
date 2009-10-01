@@ -112,6 +112,117 @@ TCL_VARARGS_DEF(PsToken, arg1)
     Tcl_DStringAppend(&(tokenPtr->dString), tokenPtr->scratchArr, -1);
 }
 
+#define PICA_MM		2.83464566929
+#define PICA_INCH	72.0
+#define PICA_CM		28.3464566929
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ * Blt_Ps_GetPica --
+ *
+ *	Given a string, returns the number of pica corresponding to that
+ *	string.
+ *
+ * Results:
+ *	The return value is a standard TCL return result.  If TCL_OK is
+ *	returned, then everything went well and the pixel distance is stored
+ *	at *doublePtr; otherwise TCL_ERROR is returned and an error message is
+ *	left in interp->result.
+ *
+ * Side effects:
+ *	None.
+ *
+ *---------------------------------------------------------------------------
+ */
+int
+Blt_Ps_GetPica(
+    Tcl_Interp *interp,		/* Use this for error reporting. */
+    char *string,		/* String describing a number of pixels. */
+    int *picaPtr)		/* Place to store converted result. */
+{
+    char *p;
+    double pica;
+
+    pica = strtod((char *)string, &p);
+    if (p == string) {
+	goto error;
+    }
+    if (pica < 0.0) {
+	goto error;
+    }
+    while ((*p != '\0') && isspace(UCHAR(*p))) {
+	p++;
+    }
+    switch (*p) {
+	case '\0':
+	    break;
+	case 'c':
+	    pica *= PICA_CM;
+	    p++;
+	    break;
+	case 'i':
+	    pica *= PICA_INCH;
+	    p++;
+	    break;
+	case 'm':
+	    pica *= PICA_MM;
+	    p++;
+	    break;
+	case 'p':
+	    p++;
+	    break;
+	default:
+	    goto error;
+    }
+    while ((*p != '\0') && isspace(UCHAR(*p))) {
+	p++;
+    }
+    if (*p == '\0') {
+	*picaPtr = ROUND(pica);
+	return TCL_OK;
+    }
+ error:
+    Tcl_AppendResult(interp, "bad screen distance \"", string, "\"", 
+	(char *) NULL);
+    return TCL_ERROR;
+}
+
+int
+Blt_Ps_GetPad(
+    Tcl_Interp *interp,		/* Interpreter to send results back to */
+    char *string,		/* Pixel value string */
+    Blt_Pad *padPtr)
+{
+    int side1, side2;
+    int argc;
+    char **argv;
+
+    if (Tcl_SplitList(interp, string, &argc, &argv) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    if ((argc < 1) || (argc > 2)) {
+	Tcl_AppendResult(interp, "wrong # elements in padding list",
+	    (char *)NULL);
+	Blt_Free(argv);
+	return TCL_ERROR;
+    }
+    if (Blt_Ps_GetPica(interp, argv[0], &side1) != TCL_OK) {
+	Blt_Free(argv);
+	return TCL_ERROR;
+    }
+    side2 = side1;
+    if ((argc > 1) && (Blt_Ps_GetPica(interp, argv[1], &side2) != TCL_OK)) {
+	Blt_Free(argv);
+	return TCL_ERROR;
+    }
+    /* Don't update the pad structure until we know both values are okay. */
+    Blt_Free(argv);
+    padPtr->side1 = side1;
+    padPtr->side2 = side2;
+    return TCL_OK;
+}
+
 int
 Blt_FileToPostScript(tokenPtr, fileName)
     struct PsTokenStruct *tokenPtr;
@@ -896,7 +1007,6 @@ Blt_Draw3DRectangleToPostScript(tokenPtr, border, x, y, width, height,
 	return;
     }
     if (relief == TK_RELIEF_SOLID) {
-	fprintf(stderr, "borderwidth=%d\n", borderWidth);
 	if (borderWidth > 1) {
 	    x += borderWidth / 2;
 	    y += borderWidth / 2;
@@ -1238,8 +1348,6 @@ Blt_FontToPostScript(tokenPtr, font)
 	    Tcl_DStringInit(&dString);
 	    pointSize = (double)Tk_PostscriptFontName(font, &dString);
 	    fontName = Tcl_DStringValue(&dString);
-	    fprintf(stderr, "font=%s, name=%s, pointSize=%g\n", 
-		    Tk_NameOfFont(font), fontName, pointSize);
 	    Blt_FormatToPostScript(tokenPtr, "%g /%s SetFont\n", pointSize,
 		fontName);
 	    Tcl_DStringFree(&dString);
@@ -1263,10 +1371,8 @@ Blt_FontToPostScript(tokenPtr, font)
     if (fontPtr != NULL) {
 	unsigned long fontProp;
 
-	fprintf(stderr, "looking for pointsize\n");
 	if (XGetFontProperty(fontPtr, XA_POINT_SIZE, &fontProp) != False) {
 	    pointSize = (double)fontProp / 10.0;
-	    fprintf(stderr, "found pointsize as %g\n", pointSize);
 	}
 	fontName = XFontStructToPostScript(tokenPtr->tkwin, fontPtr);
 #if (TK_MAJOR_VERSION > 4)
@@ -1275,18 +1381,8 @@ Blt_FontToPostScript(tokenPtr, font)
     }
 #endif /* !WIN32 */
     if ((fontName == NULL) || (fontName[0] == '\0')) {
-	    Tcl_DString dString;
-	fprintf(stderr, "default to known font\n");
-
-	    Tcl_DStringInit(&dString);
-	    pointSize = (double)Tk_PostscriptFontName(font, &dString);
-	    fontName = Tcl_DStringValue(&dString);
-	    fprintf(stderr, "font=%s, name=%s, pointSize=%g\n", 
-		    Tk_NameOfFont(font), fontName, pointSize);
 	fontName = "Helvetica-Bold";	/* Defaulting to a known PS font */
     }
-    fprintf(stderr, "end font=%s, name=%s, pointSize=%g\n", 
-	    Tk_NameOfFont(font), fontName, pointSize);
     Blt_FormatToPostScript(tokenPtr, "%g /%s SetFont\n", pointSize, fontName);
 }
 
@@ -1410,8 +1506,12 @@ Blt_TextToPostScript(tokenPtr, string, tsPtr, x, y)
      * Find the center of the bounding box
      */
     anchorPos.x = x, anchorPos.y = y;
+    fprintf(stderr, "rotWidth=%g rotHeight=%g\n", rotWidth, rotHeight);
     anchorPos = Blt_TranslatePoint(&anchorPos, ROUND(rotWidth), 
 	ROUND(rotHeight), tsPtr->anchor);
+    fprintf(stderr, "x=%g y=%g, theta=%g, rot=%gx%g, pos=%g,%g\n",
+	    x, y, theta, rotWidth, rotHeight,
+	    anchorPos.x, anchorPos.y);
     anchorPos.x += (rotWidth * 0.5);
     anchorPos.y += (rotHeight * 0.5);
 
