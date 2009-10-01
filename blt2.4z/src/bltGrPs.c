@@ -800,12 +800,16 @@ MarginsToPostScript(graphPtr, psToken)
     if ((psPtr->decorations) && (graphPtr->plotBorderWidth > 0)) {
 	int x, y, width, height;
 
-	x = graphPtr->left - graphPtr->plotBorderWidth;
-	y = graphPtr->top - graphPtr->plotBorderWidth;
-	width = (graphPtr->right - graphPtr->left) + 
-	    (2 * graphPtr->plotBorderWidth);
-	height = (graphPtr->bottom - graphPtr->top) + 
-	    (2 * graphPtr->plotBorderWidth);
+	x = (int)graphPtr->left;
+	y = (int)graphPtr->top;
+	width = (graphPtr->right - graphPtr->left + 1);
+	height = (graphPtr->bottom - graphPtr->top + 1);
+	if (graphPtr->plotRelief != TK_RELIEF_SOLID) {
+	    x -= graphPtr->plotBorderWidth;
+	    y -= graphPtr->plotBorderWidth;
+	    width += 2 * graphPtr->plotBorderWidth;
+	    height += 2 * graphPtr->plotBorderWidth;
+	}
 	Blt_Draw3DRectangleToPostScript(psToken, graphPtr->border, 
 	   (double)x, (double)y, width, height, graphPtr->plotBorderWidth, 
 	   graphPtr->plotRelief);

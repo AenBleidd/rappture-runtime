@@ -1914,11 +1914,15 @@ AxisOffsets(graphPtr, axisPtr, margin, axisOffset, infoPtr)
 	labelOffset = majorOffset + AXIS_TITLE_PAD + axisPtr->lineWidth / 2;
     }
     /* Adjust offset for the interior border width and the line width */
-    pad = axisPtr->lineWidth + 1;
-    if (graphPtr->plotBorderWidth > 0) {
-	pad += graphPtr->plotBorderWidth + 1;
+    pad = 0;
+    if (graphPtr->plotRelief != TK_RELIEF_SOLID) {
+	pad = axisPtr->lineWidth + 1;
+	if (graphPtr->plotBorderWidth > 0) {
+	    pad += graphPtr->plotBorderWidth + 1;
+	}
+	pad++;
     }
-    offset = axisOffset + 1 + pad;
+    offset = axisOffset + pad;
     if ((margin == MARGIN_LEFT) || (margin == MARGIN_TOP)) {
 	majorOffset = -majorOffset;
 	minorOffset = -minorOffset;
@@ -2033,7 +2037,10 @@ AxisOffsets(graphPtr, axisPtr, margin, axisOffset, infoPtr)
     case MARGIN_NONE:
 	break;
     }
-    infoPtr->axis = p - (axisPtr->lineWidth / 2);
+    infoPtr->axis = p;
+    if (graphPtr->plotRelief != TK_RELIEF_SOLID) {
+	infoPtr->axis -= (axisPtr->lineWidth / 2);
+    }
     infoPtr->t1 = p + majorOffset;
     infoPtr->t2 = p + minorOffset;
     infoPtr->label = p + labelOffset;
@@ -2155,8 +2162,10 @@ MapAxis(graphPtr, axisPtr, offset, margin)
     segPtr = segments;
     if (axisPtr->lineWidth > 0) {
 	/* Axis baseline */
-	MakeAxisLine(graphPtr, axisPtr, info.axis, segPtr);
-	segPtr++;
+	if (graphPtr->plotRelief != TK_RELIEF_SOLID) {
+	    MakeAxisLine(graphPtr, axisPtr, info.axis, segPtr);
+	    segPtr++;
+	}
     }
     if (axisPtr->showTicks) {
 	double t1, t2;
@@ -2185,7 +2194,7 @@ MapAxis(graphPtr, axisPtr, offset, margin)
 	    }
 	    /* Major tick */
 	    MakeTick(graphPtr, axisPtr, t1, info.t1, info.axis, segPtr);
-	    segPtr++;
+ 	    segPtr++;
 	}
 
 	linkPtr = Blt_ChainFirstLink(axisPtr->tickLabels);
@@ -2213,9 +2222,9 @@ MapAxis(graphPtr, axisPtr, offset, margin)
 	}
     }
     if (AxisIsHorizontal(graphPtr, axisPtr)) {
-	axisPtr->width = graphPtr->right - graphPtr->left;
+	axisPtr->width = graphPtr->right - graphPtr->left + 1;
     } else {
-	axisPtr->height = graphPtr->bottom - graphPtr->top;
+	axisPtr->height = graphPtr->bottom - graphPtr->top + 1;
     }
     axisPtr->segments = segments;
     axisPtr->nSegments = segPtr - segments;

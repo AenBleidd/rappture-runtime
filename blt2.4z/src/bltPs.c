@@ -892,6 +892,24 @@ Blt_Draw3DRectangleToPostScript(tokenPtr, border, x, y, width, height,
     if ((width < twiceWidth) || (height < twiceWidth)) {
 	return;
     }
+    if (borderWidth <= 0) {
+	return;
+    }
+    if (relief == TK_RELIEF_SOLID) {
+	fprintf(stderr, "borderwidth=%d\n", borderWidth);
+	if (borderWidth > 1) {
+	    x += borderWidth / 2;
+	    y += borderWidth / 2;
+	    width -= borderWidth;
+	    height -= borderWidth;
+	}
+	darkColor.red = darkColor.blue = darkColor.green = 0x00;
+	Blt_BackgroundToPostScript(tokenPtr, &darkColor);
+	Blt_LineWidthToPostScript(tokenPtr, borderWidth);
+	Blt_FormatToPostScript(tokenPtr, "%g %g %d %d Box stroke\n\n", 
+			       x, y, width - 1, height - 1);
+	return;
+    }
     if ((relief == TK_RELIEF_SOLID) ||
 	(borderPtr->lightColor == NULL) || (borderPtr->darkColor == NULL)) {
 	if (relief == TK_RELIEF_SOLID) {

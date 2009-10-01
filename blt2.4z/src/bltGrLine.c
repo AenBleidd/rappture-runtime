@@ -316,6 +316,8 @@ typedef struct {
 				 * symbol. */
 
     int state;
+    Blt_ChainLink *linkPtr;
+
     /*
      * Line specific configurable attributes
      */
@@ -1600,7 +1602,7 @@ InitPen(penPtr)
     penPtr->errorBarLineWidth = 1;
     penPtr->errorBarShow = SHOW_BOTH;
     penPtr->flags = NORMAL_PEN;
-    penPtr->name = "";
+    penPtr->name = NULL;
     penPtr->symbol.bitmap = penPtr->symbol.mask = None;
     penPtr->symbol.outlineColor = penPtr->symbol.fillColor = COLOR_DEFAULT;
     penPtr->symbol.outlineWidth = penPtr->traceWidth = 1;
