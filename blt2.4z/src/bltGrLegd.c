@@ -998,8 +998,9 @@ Blt_LegendToPostScript(legendPtr, psToken)
 	(*elemPtr->procsPtr->printSymbolProc) (graphPtr, psToken, elemPtr,
 	    x + symbolX, y + symbolY, symbolSize);
 	Blt_TextToPostScript(psToken, elemPtr->label, &(legendPtr->style),
-		x + labelX, 
-		y + legendPtr->entryBorderWidth + legendPtr->ipadY.side1);
+		(double)(x + labelX), 
+		(double)(y + legendPtr->entryBorderWidth + 
+			 legendPtr->ipadY.side1));
 	count++;
 	if ((count % legendPtr->nRows) > 0) {
 	    y += legendPtr->style.height;
