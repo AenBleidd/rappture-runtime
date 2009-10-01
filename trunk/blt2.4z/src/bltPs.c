@@ -1238,6 +1238,8 @@ Blt_FontToPostScript(tokenPtr, font)
 	    Tcl_DStringInit(&dString);
 	    pointSize = (double)Tk_PostscriptFontName(font, &dString);
 	    fontName = Tcl_DStringValue(&dString);
+	    fprintf(stderr, "font=%s, name=%s, pointSize=%g\n", 
+		    Tk_NameOfFont(font), fontName, pointSize);
 	    Blt_FormatToPostScript(tokenPtr, "%g /%s SetFont\n", pointSize,
 		fontName);
 	    Tcl_DStringFree(&dString);
@@ -1261,8 +1263,10 @@ Blt_FontToPostScript(tokenPtr, font)
     if (fontPtr != NULL) {
 	unsigned long fontProp;
 
+	fprintf(stderr, "looking for pointsize\n");
 	if (XGetFontProperty(fontPtr, XA_POINT_SIZE, &fontProp) != False) {
 	    pointSize = (double)fontProp / 10.0;
+	    fprintf(stderr, "found pointsize as %g\n", pointSize);
 	}
 	fontName = XFontStructToPostScript(tokenPtr->tkwin, fontPtr);
 #if (TK_MAJOR_VERSION > 4)
@@ -1271,8 +1275,18 @@ Blt_FontToPostScript(tokenPtr, font)
     }
 #endif /* !WIN32 */
     if ((fontName == NULL) || (fontName[0] == '\0')) {
+	    Tcl_DString dString;
+	fprintf(stderr, "default to known font\n");
+
+	    Tcl_DStringInit(&dString);
+	    pointSize = (double)Tk_PostscriptFontName(font, &dString);
+	    fontName = Tcl_DStringValue(&dString);
+	    fprintf(stderr, "font=%s, name=%s, pointSize=%g\n", 
+		    Tk_NameOfFont(font), fontName, pointSize);
 	fontName = "Helvetica-Bold";	/* Defaulting to a known PS font */
     }
+    fprintf(stderr, "end font=%s, name=%s, pointSize=%g\n", 
+	    Tk_NameOfFont(font), fontName, pointSize);
     Blt_FormatToPostScript(tokenPtr, "%g /%s SetFont\n", pointSize, fontName);
 }
 
