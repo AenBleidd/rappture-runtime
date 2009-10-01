@@ -215,7 +215,6 @@ PenToString(clientData, tkwin, widgRec, offset, freeProcPtr)
     Tcl_FreeProc **freeProcPtr;	/* Not used. */
 {
     Pen *penPtr = *(Pen **)(widgRec + offset);
-
     return penPtr->name;
 }
 
@@ -348,7 +347,6 @@ Blt_CreatePen(graphPtr, penName, classUid, nOpts, options)
 	penPtr->hashPtr = hPtr;
 	Blt_SetHashValue(hPtr, penPtr);
     }
-
     configFlags = (penPtr->flags & (ACTIVE_PEN | NORMAL_PEN));
     if (Blt_ConfigureWidgetComponent(graphPtr->interp, graphPtr->tkwin,
 	    penPtr->name, "Pen", penPtr->configSpecs, nOpts, options,

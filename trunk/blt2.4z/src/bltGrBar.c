@@ -171,6 +171,8 @@ typedef struct {
 				 * used to scale the size of element's
 				 * symbol. */
     int state;
+    Blt_ChainLink *linkPtr;
+
     /*
      * Bar specific attributes
      */
