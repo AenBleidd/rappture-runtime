@@ -923,6 +923,8 @@ extern Tcl_AppInitProc Blt_ButtonInit;
 extern Tcl_AppInitProc Blt_ScrollbarInit;
 #endif
 
+EXTERN int Blt_TextWidth(Tk_Font font, char *string, int length);
+
 #if (BLT_MAJOR_VERSION == 3)
 #ifndef NO_MOUNTAIN
 extern Tcl_AppInitProc Blt_MountainInit;
@@ -951,6 +953,7 @@ EXTERN Blt_ReallocProc *Blt_ReallocProcPtr;
 
 EXTERN char *Blt_Strdup _ANSI_ARGS_((CONST char *ptr));
 EXTERN void *Blt_Calloc _ANSI_ARGS_((unsigned int nElem, size_t size));
+
 
 #ifdef WIN32
 #include "bltWin.h"

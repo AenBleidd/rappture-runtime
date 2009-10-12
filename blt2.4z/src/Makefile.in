@@ -108,6 +108,7 @@ OBJS =		$(GRAPH_OBJS) \
 		bltImage.o \
 		bltUnixImage.o \
 		bltPs.o \
+		bltPsAfm.o \
 		bltTable.o \
 		bltTabnotebook.o \
 		bltTabset.o \

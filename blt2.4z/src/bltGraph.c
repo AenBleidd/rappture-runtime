@@ -760,11 +760,13 @@ ConfigureGraph(graphPtr)
      *	    -barmode, -barwidth
      */
     if (Blt_ConfigModified(configSpecs, "-invertxy", "-title", "-font",
-	    "-*margin", "-*width", "-height", "-barmode", "-*pad*", "-aspect",
+		"-*margin", "-*width", "-height", "-barmode", "-*pad*", 
+		"-aspect",
+		"-plot*",
 	    (char *)NULL)) {
 	graphPtr->flags |= RESET_WORLD;
     }
-    if (Blt_ConfigModified(configSpecs, "-plotbackground", (char *)NULL)) {
+    if (Blt_ConfigModified(configSpecs, "-plot*", (char *)NULL)) {
 	graphPtr->flags |= REDRAW_BACKING_STORE;
     }
     graphPtr->flags |= REDRAW_WORLD;

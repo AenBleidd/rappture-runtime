@@ -151,4 +151,8 @@ extern int Blt_FileToPostScript _ANSI_ARGS_((PsToken psToken,
 extern void Blt_2DSegmentsToPostScript _ANSI_ARGS_((PsToken psToken, 
 	Segment2D *segments, int nSegments));
 
+extern int Blt_WantPostScriptWidths _ANSI_ARGS_((void));
+extern void Blt_UsePostScriptWidths _ANSI_ARGS_((PsToken psToken, int state));
+extern Tcl_Interp *Blt_GetPostScriptInterp _ANSI_ARGS_((void));
+
 #endif /* BLT_PS_H */
