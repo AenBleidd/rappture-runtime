@@ -4402,7 +4402,7 @@ GetCursorLocation(hboxPtr, treePtr)
 	/* Total the number of bytes on each line.  Include newlines. */
 	nBytes = fragPtr->count + 1;
 	if ((sum + nBytes) > editPtr->insertPos) {
-	    x += Tk_TextWidth(font, fragPtr->text, editPtr->insertPos - sum);
+	    x += Blt_TextWidth(font, fragPtr->text, editPtr->insertPos - sum);
 	    break;
 	}
 	y += fontMetrics.linespace;
@@ -5982,7 +5982,7 @@ ScreenToIndex(hboxPtr, x, y)
 #else
 	    length = 1;
 #endif
-	    charSize = Tk_TextWidth(font, next, length);
+	    charSize = Blt_TextWidth(font, next, length);
 	    fract = ((double)(x - newX) / (double)charSize);
 	    if (ROUND(fract)) {
 		nBytes += length;

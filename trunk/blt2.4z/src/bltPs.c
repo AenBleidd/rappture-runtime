@@ -38,6 +38,7 @@
 
 #define PS_MAXPATH	1500	/* Maximum number of components in a PostScript
 				 * (level 1) path. */
+static Tcl_Interp *psInterp;
 
 PsToken
 Blt_GetPsToken(interp, tkwin)
@@ -77,6 +78,26 @@ Blt_ScratchBufferFromToken(tokenPtr)
     struct PsTokenStruct *tokenPtr;
 {
     return tokenPtr->scratchArr;
+}
+
+Tcl_Interp *
+Blt_GetPostScriptInterp(void)
+{
+    return psInterp;
+}
+
+int 
+Blt_WantPostScriptWidths(void)
+{
+    return (psInterp != NULL);
+}
+
+void 
+Blt_UsePostScriptWidths(tokenPtr, state)
+    struct PsTokenStruct *tokenPtr;
+    int state;
+{
+    psInterp = ((state) ? (tokenPtr->interp) : NULL);
 }
 
 void
