@@ -2468,6 +2468,17 @@ DrawAxis(graphPtr, drawable, axisPtr)
     }
 }
 
+static void
+SoftHyphen(const char *dest, const char *src)
+{
+    char *p, *q;
+
+    for (p = src, q = dest; *p != '\0'; p++, q++) {
+	*q = (*p == '-') ? 0xAD : *p;
+    }
+    *q = '\0';
+}
+
 /*
  * -----------------------------------------------------------------
  *
@@ -2500,11 +2511,14 @@ AxisToPostScript(psToken, axisPtr)
     if (axisPtr->showTicks) {
 	register Blt_ChainLink *linkPtr;
 	TickLabel *labelPtr;
+	char string[200];
 
 	for (linkPtr = Blt_ChainFirstLink(axisPtr->tickLabels); 
 	     linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
 	    labelPtr = Blt_ChainGetValue(linkPtr);
-	    Blt_TextToPostScript(psToken, labelPtr->string, 
+
+	    SoftHyphen(string, labelPtr->string);
+	    Blt_TextToPostScript(psToken, string, 
 		&axisPtr->tickTextStyle, labelPtr->anchorPos.x, 
 		labelPtr->anchorPos.y);
 	}

@@ -1535,6 +1535,7 @@ TextLayoutToPostScript(tokenPtr, x, y, textPtr)
 		sprintf(dst, "\\%03o", c);
 		dst += 4;
 		count += 4;
+
 	    } else {
 		*dst++ = c;
 		count++;
