@@ -716,7 +716,6 @@ static FontMap psFontMap[] =
     {"Times New Roman", "Times",},
     {"Times Roman", "Times",},
     {"Times", "Times",},
-    {"Utopia", "Utopia",},
     {"ZapfChancery", "ZapfChancery",},
     {"ZapfDingbats", "ZapfDingbats",},
 };
@@ -1405,6 +1404,69 @@ Blt_FontToPostScript(tokenPtr, font)
 	fontName = "Helvetica-Bold";	/* Defaulting to a known PS font */
     }
     Blt_FormatToPostScript(tokenPtr, "%g /%s SetFont\n", pointSize, fontName);
+}
+
+
+double
+Blt_PostScriptFontName(Tcl_Interp *interp, Tk_Font font, Tcl_DString *dsPtr)
+{
+    Tk_Window tkwin;
+    XFontStruct *fontPtr = (XFontStruct *)font;
+    char *fontName;
+    double pointSize;
+#if (TK_MAJOR_VERSION > 4)
+    Tk_Uid family;
+    register int i;
+#endif /* TK_MAJOR_VERSION > 4 */
+
+    fontName = Tk_NameOfFont(font);
+    pointSize = 12.0;
+    Tcl_DStringInit(dsPtr);
+#if (TK_MAJOR_VERSION > 4)
+    /*
+     * Otherwise do a quick test to see if it's a PostScript font.
+     * Tk_PostScriptFontName will silently generate a bogus PostScript
+     * font description, so we have to check to see if this is really a
+     * PostScript font.
+     */
+    family = ((TkFont *) fontPtr)->fa.family;
+    for (i = 0; i < nFontNames; i++) {
+	if (strncasecmp(psFontMap[i].alias, family, strlen(psFontMap[i].alias))
+		 == 0) {
+	    pointSize = (double)Tk_PostscriptFontName(font, dsPtr);
+	    return pointSize;
+	}
+    }
+#endif /* TK_MAJOR_VERSION > 4 */
+    /*
+     * Can't find it. Try to use the current point size.
+     */
+    fontName = NULL;
+    pointSize = 12.0;
+
+#ifndef  WIN32
+#if (TK_MAJOR_VERSION > 4)
+    tkwin = Tk_MainWindow(interp);
+    /* Can you believe what I have to go through to get an XFontStruct? */
+    fontPtr = XLoadQueryFont(Tk_Display(tkwin), Tk_NameOfFont(font));
+#endif
+    if (fontPtr != NULL) {
+	unsigned long fontProp;
+
+	if (XGetFontProperty(fontPtr, XA_POINT_SIZE, &fontProp) != False) {
+	    pointSize = (double)fontProp / 10.0;
+	}
+	fontName = XFontStructToPostScript(tkwin, fontPtr);
+#if (TK_MAJOR_VERSION > 4)
+	XFreeFont(Tk_Display(tkwin), fontPtr);
+#endif /* TK_MAJOR_VERSION > 4 */
+    }
+#endif /* !WIN32 */
+    if ((fontName == NULL) || (fontName[0] == '\0')) {
+	fontName = "Helvetica-Bold";	/* Defaulting to a known PS font */
+    }
+    Tcl_DStringAppend(dsPtr, fontName, -1);
+    return pointSize;
 }
 
 static void

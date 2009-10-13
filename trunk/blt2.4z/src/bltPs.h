@@ -154,5 +154,7 @@ extern void Blt_2DSegmentsToPostScript _ANSI_ARGS_((PsToken psToken,
 extern int Blt_WantPostScriptWidths _ANSI_ARGS_((void));
 extern void Blt_UsePostScriptWidths _ANSI_ARGS_((PsToken psToken, int state));
 extern Tcl_Interp *Blt_GetPostScriptInterp _ANSI_ARGS_((void));
+extern double Blt_PostScriptFontName _ANSI_ARGS_((Tcl_Interp *interp, 
+	Tk_Font font, Tcl_DString *dsPtr));
 
 #endif /* BLT_PS_H */

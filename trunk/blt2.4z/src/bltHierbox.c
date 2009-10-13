@@ -3374,7 +3374,7 @@ ConfigureEntry(hboxPtr, entryPtr, argc, argv, flags)
     if (*entryPtr->labelText == '\0') {
 	Tk_FontMetrics fontMetrics;
 
-	Tk_GetFontMetrics(font, &fontMetrics);
+	Blt_GetFontMetrics(font, &fontMetrics);
 	width = height = fontMetrics.linespace;
     } else {
 	TextStyle ts;
@@ -4391,7 +4391,7 @@ GetCursorLocation(hboxPtr, treePtr)
     ts.shadow.offset = entryPtr->labelShadow.offset;
     textPtr = Blt_GetTextLayout(entryPtr->labelText, &ts);
 
-    Tk_GetFontMetrics(font, &fontMetrics);
+    Blt_GetFontMetrics(font, &fontMetrics);
     maxLines = (textPtr->height / fontMetrics.linespace) - 1;
 
     sum = 0;
@@ -5954,7 +5954,7 @@ ScreenToIndex(hboxPtr, x, y)
     } else if (y >= textPtr->height) {
 	y = textPtr->height - 1;
     }
-    Tk_GetFontMetrics(font, &fontMetrics);
+    Blt_GetFontMetrics(font, &fontMetrics);
     lineNum = y / fontMetrics.linespace;
     fragPtr = textPtr->fragArr + lineNum;
 

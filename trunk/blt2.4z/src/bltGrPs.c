@@ -636,8 +636,6 @@ ComputeBoundingBox(graphPtr, psPtr)
     psPtr->right = x + hSize - 1;
     psPtr->top = y + vSize - 1;
 
-    graphPtr->flags |= LAYOUT_NEEDED | MAP_WORLD;
-    Blt_LayoutGraph(graphPtr);
     return paperHeight;
 }
 
@@ -861,12 +859,14 @@ PostScriptPreamble(graphPtr, fileName, psToken)
 	    "%% Landscape orientation\n0 %g translate\n-90 rotate\n",
 	    ((double)graphPtr->width * psPtr->pageScale));
     }
+#ifdef notdef
     if (psPtr->pageScale != 1.0) {
 	Blt_AppendToPostScript(psToken, "\n% Setting graph scale factor\n",
 	    (char *)NULL);
 	Blt_FormatToPostScript(psToken, " %g %g scale\n", psPtr->pageScale,
 	    psPtr->pageScale);
     }
+#endif
     Blt_AppendToPostScript(psToken, "\n%%EndSetup\n\n", (char *)NULL);
     return TCL_OK;
 }
@@ -973,6 +973,10 @@ GraphToPostScript(graphPtr, ident, psToken)
     graphPtr->width = (int)((Tk_Width(graphPtr->tkwin) * xPixelsToPica) + 0.5);
     graphPtr->height=(int)((Tk_Height(graphPtr->tkwin) * yPixelsToPica) + 0.5);
 
+    Blt_UsePostScriptWidths(psToken, TRUE);
+    Blt_ConfigureGraph(graphPtr);
+    Blt_LayoutGraph(graphPtr);
+
     result = PostScriptPreamble(graphPtr, ident, psToken);
     if (result != TCL_OK) {
 	goto error;
@@ -1035,6 +1039,9 @@ GraphToPostScript(graphPtr, ident, psToken)
      * Redraw the graph in order to re-calculate the layout as soon as
      * possible. This is in the case the crosshairs are active.
      */
+    Blt_UsePostScriptWidths(psToken, FALSE);
+    Blt_ConfigureGraph(graphPtr);
+    Blt_LayoutGraph(graphPtr);
     Blt_EventuallyRedrawGraph(graphPtr);
     return result;
 }
@@ -1169,6 +1176,7 @@ CreateWindowsEPS(
     graphPtr->height=(int)((Tk_Height(graphPtr->tkwin) * yPixelsToPica) + 0.5);
 
     graphPtr->flags |= RESET_WORLD;
+    Blt_ConfigureGraph(graphPtr);
     Blt_LayoutGraph(graphPtr);
     Blt_DrawGraph(graphPtr, (Drawable)&drawableDC, FALSE);
     GdiFlush();

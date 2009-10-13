@@ -28,7 +28,7 @@
 #if (TK_MAJOR_VERSION == 4)
 
 /*
- * The following structure is used by Tk_GetFontMetrics() to return
+ * The following structure is used by Blt_GetFontMetrics() to return
  * information about the properties of a Tk_Font.
  */
 typedef struct {

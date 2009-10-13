@@ -465,7 +465,7 @@ PointerToIndex(tbPtr, x, y)
      * FIXME: This assumes that segments are distributed 
      *	     line-by-line.  This may change in the future.
      */
-    Tk_GetFontMetrics(tbPtr->font, &fontMetrics);
+    Blt_GetFontMetrics(tbPtr->font, &fontMetrics);
     fragPtr = textPtr->fragArr;
     total = 0;
     for (i = (y / fontMetrics.linespace); i > 0; i--) {
@@ -497,7 +497,7 @@ PointerToIndex(tbPtr, x, y)
 #else
 	    length = 1;
 #endif
-	    charSize = Tk_TextWidth(tbPtr->font, next, length);
+	    charSize = Blt_TextWidth(tbPtr->font, next, length);
 	    fract = ((double)(x - newX) / (double)charSize);
 	    if (ROUND(fract)) {
 		nBytes += length;
@@ -521,7 +521,7 @@ IndexToPointer(tbPtr)
     register int i;
 
     textPtr = tbPtr->textPtr;
-    Tk_GetFontMetrics(tbPtr->font, &fontMetrics);
+    Blt_GetFontMetrics(tbPtr->font, &fontMetrics);
     maxLines = (textPtr->height / fontMetrics.linespace) - 1;
 
     sum = 0;
@@ -534,7 +534,7 @@ IndexToPointer(tbPtr)
 	/* Total the number of bytes on each line.  Include newlines. */
 	nBytes = fragPtr->count + 1;
 	if ((sum + nBytes) > tbPtr->insertPos) {
-	    x += Tk_TextWidth(tbPtr->font, fragPtr->text, 
+	    x += Blt_TextWidth(tbPtr->font, fragPtr->text, 
 		tbPtr->insertPos - sum);
 	    break;
 	}
@@ -1164,7 +1164,7 @@ DisplayTextbox(clientData)
 	x += TreeViewIconWidth(tbPtr->icon) + tbPtr->gap;
     }
     
-    Tk_GetFontMetrics(tbPtr->font, &fontMetrics);
+    Blt_GetFontMetrics(tbPtr->font, &fontMetrics);
     fragPtr = tbPtr->textPtr->fragArr;
     count = 0;
     y = tbPtr->borderWidth;

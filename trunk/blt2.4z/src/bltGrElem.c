@@ -1303,6 +1303,21 @@ Blt_DestroyElements(graphPtr)
 }
 
 void
+Blt_ConfigureElements(graphPtr)
+    Graph *graphPtr;
+{
+    Blt_ChainLink *linkPtr;
+
+    for (linkPtr = Blt_ChainFirstLink(graphPtr->elements.displayList);
+	linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
+	Element *elemPtr;
+
+	elemPtr = Blt_ChainGetValue(linkPtr);
+	(*elemPtr->procsPtr->configProc) (graphPtr, elemPtr);
+    }
+}
+
+void
 Blt_MapElements(graphPtr)
     Graph *graphPtr;
 {

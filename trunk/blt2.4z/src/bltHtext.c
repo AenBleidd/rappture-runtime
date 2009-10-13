@@ -2390,7 +2390,7 @@ ConfigureText(interp, htPtr)
     if (htPtr->nRows > 0) {
 	Tk_FontMetrics fontMetrics;
 
-	Tk_GetFontMetrics(htPtr->font, &fontMetrics);
+	Blt_GetFontMetrics(htPtr->font, &fontMetrics);
 	htPtr->reqHeight = htPtr->nRows * fontMetrics.linespace;
     }
     /*
@@ -2563,7 +2563,7 @@ LayoutLine(htPtr, linePtr)
     Tk_FontMetrics fontMetrics;
 
     /* Initialize line defaults */
-    Tk_GetFontMetrics(htPtr->font, &fontMetrics);
+    Blt_GetFontMetrics(htPtr->font, &fontMetrics);
     maxAscent = fontMetrics.ascent;
     maxDescent = fontMetrics.descent;
     median = fontMetrics.ascent - fontMetrics.descent;
@@ -2821,7 +2821,7 @@ DrawSegment(htPtr, draw, linePtr, x, y, segPtr)
     if (textLength < 1) {
 	return;
     }
-    Tk_GetFontMetrics(htPtr->font, &fontMetrics);
+    Blt_GetFontMetrics(htPtr->font, &fontMetrics);
     if ((segPtr->textEnd < htPtr->selFirst) ||
 	(segPtr->textStart > htPtr->selLast)) {	/* No selected text */
 	Tk_DrawChars(htPtr->display, draw, htPtr->drawGC, htPtr->font,

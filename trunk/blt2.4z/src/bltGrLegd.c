@@ -689,7 +689,7 @@ Blt_MapLegend(legendPtr, plotWidth, plotHeight)
     }
 
 
-    Tk_GetFontMetrics(legendPtr->style.font, &fontMetrics);
+    Blt_GetFontMetrics(legendPtr->style.font, &fontMetrics);
     symbolWidth = 2 * fontMetrics.ascent;
 
     entryWidth += 2 * legendPtr->entryBorderWidth + PADDING(legendPtr->ipadX) +
@@ -816,7 +816,7 @@ Blt_DrawLegend(legendPtr, drawable)
 	width = legendPtr->width;
 	height = legendPtr->height;
     }
-    Tk_GetFontMetrics(legendPtr->style.font, &fontMetrics);
+    Blt_GetFontMetrics(legendPtr->style.font, &fontMetrics);
 
     symbolSize = fontMetrics.ascent;
     midX = symbolSize + 1 + legendPtr->entryBorderWidth;
@@ -965,7 +965,7 @@ Blt_LegendToPostScript(legendPtr, psToken)
     x += legendPtr->borderWidth;
     y += legendPtr->borderWidth;
 
-    Tk_GetFontMetrics(legendPtr->style.font, &fontMetrics);
+    Blt_GetFontMetrics(legendPtr->style.font, &fontMetrics);
     symbolSize = fontMetrics.ascent;
     midX = symbolSize + 1 + legendPtr->entryBorderWidth;
     midY = (symbolSize / 2) + 1 + legendPtr->entryBorderWidth;
@@ -1049,7 +1049,7 @@ DisplayLegend(clientData)
 /*
  *----------------------------------------------------------------------
  *
- * ConfigureLegend --
+ * Blt_ConfigureLegend --
  *
  * 	Routine to configure the legend.
  *
@@ -1061,11 +1061,13 @@ DisplayLegend(clientData)
  *
  *----------------------------------------------------------------------
  */
-static void
-ConfigureLegend(graphPtr, legendPtr)
+void
+Blt_ConfigureLegend(graphPtr)
     Graph *graphPtr;
-    Legend *legendPtr;
 {
+    Legend *legendPtr;
+
+    legendPtr = graphPtr->legend;
     Blt_ResetTextStyle(graphPtr->tkwin, &(legendPtr->style));
 
     if (legendPtr->site == LEGEND_WINDOW) {
@@ -1187,7 +1189,7 @@ Blt_CreateLegend(graphPtr)
 	    (char *)legendPtr, 0) != TCL_OK) {
 	return TCL_ERROR;
     }
-    ConfigureLegend(graphPtr, legendPtr);
+    Blt_ConfigureLegend(graphPtr);
     return TCL_OK;
 }
 
@@ -1377,7 +1379,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
 	    argv + 3, (char *)legendPtr, flags) != TCL_OK) {
 	return TCL_ERROR;
     }
-    ConfigureLegend(graphPtr, legendPtr);
+    Blt_ConfigureLegend(graphPtr);
     return TCL_OK;
 }
 
@@ -1478,7 +1480,7 @@ IconOp(graphPtr, interp, argc, argv)
 	    " exist or is not a photo image", (char *)NULL);
 	return TCL_ERROR;
     }
-    Tk_GetFontMetrics(legendPtr->style.font, &fontMetrics);
+    Blt_GetFontMetrics(legendPtr->style.font, &fontMetrics);
     s = fontMetrics.ascent;
     h = s + PADDING(legendPtr->ipadY) + 1;
     w = s + s + 1 + PADDING(legendPtr->ipadX);

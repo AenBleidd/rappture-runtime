@@ -2152,6 +2152,18 @@ DrawPlotRegion(graphPtr, drawable)
 }
 
 void
+Blt_ConfigureGraph(graphPtr)
+    Graph *graphPtr;
+{
+    ConfigureGraph(graphPtr);
+    Blt_ConfigureMargins(graphPtr);
+    Blt_ConfigureLegend(graphPtr);
+    Blt_ConfigureElements(graphPtr);
+    Blt_ConfigureGrid(graphPtr);
+    Blt_ConfigureMarkers(graphPtr);
+}
+
+void
 Blt_LayoutGraph(graphPtr)
     Graph *graphPtr;
 {

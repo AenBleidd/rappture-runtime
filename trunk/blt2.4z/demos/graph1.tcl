@@ -93,9 +93,9 @@ table configure . c3 r0 r4 r5 -resize none
 
 .g postscript configure \
     -center yes \
-    -maxpect yes \
+    -maxpect no \
     -landscape no \
-    -preview yes
+    -preview no
 
 .g axis configure x \
     -scrollcommand { .xbar set } \
@@ -131,7 +131,8 @@ table configure . c3 r0 r4 r5 -resize none
     set axis [%W axis get current]
     %W axis configure $axis -background "" 
 }
-.g configure -leftvariable left 
+.g configure -leftvariable left \
+    -font -*-helvetica-bold-r-*-*-24-*-*-*-*-*-*-* 
 trace variable left w "UpdateTable .g"
 proc UpdateTable { graph p1 p2 how } {
     table configure . c0 -width [$graph extents leftmargin]

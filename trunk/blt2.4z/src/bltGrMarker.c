@@ -4839,6 +4839,21 @@ Blt_MarkersToPostScript(graphPtr, psToken, under)
     }
 }
 
+void
+Blt_ConfigureMarkers(graphPtr)
+    Graph *graphPtr;
+{
+    Blt_ChainLink *linkPtr;
+
+    for (linkPtr = Blt_ChainFirstLink(graphPtr->markers.displayList);
+	linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
+	Marker *markerPtr;
+
+	markerPtr = Blt_ChainGetValue(linkPtr);
+	(*markerPtr->classPtr->configProc) (markerPtr);
+    }
+}
+
 /*
  * -------------------------------------------------------------------------
  *
