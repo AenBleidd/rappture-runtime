@@ -1402,7 +1402,7 @@ GetAdobeFontMetrics(Tcl_Interp *interp, const char *psFontName)
 	}
 	Tcl_DStringInit(&ds);
 	Tcl_DStringAppend(&ds, path, -1);
-	Tcl_DStringAppend(&ds, "/AFM/", 5);
+	Tcl_DStringAppend(&ds, "/afm/", 5);
 	Tcl_DStringAppend(&ds, psFontName, -1);
 	Tcl_DStringAppend(&ds, ".afm", 4);
 	afmPtr = ParseAdobeFontMetricsFile(interp, Tcl_DStringValue(&ds));

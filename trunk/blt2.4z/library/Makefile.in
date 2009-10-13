@@ -14,7 +14,7 @@ scriptdir    = @BLT_LIBRARY@
 
 INSTALL      = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
-INSTALL_ROOT = 
+DESTDIR	     = 
 RM           = rm -f
 SHELL        = /bin/sh
 
@@ -40,8 +40,51 @@ ddFiles      =  dd-color.tcl \
 		dd-text.tcl \
 		tclIndex
 
+afmFiles      = \
+		AvantGarde-Book.afm \
+		AvantGarde-BookOblique.afm \
+		AvantGarde-Demi.afm \
+		AvantGarde-DemiOblique.afm \
+		Bookman-Demi.afm \
+		Bookman-DemiItalic.afm \
+		Bookman-Light.afm \
+		Bookman-LightItalic.afm \
+		Courier-Bold.afm \
+		Courier-BoldOblique.afm \
+		Courier-Oblique.afm \
+		Courier.afm \
+		Helvetica-Bold.afm \
+		Helvetica-BoldOblique.afm \
+		Helvetica-Condensed-Bold.afm \
+		Helvetica-Condensed-BoldObl.afm \
+		Helvetica-Condensed-Oblique.afm \
+		Helvetica-Condensed.afm \
+		Helvetica-Narrow-Bold.afm \
+		Helvetica-Narrow-Oblique.afm \
+		Helvetica-Narrow.afm \
+		Helvetica-Oblique.afm \
+		Helvetica.afm \
+		NewCenturySchlbk-Bold.afm \
+		NewCenturySchlbk-BoldItalic.afm \
+		NewCenturySchlbk-Italic.afm \
+		NewCenturySchlbk-Roman.afm \
+		Palatino-Bold.afm \
+		Palatino-BoldItalic.afm \
+		Palatino-Italic.afm \
+		Palatino-Roman.afm \
+		Symbol.afm \
+		Times-Bold.afm \
+		Times-BoldItalic.afm \
+		Times-Italic.afm \
+		Times-Roman.afm \
+		ZapfChancery-MediumItalic.afm \
+		ZapfDingbats.afm
+
 instdirs     =  $(prefix) $(exec_prefix) \
-		$(libdir) $(prefix)/lib $(scriptdir) $(scriptdir)/dd_protocols
+		$(libdir) $(prefix)/lib \
+		$(scriptdir) \
+		$(scriptdir)/dd_protocols \
+		$(scriptdir)/afm 
 
 all: pkgIndex
 
@@ -55,20 +98,23 @@ pkgIndex:
 install: mkdirs pkgIndex
 	for i in $(ddFiles) ; do \
 	    $(INSTALL_DATA) $(srcdir)/dd_protocols/$$i \
-			$(INSTALL_ROOT)$(scriptdir)/dd_protocols ; \
+			$(DESTDIR)$(scriptdir)/dd_protocols ; \
 	done 
 	for i in $(miscFiles) ; do \
-	    $(INSTALL_DATA) $(srcdir)/$$i $(INSTALL_ROOT)$(scriptdir) ; \
+	    $(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(scriptdir) ; \
+	done 
+	for i in $(afmFiles) ; do \
+	    $(INSTALL_DATA) $(srcdir)/AFM/$$i $(DESTDIR)$(scriptdir)/afm; \
 	done 
 	$(INSTALL_DATA) pkgIndex.tcl $(scriptdir)
 
 mkdirs:
 	@for i in $(instdirs) ; do \
-          if test -d $(INSTALL_ROOT)$$i ; then \
+          if test -d $(DESTDIR)$$i ; then \
             : ; \
           else \
-            echo " mkdir $(INSTALL_ROOT)$$i" ; \
-            mkdir $(INSTALL_ROOT)$$i ; \
+            echo " mkdir $(DESTDIR)$$i" ; \
+            mkdir $(DESTDIR)$$i ; \
           fi ; \
         done
 
