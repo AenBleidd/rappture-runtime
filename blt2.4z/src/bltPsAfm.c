@@ -315,6 +315,7 @@ typedef struct {
 } TrackKern;
 
 typedef struct {
+    const char *afmVersion;
     const char *familyName;
     const char *fontName;
     const char *fullName;
@@ -352,7 +353,6 @@ typedef struct {
     TrackKern *trackKern;
 
     KernPairs *kernPairs;
-    CharMetrics dummy[2];
     CharMetrics metrics[256];
     Blt_HashTable metricsTable;
     Blt_HashTable kernPairsTable;
@@ -405,6 +405,7 @@ ParserError TCL_VARARGS_DEF(Parser *, arg1)
     Tcl_DStringAppend(&parserPtr->errors, Blt_Itoa(parserPtr->lineNumber), -1);
     Tcl_DStringAppend(&parserPtr->errors, ": ", 2);
     Tcl_DStringAppend(&parserPtr->errors, string, -1);
+    Tcl_DStringAppend(&parserPtr->errors, "\n", -1);
     va_end(args);
     longjmp(parserPtr->jmpbuf, 0);
 }
@@ -481,6 +482,61 @@ GetLine(Parser *parserPtr)
     return TCL_RETURN;
 }
 
+static void 
+SplitLine(Parser *parserPtr, const char *line)
+{
+    const char *p;
+    int count;
+    size_t strSize, addrSize;
+
+    if (parserPtr->argv != NULL) {
+	Blt_Free((char *)parserPtr->argv);
+	parserPtr->argv = NULL;
+	parserPtr->argc = 0;
+    }
+    /* Count the # of arguments to determine what size array to allocate. */
+    count = 0;
+    p = line;
+    while (*p != '\0') {
+	while (isspace(*p)) p++;	/* Skip whitespace. */
+	if (*p == '\0') {
+	    break;
+	}
+	while (!isspace(*p) && (*p != '\0')) p++;  /* Skip the word itself. */
+	count++;
+    }
+    if (count == 0) {
+	return;				/* No arguments. */
+    }
+    addrSize = sizeof(char **) * (count + 1);
+    strSize = p - line + 1;
+    {
+	char *buffer, *p;
+	const char **array;
+
+	buffer = Blt_Malloc(addrSize + strSize);
+	assert(buffer);
+	p = buffer + addrSize;
+	strcpy(p, line);		/* Copy the string into the buffer. */
+	array = (const char **)buffer;
+	count = 0;
+	while (*p != '\0') {
+	    while (isspace(*p)) {
+		*p++ = '\0';	/* Convert whitespace to NULs. */
+	    }
+	    if (*p == '\0') {
+		break;
+	    }
+	    array[count] = p;
+	    while (!isspace(*p) && (*p != '\0')) p++;  
+	    count++;
+	}
+	array[count] = NULL;
+	parserPtr->argv = array;
+	parserPtr->argc = count;
+    }
+}
+
 static int 
 SplitNextLine(Parser *parserPtr)
 {
@@ -493,11 +549,7 @@ SplitNextLine(Parser *parserPtr)
     }
     result = GetLine(parserPtr);
     if (result == TCL_OK) {
-	if (Tcl_SplitList(NULL, Tcl_DStringValue(&parserPtr->lastLine), 
-			  &parserPtr->argc, &parserPtr->argv) != TCL_OK) {
-	    ParserError(parserPtr, "can't split command \"%s\"\n",
-			Tcl_DStringValue(&parserPtr->lastLine));
-	}
+	SplitLine(parserPtr, Tcl_DStringValue(&parserPtr->lastLine));
 	return TCL_OK;
     }
     return result;
@@ -557,13 +609,16 @@ ParseLine(Parser *parserPtr, ParserSpec *specs, int nSpecs,
     if ((specPtr->nArgs > 0) && (specPtr->nArgs != parserPtr->argc)) {
 	ParserError(parserPtr, "wrong # arguments for \"%s\"", specPtr->key);
     }
+    if (specPtr->proc == NULL) {
+	return TCL_OK;
+    }
     return (*specPtr->proc)(parserPtr, clientData, specPtr->offset);
 }
 
 static int 
 ParseEndSection(Parser *parserPtr, char *record, int offset)
 {
-    return TCL_CONTINUE;
+    return TCL_CONTINUE;		/* Indicates end of section. */
 }
 
 static long
@@ -620,13 +675,15 @@ BuildKernPairsTable(AdobeFontMetrics *afmPtr)
 {
     KernPairs *kp, *kend;
 
-    Blt_InitHashTable(&afmPtr->kernPairsTable, sizeof(KernPairsKey));
+    Blt_InitHashTable(&afmPtr->kernPairsTable, 
+		      sizeof(KernPairsKey) / sizeof(int));
     for (kp = afmPtr->kernPairs, kend = kp + afmPtr->nKernPairs; kp < kend; 
 	 kp++) {
 	KernPairsKey key;
 	Blt_HashEntry *hPtr;
 	int isNew;
 	
+	memset(&key, 0, sizeof(key));
 	key.first = kp->first;
 	key.second = kp->second;
 	hPtr = Blt_CreateHashEntry(&afmPtr->kernPairsTable, (char *)&key, 
@@ -687,15 +744,30 @@ NewLigature(Parser *parserPtr, int first, int second)
 }
 
 static Parser *
-NewParser(AdobeFontMetrics *afmPtr, Tcl_Channel channel)
+NewParser(AdobeFontMetrics *afmPtr, const char *fileName)
 {
     Parser *parserPtr;
+    Tcl_Channel channel;
 
+    channel = Tcl_OpenFileChannel(NULL, fileName, "r", 0);
+    if (channel == NULL) {
+	fprintf(stderr, "can't open %s\n", fileName);
+	return NULL;
+    }
+    if ((Tcl_SetChannelOption(NULL, channel, "-translation","auto")!=TCL_OK)||
+	(Tcl_SetChannelOption(NULL, channel, "-eofchar", "\x1a") != TCL_OK)) {
+	return NULL;
+    }
     parserPtr = Blt_Calloc(1, sizeof(Parser));
     assert(parserPtr);
     parserPtr->channel = channel;
     parserPtr->afmPtr = afmPtr;
     InitSymbolTable(afmPtr);
+    Tcl_DStringInit(&parserPtr->errors);
+    Tcl_DStringAppend(&parserPtr->errors, "error reading \"", -1);
+    Tcl_DStringAppend(&parserPtr->errors, fileName, -1);
+    Tcl_DStringAppend(&parserPtr->errors, "\": ", -1);
+    Tcl_DStringInit(&parserPtr->lastLine);
     return parserPtr;
 }
 
@@ -708,11 +780,27 @@ DestroyParser(Parser *parserPtr)
     Tcl_Close(NULL, parserPtr->channel);
     Tcl_DStringFree(&parserPtr->errors);
     Tcl_DStringFree(&parserPtr->lastLine);
+    Blt_Free(parserPtr);
 }
 
 static void
 DestroyAdobeFontMetrics(AdobeFontMetrics *afmPtr)
 {
+    if (afmPtr->afmVersion != NULL) {
+	Blt_Free((char *)afmPtr->afmVersion);
+    }
+    if (afmPtr->characterSet != NULL) {
+	Blt_Free((char *)afmPtr->characterSet);
+    }
+    if (afmPtr->comment != NULL) {
+	Blt_Free((char *)afmPtr->comment);
+    }
+    if (afmPtr->copyright != NULL) {
+	Blt_Free((char *)afmPtr->copyright);
+    }
+    if (afmPtr->encodingScheme != NULL) {
+	Blt_Free((char *)afmPtr->encodingScheme);
+    }
     if (afmPtr->familyName != NULL) {
 	Blt_Free((char *)afmPtr->familyName);
     }
@@ -722,26 +810,27 @@ DestroyAdobeFontMetrics(AdobeFontMetrics *afmPtr)
     if (afmPtr->fullName != NULL) {
 	Blt_Free((char *)afmPtr->fullName);
     }
-    if (afmPtr->weight != NULL) {
-	Blt_Free((char *)afmPtr->weight);
-    }
-    if (afmPtr->comment != NULL) {
-	Blt_Free((char *)afmPtr->comment);
-    }
-    if (afmPtr->characterSet != NULL) {
-	Blt_Free((char *)afmPtr->characterSet);
+    if (afmPtr->notice != NULL) {
+	Blt_Free((char *)afmPtr->notice);
     }
     if (afmPtr->version != NULL) {
 	Blt_Free((char *)afmPtr->version);
     }
-    if (afmPtr->notice != NULL) {
-	Blt_Free((char *)afmPtr->notice);
-    }
-    if (afmPtr->encodingScheme != NULL) {
-	Blt_Free((char *)afmPtr->encodingScheme);
+    if (afmPtr->weight != NULL) {
+	Blt_Free((char *)afmPtr->weight);
     }
     if (afmPtr->hashPtr != NULL) {
 	Blt_DeleteHashEntry(&fontTable, afmPtr->hashPtr);
+    }
+    Blt_DeleteHashTable(&afmPtr->kernPairsTable);
+    Blt_DeleteHashTable(&afmPtr->metricsTable);
+    Blt_DeleteHashTable(&afmPtr->symbolTable);
+    Blt_DeleteHashTable(&afmPtr->ligatureTable);
+    if (afmPtr->kernPairs != NULL) {
+	Blt_Free(afmPtr->kernPairs);
+    }
+    if (afmPtr->trackKern != NULL) {
+	Blt_Free(afmPtr->trackKern);
     }
     Blt_Free((char *)afmPtr);
 }
@@ -793,7 +882,7 @@ ParsePoint(Parser *parserPtr, char *record, int offset)
 {
     Point *pointPtr = (Point *)(record + offset);
 
-   if ((GetNumber(parserPtr, parserPtr->argv[1], &pointPtr->x) != TCL_OK) ||
+    if ((GetNumber(parserPtr, parserPtr->argv[1], &pointPtr->x) != TCL_OK) ||
 	(GetNumber(parserPtr, parserPtr->argv[2], &pointPtr->y) != TCL_OK)) {
 	return TCL_ERROR;
     }
@@ -819,6 +908,10 @@ ParseString(Parser *parserPtr, char *record, int offset)
 {
     char **args = (char **)(record + offset);
 
+    if (*args != NULL) {
+	Blt_Free(*args);
+	*args = NULL;
+    }
     *args = Tcl_Merge(parserPtr->argc - 1 , parserPtr->argv + 1);
     if (*args == NULL) {
 	ParserError(parserPtr, "can't merge \"%s\" string.", 
@@ -854,11 +947,8 @@ ParseStartComposites(Parser *parserPtr, char *record, int offset)
     n++;
     *valuePtr = n;
     for (;;) {
-	int result;
-
-	result = SplitNextLine(parserPtr);
-	if (result == TCL_RETURN) {
-	    ParserError(parserPtr, "unexpected EOF in Composites");
+	if (SplitNextLine(parserPtr) == TCL_RETURN) {
+	    ParserError(parserPtr, "unexpected EOF in StartComposites");
 	}
 	if (strcmp(parserPtr->argv[0], "EndComposites") == 0) {
 	    return TCL_OK;
@@ -893,16 +983,12 @@ ParseStartDirection(Parser *parserPtr, char *record, int offset)
 	ParserError(parserPtr, "can't convert \"%s\" to integer.", 
 		    parserPtr->argv[1]);
     }
-    for (;;) {
-	result = SplitNextLine(parserPtr);
-	if (result == TCL_RETURN) {
+    do {
+	if (SplitNextLine(parserPtr) == TCL_RETURN) {
 	    ParserError(parserPtr, "unexpected EOF in StartDirection");
 	}
 	result = ParseLine(parserPtr, directionSpecs, nDirectionSpecs, afmPtr);
-	if (result != TCL_OK) {
-	    break;
-	}
-    }
+    } while (result == TCL_OK);
     if (result == TCL_CONTINUE) {
 	return TCL_OK;			/* Found EndKernPairs */
     }
@@ -949,17 +1035,13 @@ ParseStartTrackKern(Parser *parserPtr, char *record, int offset)
     afmPtr->trackKern = Blt_Calloc(n, sizeof(TrackKern));
     assert(afmPtr->trackKern);
     tp = afmPtr->trackKern;
-    for (;;) {
-	result = SplitNextLine(parserPtr);
-	if (result == TCL_RETURN) {
-	    ParserError(parserPtr, "unexpected EOF in TrackKern");
+    do {
+	if (SplitNextLine(parserPtr) == TCL_RETURN) {
+	    ParserError(parserPtr, "unexpected EOF in StartTrackKern");
 	}
 	result = ParseLine(parserPtr, trackKernSpecs, nTrackKernSpecs, tp);
 	tp++;
-	if (result != TCL_OK) {
-	    break;
-	}
-    }
+    } while (result == TCL_OK);
     if (result == TCL_CONTINUE) {
 	assert((tp - afmPtr->trackKern) == n);
 	return TCL_OK;			/* Found EndTrackKern */
@@ -1055,17 +1137,13 @@ ParseStartKernPairs(Parser *parserPtr, char *record, int offset)
     afmPtr->kernPairs = Blt_Calloc(n, sizeof(KernPairs));
     assert(afmPtr->kernPairs);
     kp = afmPtr->kernPairs;
-    for (;;) {
-	result = SplitNextLine(parserPtr);
-	if (result == TCL_RETURN) {
-	    ParserError(parserPtr, "unexpected EOF in KernPairs");
+    do {
+	if (SplitNextLine(parserPtr) == TCL_RETURN) {
+	    ParserError(parserPtr, "unexpected EOF in StartKernPairs");
 	}
 	result = ParseLine(parserPtr, kernPairsSpecs, nKernPairsSpecs, kp);
 	kp++;
-	if (result != TCL_OK) {
-	    break;
-	}
-    }
+    } while (result == TCL_OK);
     if (result == TCL_CONTINUE) {
 	assert((kp - afmPtr->kernPairs) == *valuePtr);
 	return TCL_OK;			/* Found EndKernPairs */
@@ -1089,16 +1167,12 @@ ParseStartKernData(Parser *parserPtr, char *record, int offset)
     AdobeFontMetrics *afmPtr = (AdobeFontMetrics *)record;
     int result;
 
-    for (;;) {
-	result = SplitNextLine(parserPtr);
-	if (result == TCL_RETURN) {
-	    ParserError(parserPtr, "unexpected EOF in KernPairs");
+    do {
+	if (SplitNextLine(parserPtr) == TCL_RETURN) {
+	    ParserError(parserPtr, "unexpected EOF in StartKernPairs");
 	}
 	result = ParseLine(parserPtr, kernDataSpecs, nKernDataSpecs, afmPtr);
-	if (result != TCL_OK) {
-	    break;
-	}
-    }
+    } while (result == TCL_OK);
     if (result == TCL_CONTINUE) {
 	return TCL_OK;			/* Found EndKernData */
     }
@@ -1146,7 +1220,6 @@ ParseStartCharMetrics(Parser *parserPtr, char *record, int offset)
 {
     AdobeFontMetrics *afmPtr = (AdobeFontMetrics *)record;
     int *valuePtr = (int *)(record + offset);
-    Tcl_DString ds;
     int count;
     int i;
 
@@ -1157,7 +1230,6 @@ ParseStartCharMetrics(Parser *parserPtr, char *record, int offset)
     }
     i++;
     *valuePtr = i;
-    Tcl_DStringInit(&ds);
     for(i = 0; i < 256; i++) {
 	afmPtr->metrics[i].index = -1;
     }
@@ -1172,17 +1244,9 @@ ParseStartCharMetrics(Parser *parserPtr, char *record, int offset)
 	    ParserError(parserPtr, "unexpected EOF in StartCharMetrics");
 	}
 	memset(&cm, 0, sizeof(CharMetrics));
-	for(p = strtok(Tcl_DStringValue(&parserPtr->lastLine), ";"); p != NULL; 
-	    p = strtok(NULL, ";")) {
-	    if (parserPtr->argv != NULL) {
-		Blt_Free(parserPtr->argv);
-		parserPtr->argv = NULL;
-		parserPtr->argc = 0;
-	    }
-	    if (Tcl_SplitList(NULL, p, &parserPtr->argc, &parserPtr->argv) 
-		!= TCL_OK) {
-		ParserError(parserPtr, "can't split command");
-	    }
+	for (p = strtok(Tcl_DStringValue(&parserPtr->lastLine), ";"); 
+	     p != NULL; p = strtok(NULL, ";")) {
+	    SplitLine(parserPtr, p);
 	    if (parserPtr->argc == 0) {
 		continue;
 	    }
@@ -1216,8 +1280,8 @@ static ParserSpec fontMetricsSpecs[] = {
     { "CharWidth",	    3, ParsePoint,	      FM(charWidth)	     },
     { "CharacterSet",	    0, ParseString,	      FM(characterSet)       },
     { "Characters",	    2, ParseInt,	      FM(characters)	     },
-    { "Comment",	    0, ParseString,	      FM(comment)	     },
-    { "Copyright",	    0, ParseString,	      FM(copyright)	     },
+    { "Comment",	    0, NULL,		      FM(comment)	     },
+    { "Copyright",	    0, NULL,		      FM(copyright)	     },
     { "Descender",	    2, ParseNumber,	      FM(descender)	     },
     { "EncodingScheme",	    0, ParseString,	      FM(encodingScheme)     },
     { "EndFontMetrics",	    1, ParseEndSection,	      0		             },
@@ -1233,7 +1297,7 @@ static ParserSpec fontMetricsSpecs[] = {
     { "ItalicAngle",	    2, ParseNumber,	      FM(italicAngle)        },
     { "MappingScheme",	    2, ParseInt,	      FM(mappingScheme)      },
     { "MetricSets",	    2, ParseInt,	      FM(metricSets)         },
-    { "Notice",		    0, ParseString,           FM(notice)	     },
+    { "Notice",		    0, NULL,		      FM(notice)	     },
     { "StartCharMetrics",   2, ParseStartCharMetrics, FM(nCharMetrics)       },
     { "StartComposites",    2, ParseStartComposites,  FM(nComposites)        },
     { "StartDirection",	    2, ParseStartDirection,   FM(nDirection)         },
@@ -1258,17 +1322,13 @@ ParseStartFontMetrics(Parser *parserPtr, char *record, int offset)
 
     assert(*versionPtr == NULL);
     *versionPtr = Blt_Strdup(parserPtr->argv[1]);
-    for (;;) {
-	result = SplitNextLine(parserPtr);
-	if (result == TCL_RETURN) {
+    do {
+	if (SplitNextLine(parserPtr) == TCL_RETURN) {
 	    ParserError(parserPtr, "unexpected EOF in StartFontMetrics");
 	}
 	result = ParseLine(parserPtr, fontMetricsSpecs, nFontMetricsSpecs,
 			   afmPtr);
-	if (result != TCL_OK) {
-	    break;
-	}
-    }
+    } while (result == TCL_OK);
     if (result == TCL_CONTINUE) {
 	return TCL_OK;			/* Found EndFontMetrics */
     }
@@ -1276,13 +1336,12 @@ ParseStartFontMetrics(Parser *parserPtr, char *record, int offset)
 }
 
 static ParserSpec afmSpecs[] = {
-    { "StartFontMetrics", 2, ParseStartFontMetrics, 0  },
+    { "StartFontMetrics", 2, ParseStartFontMetrics, FM(afmVersion)  },
 };
 static int nAfmSpecs = sizeof(afmSpecs) / sizeof(ParserSpec);
 
 static AdobeFontMetrics *
-ParseAdobeFontMetrics(Tcl_Interp *interp, const char *fileName, 
-		      Tcl_Channel channel)
+ParseAdobeFontMetricsFile(Tcl_Interp *interp, const char *fileName)
 {
     AdobeFontMetrics *afmPtr;
     Parser *parserPtr;
@@ -1290,11 +1349,11 @@ ParseAdobeFontMetrics(Tcl_Interp *interp, const char *fileName,
 
     afmPtr = Blt_Calloc(1, sizeof(AdobeFontMetrics));
     assert(afmPtr);
-    parserPtr = NewParser(afmPtr, channel);
-    Tcl_DStringInit(&parserPtr->errors);
-    Tcl_DStringAppend(&parserPtr->errors, "error reading \"", -1);
-    Tcl_DStringAppend(&parserPtr->errors, fileName, -1);
-    Tcl_DStringAppend(&parserPtr->errors, "\": ", -1);
+    parserPtr = NewParser(afmPtr, fileName);
+    if (parserPtr == NULL) {
+	Blt_Free(afmPtr);
+	return NULL;
+    }
     if (setjmp(parserPtr->jmpbuf)) {
 	fprintf(stderr, "%s\n", Tcl_DStringValue(&parserPtr->errors));
 	DestroyParser(parserPtr);
@@ -1317,22 +1376,6 @@ ParseAdobeFontMetrics(Tcl_Interp *interp, const char *fileName,
     return afmPtr;
 }
 
-
-static AdobeFontMetrics *
-ParseAdobeFontMetricsFile(Tcl_Interp *interp, const char *fileName)
-{
-    Tcl_Channel channel;
-
-    channel = Tcl_OpenFileChannel(interp, fileName, "r", 0);
-    if (channel == NULL) {
-	return NULL;
-    }
-    if ((Tcl_SetChannelOption(interp, channel, "-translation","auto")!=TCL_OK)||
-	(Tcl_SetChannelOption(interp, channel, "-eofchar", "\x1a") != TCL_OK)) {
-	return NULL;
-    }
-    return ParseAdobeFontMetrics(interp, fileName, channel);
-}
 
 static AdobeFontMetrics *
 GetAdobeFontMetrics(Tcl_Interp *interp, const char *psFontName) 
@@ -1384,8 +1427,7 @@ GetAdobeFontMetricsFromFont(Tcl_Interp *interp, Tk_Font font)
     double pointSize;
 
     Tcl_DStringInit(&ds);
-    pointSize = (double)Blt_PostscriptFontName(font, &ds);
-    fprintf(stderr, "Lookup for %s\n", Tcl_DStringValue(&ds));
+    pointSize = Blt_PostScriptFontName(interp, font, &ds);
     afmPtr = GetAdobeFontMetrics(interp, Tcl_DStringValue(&ds));
     Tcl_DStringFree(&ds);
     if (afmPtr != NULL) {
@@ -1421,8 +1463,6 @@ StringWidth(Tk_Font font, const char *string, int nBytes)
 	if (cmPtr->index < 0) {
 	    continue;			/* Ignore unencoded characters. */
 	}
-	fprintf(stderr, "width=%g, incr=%g, char=%c\n",
-		width, cmPtr->w.x, c);
 	width += cmPtr->w.x;
     }
     {
@@ -1451,6 +1491,29 @@ StringWidth(Tk_Font font, const char *string, int nBytes)
     return (int)round((width * afmPtr->pointSize) / 1000.0);
 }
 
+static int 
+FontMetrics(Tk_Font font, Tk_FontMetrics *fmPtr) 
+{
+    AdobeFontMetrics *afmPtr;
+    Tcl_Interp *interp;
+
+    interp = Blt_GetPostScriptInterp();
+    afmPtr = GetAdobeFontMetricsFromFont(interp, font);
+    if (afmPtr == NULL) {
+	return TCL_ERROR;
+    }
+    fprintf(stderr, "Blt_GetFontMetrics: font=%s, pointSize=%g ascender=%g, descender=%g\n",
+	    Tk_NameOfFont(font), afmPtr->pointSize, afmPtr->ascender, afmPtr->descender);
+    fmPtr->ascent  = (int)round((afmPtr->pointSize * afmPtr->ascender)/1000.0);
+    fmPtr->descent = (int)round((afmPtr->pointSize * -afmPtr->descender)/1000.0);
+    fmPtr->linespace = (int)
+	round((afmPtr->pointSize*(afmPtr->ascender-afmPtr->descender))/1000.0);
+    fprintf(stderr, "Blt_GetFontMetrics: font=%s, ascent=%d, descent=%d linespace=%d\n",
+	    Tk_NameOfFont(font), fmPtr->ascent, fmPtr->descent, 
+	    fmPtr->linespace);
+    return TCL_OK;
+}
+
 int
 Blt_TextWidth(Tk_Font font, char *string, int length)
 {
@@ -1464,3 +1527,15 @@ Blt_TextWidth(Tk_Font font, char *string, int length)
     }
     return Tk_TextWidth(font, string, length);
 }
+
+void
+Blt_GetFontMetrics(Tk_Font font, Tk_FontMetrics *fmPtr)
+{
+    if (Blt_WantPostScriptWidths()) {
+	if (FontMetrics(font, fmPtr) == TCL_OK) {
+	    return;
+	}
+    }
+    return Tk_GetFontMetrics(font, fmPtr);
+}
+

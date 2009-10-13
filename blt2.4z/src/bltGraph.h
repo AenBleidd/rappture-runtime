@@ -656,6 +656,12 @@ extern Marker *Blt_NearestMarker _ANSI_ARGS_((Graph *graphPtr, int x, int y,
 	int under));
 extern Axis *Blt_NearestAxis _ANSI_ARGS_((Graph *graphPtr, int x, int y));
 
+extern void Blt_ConfigureGraph _ANSI_ARGS_((Graph *graphPtr));
+extern void Blt_ConfigureElements _ANSI_ARGS_((Graph *graphPtr));
+extern void Blt_ConfigureGrid _ANSI_ARGS_((Graph *graphPtr));
+extern void Blt_ConfigureLegend _ANSI_ARGS_((Graph *graphPtr));
+extern void Blt_ConfigureMarkers _ANSI_ARGS_((Graph *graphPtr));
+extern void Blt_ConfigureMargins _ANSI_ARGS_((Graph *graphPtr));
 
 typedef ClientData (MakeTagProc) _ANSI_ARGS_((Graph *graphPtr, char *tagName));
 extern MakeTagProc Blt_MakeElementTag;

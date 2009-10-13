@@ -2676,7 +2676,7 @@ GetEntryExtents(TreeView *tvPtr, TreeViewEntry *entryPtr)
 	    entryPtr->textPtr = NULL;
 	}
 	
-	Tk_GetFontMetrics(font, &fontMetrics);
+	Blt_GetFontMetrics(font, &fontMetrics);
 	entryPtr->lineHeight = fontMetrics.linespace;
 	entryPtr->lineHeight += 2 * (FOCUS_WIDTH + LABEL_PADY + 
 				    tvPtr->selBorderWidth) + tvPtr->leader;

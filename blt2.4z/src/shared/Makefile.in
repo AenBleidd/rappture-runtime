@@ -97,6 +97,7 @@ OBJS =		$(GRAPH_OBJS) \
 		bltImage.o \
 		bltUnixImage.o \
 		bltPs.o \
+		bltPsAfm.o \
 		bltTable.o \
 		bltTabnotebook.o \
 		bltTabset.o \
@@ -269,6 +270,8 @@ bltParse.o: 	$(srcdir)/bltParse.c
 bltPool.o: 	$(srcdir)/bltPool.c
 	$(CC) -c $(CC_SWITCHES) $?
 bltPs.o: 	$(srcdir)/bltPs.c
+	$(CC) -c $(CC_SWITCHES) $?
+bltPsAfm.o: 	$(srcdir)/bltPsAfm.c
 	$(CC) -c $(CC_SWITCHES) $?
 bltSpline.o: 	$(srcdir)/bltSpline.c
 	$(CC) -c $(CC_SWITCHES) $?

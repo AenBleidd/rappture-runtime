@@ -88,7 +88,7 @@ Blt_GetTextLayout(string, tsPtr)
     register int i;
     Tk_FontMetrics fontMetrics;
 
-    Tk_GetFontMetrics(tsPtr->font, &fontMetrics);
+    Blt_GetFontMetrics(tsPtr->font, &fontMetrics);
     lineHeight = fontMetrics.linespace + 
 	tsPtr->leader + tsPtr->shadow.offset;
     nFrags = 0;
@@ -110,7 +110,7 @@ Blt_GetTextLayout(string, tsPtr)
     for (p = string; *p != '\0'; p++) {
 	if (*p == '\n') {
 	    if (count > 0) {
-		width = Tk_TextWidth(tsPtr->font, string, count) +
+		width = Blt_TextWidth(tsPtr->font, string, count) +
 		    tsPtr->shadow.offset;
 		if (width > maxWidth) {
 		    maxWidth = width;
@@ -130,7 +130,8 @@ Blt_GetTextLayout(string, tsPtr)
 	count++;
     }
     if (nFrags < textPtr->nFrags) {
-	width = Tk_TextWidth(tsPtr->font, string, count) + tsPtr->shadow.offset;
+	width = Blt_TextWidth(tsPtr->font, string, count) + 
+	    tsPtr->shadow.offset;
 	if (width > maxWidth) {
 	    maxWidth = width;
 	}
@@ -192,14 +193,14 @@ Blt_GetTextExtents(tsPtr, string, widthPtr, heightPtr)
     if (string == NULL) {
 	return;			/* NULL string? */
     }
-    Tk_GetFontMetrics(tsPtr->font, &fontMetrics);
+    Blt_GetFontMetrics(tsPtr->font, &fontMetrics);
     lineHeight = fontMetrics.linespace + tsPtr->leader + tsPtr->shadow.offset;
     count = 0;
     width = height = 0;
     for (p = string; *p != '\0'; p++) {
 	if (*p == '\n') {
 	    if (count > 0) {
-		w = Tk_TextWidth(tsPtr->font, string, count) +
+		w = Blt_TextWidth(tsPtr->font, string, count) +
 		    tsPtr->shadow.offset;
 		if (w > width) {
 		    width = w;
@@ -214,7 +215,7 @@ Blt_GetTextExtents(tsPtr, string, widthPtr, heightPtr)
     }
     if ((count > 0) && (*(p - 1) != '\n')) {
 	height += lineHeight;
-	w = Tk_TextWidth(tsPtr->font, string, count) + tsPtr->shadow.offset;
+	w = Blt_TextWidth(tsPtr->font, string, count) + tsPtr->shadow.offset;
 	if (w > width) {
 	    width = w;
 	}

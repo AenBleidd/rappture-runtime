@@ -1698,8 +1698,8 @@ ComputeButtonGeometry(butPtr)
 #endif
 	width = butPtr->textWidth;
 	height = butPtr->textHeight;
-	avgWidth = Tk_TextWidth(butPtr->font, "0", 1);
-	Tk_GetFontMetrics(butPtr->font, &fm);
+	avgWidth = Blt_TextWidth(butPtr->font, "0", 1);
+	Blt_GetFontMetrics(butPtr->font, &fm);
 
 	if (butPtr->width > 0) {
 	    width = butPtr->width * avgWidth;

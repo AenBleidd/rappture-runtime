@@ -83,7 +83,7 @@ static Tk_ConfigSpec configSpecs[] =
 /*
  *----------------------------------------------------------------------
  *
- * ConfigureGrid --
+ * Blt_ConfigureGrid --
  *
  *	Configures attributes of the grid such as line width,
  *	dashes, and position.  The grid are first turned off
@@ -97,11 +97,11 @@ static Tk_ConfigSpec configSpecs[] =
  *
  *----------------------------------------------------------------------
  */
-static void
-ConfigureGrid(graphPtr, gridPtr)
+void
+Blt_ConfigureGrid(graphPtr)
     Graph *graphPtr;
-    Grid *gridPtr;
 {
+    Grid *gridPtr = (Grid *)graphPtr->gridPtr;
     XGCValues gcValues;
     unsigned long gcMask;
     GC newGC;
@@ -299,7 +299,7 @@ Blt_CreateGrid(graphPtr)
 	    Blt_GraphType(graphPtr)) != TCL_OK) {
 	return TCL_ERROR;
     }
-    ConfigureGrid(graphPtr, gridPtr);
+    Blt_ConfigureGrid(graphPtr);
     return TCL_OK;
 }
 
@@ -369,7 +369,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
 	    argc - 3, argv + 3, (char *)gridPtr, flags) != TCL_OK) {
 	return TCL_ERROR;
     }
-    ConfigureGrid(graphPtr, gridPtr);
+    Blt_ConfigureGrid(graphPtr);
     graphPtr->flags |= REDRAW_BACKING_STORE;
     Blt_EventuallyRedrawGraph(graphPtr);
     return TCL_OK;

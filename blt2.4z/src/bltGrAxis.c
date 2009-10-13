@@ -2206,8 +2206,10 @@ MapAxis(graphPtr, axisPtr, offset, margin)
 		t1 += axisPtr->majorSweep.step * 0.5;
 	    }
 	    if (!InRange(t1, &axisPtr->axisRange)) {
+#ifdef notdef
 		fprintf(stderr, "value=%g not in range %g:%g\n", t1, 
 			axisPtr->axisRange.min, axisPtr->axisRange.max);
+#endif
 		continue;
 	    }
 	    labelPtr = Blt_ChainGetValue(linkPtr);
@@ -2221,8 +2223,10 @@ MapAxis(graphPtr, axisPtr, offset, margin)
 		labelPtr->anchorPos.x = labelPos;
 		labelPtr->anchorPos.y = seg.p.y;
 	    }
+#ifdef notdef
 	    fprintf(stderr, "value=%g, x=%g, y=%g\n", t1, 
 		    labelPtr->anchorPos.x, labelPtr->anchorPos.y);
+#endif
 	}
     }
     if (AxisIsHorizontal(graphPtr, axisPtr)) {
@@ -4275,6 +4279,27 @@ Blt_MapAxes(graphPtr)
 		    offset += axisPtr->width;
 		}
 	    }
+	}
+    }
+}
+
+void
+Blt_ConfigureMargins(graphPtr)
+    Graph *graphPtr;
+{
+    int margin;
+    
+    for (margin = 0; margin < 4; margin++) {
+	Blt_ChainLink *linkPtr;
+	Blt_Chain *chainPtr;
+
+	chainPtr = graphPtr->margins[margin].axes;
+	for (linkPtr = Blt_ChainFirstLink(chainPtr); linkPtr != NULL;
+	     linkPtr = Blt_ChainNextLink(linkPtr)) {
+	    Axis *axisPtr;
+
+	    axisPtr = Blt_ChainGetValue(linkPtr);
+	    ConfigureAxis(graphPtr, axisPtr);
 	}
     }
 }
