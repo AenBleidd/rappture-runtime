@@ -197,10 +197,10 @@ rappture
 echo "To use this build, do one of the following"
 echo "bash users:"
 echo "   . $build_dir/bin/rappture.env"
-echo"        or "
+echo "        or "
 echo "   export PATH=\"$build_dir/bin:\$PATH\""
 echo "csh users:"
 echo "   source $build_dir/bin/rappture-csh.env"
-echo"        or "
+echo "        or "
 echo "   set path = ( $build_dir/bin \$path )"
 exit 0
