@@ -1730,6 +1730,7 @@ SnapOp(graphPtr, interp, argc, argv)
     /* Always re-compute the layout of the graph before snapping the photo. */
     graphPtr->width = data.width;
     graphPtr->height = data.height;
+ fprintf(stderr, "calling LayoutGraph from SnapOp\n");
     Blt_LayoutGraph(graphPtr);
 
     drawable = Tk_WindowId(graphPtr->tkwin);
@@ -1774,6 +1775,7 @@ SnapOp(graphPtr, interp, argc, argv)
 	drawableDC.hdc = hDC;
 	drawableDC.type = TWD_WINDC;
 
+ fprintf(stderr, "calling LayoutGraph from SnapOp\n");
 	Blt_LayoutGraph(graphPtr);
 	graphPtr->flags |= RESET_WORLD;
 	Blt_DrawGraph(graphPtr, (Drawable)&drawableDC, FALSE);
@@ -2167,10 +2169,12 @@ void
 Blt_LayoutGraph(graphPtr)
     Graph *graphPtr;
 {
+ fprintf(stderr, "in LayoutGraph\n");
     if (graphPtr->flags & RESET_AXES) {
 	Blt_ResetAxes(graphPtr);
     }
     if (graphPtr->flags & LAYOUT_NEEDED) {
+ fprintf(stderr, "in LayoutGraph calling LayoutMargins\n");
 	Blt_LayoutMargins(graphPtr);
 	graphPtr->flags &= ~LAYOUT_NEEDED;
     }
@@ -2324,16 +2328,17 @@ DisplayGraph(clientData)
 	 */
 	return;
     }
-    graphPtr->width = Tk_Width(graphPtr->tkwin);
-    graphPtr->height = Tk_Height(graphPtr->tkwin);
-    Blt_LayoutGraph(graphPtr);
-    Blt_UpdateCrosshairs(graphPtr);
     if (!Tk_IsMapped(graphPtr->tkwin)) {
 	/* The graph's window isn't displayed, so don't bother
 	 * drawing anything.  By getting this far, we've at least
 	 * computed the coordinates of the graph's new layout.  */
 	return;
     }
+    graphPtr->width = Tk_Width(graphPtr->tkwin);
+    graphPtr->height = Tk_Height(graphPtr->tkwin);
+ fprintf(stderr, "calling LayoutGraph from DisplayGraph\n");
+    Blt_LayoutGraph(graphPtr);
+    Blt_UpdateCrosshairs(graphPtr);
 
     /* Disable crosshairs before redisplaying to the screen */
     Blt_DisableCrosshairs(graphPtr);
