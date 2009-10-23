@@ -945,7 +945,14 @@ GraphToPostScript(graphPtr, ident, psToken)
     Screen *screenPtr;
     double dpiX, dpiY;
     double xPixelsToPica, yPixelsToPica; /* Scales to convert pixels to pica */
+    PostScript *psPtr = (PostScript *)graphPtr->postscript;
 
+    if (psPtr->reqWidth > 0) {
+	graphPtr->width = psPtr->reqWidth;
+    }
+    if (psPtr->reqHeight > 0) {
+	graphPtr->height = psPtr->reqHeight;
+    }
     /*   
      * We need to know how big a graph to print.  If the graph hasn't
      * been drawn yet, the width and height will be 1.  Instead use
@@ -970,11 +977,18 @@ GraphToPostScript(graphPtr, ident, psToken)
     xPixelsToPica = PICA_INCH / dpiX;
     dpiY = (HeightOfScreen(screenPtr) * MM_INCH) / HeightMMOfScreen(screenPtr);
     yPixelsToPica = PICA_INCH / dpiY;
-    graphPtr->width = (int)((Tk_Width(graphPtr->tkwin) * xPixelsToPica) + 0.5);
-    graphPtr->height=(int)((Tk_Height(graphPtr->tkwin) * yPixelsToPica) + 0.5);
-
+    if (graphPtr->width < 2) {
+	graphPtr->width = (int)((Tk_Width(graphPtr->tkwin) * xPixelsToPica) + 0.5);
+    }
+    if (graphPtr->width < 2) {
+	graphPtr->height=(int)((Tk_Height(graphPtr->tkwin) * yPixelsToPica) + 0.5);
+    }
     Blt_UsePostScriptWidths(psToken, TRUE);
+    fprintf(stderr, "in GraphToPostScript w=%d, h=%d\n", graphPtr->width, 
+	    graphPtr->height);
+    graphPtr->flags |= RESET_WORLD;
     Blt_ConfigureGraph(graphPtr);
+ fprintf(stderr, "calling LayoutGraph from GraphToPostScript\n");
     Blt_LayoutGraph(graphPtr);
 
     result = PostScriptPreamble(graphPtr, ident, psToken);
@@ -1041,8 +1055,12 @@ GraphToPostScript(graphPtr, ident, psToken)
      */
     Blt_UsePostScriptWidths(psToken, FALSE);
     Blt_ConfigureGraph(graphPtr);
+    graphPtr->flags = RESET_WORLD;
+#ifdef notdef
+ fprintf(stderr, "calling again LayoutGraph from GraphToPostScript\n");
     Blt_LayoutGraph(graphPtr);
     Blt_EventuallyRedrawGraph(graphPtr);
+#endif
     return result;
 }
 
