@@ -1590,13 +1590,8 @@ Blt_TextToPostScript(tokenPtr, string, tsPtr, x, y)
      * Find the center of the bounding box
      */
     anchorPos.x = x, anchorPos.y = y;
-    fprintf(stderr, "x=%g, y=%g rotWidth=%g rotHeight=%g\n", x, y, 
-	    rotWidth, rotHeight);
     anchorPos = Blt_TranslatePoint(&anchorPos, ROUND(rotWidth), 
 	ROUND(rotHeight), tsPtr->anchor);
-    fprintf(stderr, "x=%g y=%g, theta=%g, rot=%gx%g, pos=%g,%g\n",
-	    x, y, theta, rotWidth, rotHeight,
-	    anchorPos.x, anchorPos.y);
     anchorPos.x += (rotWidth * 0.5);
     anchorPos.y += (rotHeight * 0.5);
 

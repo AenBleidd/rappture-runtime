@@ -951,7 +951,6 @@ MakeLabel(graphPtr, axisPtr, value)
     labelPtr = Blt_Malloc(sizeof(TickLabel) + strlen(string));
     assert(labelPtr);
     strcpy(labelPtr->string, string);
- fprintf(stderr, "setting NaN in MakeLabel\n");
     labelPtr->anchorPos.x = labelPtr->anchorPos.y = bltNaN;
     return labelPtr;
 }
@@ -2142,7 +2141,6 @@ MapAxis(graphPtr, axisPtr, offset, margin)
     Segment2D *segments;
     Segment2D *segPtr;
 
- fprintf(stderr, "in MapAxis\n");
     AxisOffsets(graphPtr, axisPtr, margin, offset, &info);
 
     /* Save all line coordinates in an array of line segments. */
@@ -2225,9 +2223,6 @@ MapAxis(graphPtr, axisPtr, offset, margin)
 		labelPtr->anchorPos.x = labelPos;
 		labelPtr->anchorPos.y = seg.p.y;
 	    }
- fprintf(stderr, "in MapAxis\n");
-	    fprintf(stderr, "value=%g, x=%g, y=%g\n", t1, 
-		    labelPtr->anchorPos.x, labelPtr->anchorPos.y);
 	}
     }
     if (AxisIsHorizontal(graphPtr, axisPtr)) {
@@ -2506,8 +2501,6 @@ AxisToPostScript(psToken, axisPtr)
     Axis *axisPtr;
 {
     if (axisPtr->title != NULL) {
-	fprintf(stderr, "titlePos.x=%g titlePos.y=%g\n",
-		axisPtr->titlePos.x, axisPtr->titlePos.y);
 	Blt_TextToPostScript(psToken, axisPtr->title, &axisPtr->titleTextStyle, 
 		axisPtr->titlePos.x, axisPtr->titlePos.y);
     }
@@ -2521,8 +2514,6 @@ AxisToPostScript(psToken, axisPtr)
 	    labelPtr = Blt_ChainGetValue(linkPtr);
 
 	    SoftHyphen(string, labelPtr->string);
-	    fprintf(stderr, "label=%s x=%g y=%g\n", string, 
-		    labelPtr->anchorPos.x, labelPtr->anchorPos.y);
 	    Blt_TextToPostScript(psToken, string, 
 		&axisPtr->tickTextStyle, labelPtr->anchorPos.x, 
 		labelPtr->anchorPos.y);
@@ -2698,8 +2689,6 @@ GetAxisGeometry(graphPtr, axisPtr)
 	    if (!InRange(x2, &axisPtr->axisRange)) {
 		continue;
 	    }
-	    fprintf(stderr, "in GetAxisGeometry (w=%d, h=%d)\n", graphPtr->width,
-	graphPtr->height);
 	    labelPtr = MakeLabel(graphPtr, axisPtr, x);
 	    Blt_ChainAppend(axisPtr->tickLabels, labelPtr);
 	    nLabels++;
@@ -2798,7 +2787,6 @@ GetMarginGeometry(graphPtr, marginPtr)
     int isHoriz;
     int length, count;
 
- fprintf(stderr, "in GetMarginGeometry\n");
     isHoriz = HORIZMARGIN(marginPtr);
     /* Count the number of visible axes. */
     count = 0;
@@ -2858,7 +2846,6 @@ ComputeMargins(graphPtr)
     int width, height;
     int insets;
 
- fprintf(stderr, "in ComputeMargins\n");
     /* 
      * Step 1:	Compute the amount of space needed to display the
      *		axes (there many be 0 or more) associated with the
@@ -3083,7 +3070,6 @@ Blt_LayoutMargins(graphPtr)
     int titleY;
     int left, right, top, bottom;
 
- fprintf(stderr, "in LayoutMargins\n");
     ComputeMargins(graphPtr);
     left = graphPtr->leftMargin.width + graphPtr->inset + 
 	graphPtr->plotBorderWidth;
@@ -3787,7 +3773,6 @@ UseOp(graphPtr, axisPtr, argc, argv)
     /* When any axis changes, we need to layout the entire graph.  */
     graphPtr->flags |= (MAP_WORLD | REDRAW_WORLD);
     Blt_EventuallyRedrawGraph(graphPtr);
-    
     Blt_Free(names);
     return TCL_OK;
 }

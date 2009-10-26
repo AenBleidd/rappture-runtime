@@ -306,8 +306,8 @@ Blt_EventuallyRedrawGraph(graphPtr)
     Graph *graphPtr;		/* Graph widget record */
 {
     if ((graphPtr->tkwin != NULL) && !(graphPtr->flags & REDRAW_PENDING)) {
-	Tcl_DoWhenIdle(DisplayGraph, graphPtr);
 	graphPtr->flags |= REDRAW_PENDING;
+	Tcl_DoWhenIdle(DisplayGraph, graphPtr);
     }
 }
 
@@ -356,11 +356,11 @@ GraphEventProc(clientData, eventPtr)
 	    Blt_DeleteWindowInstanceData(graphPtr->tkwin);
 	    graphPtr->tkwin = NULL;
 	    Tcl_DeleteCommandFromToken(graphPtr->interp, graphPtr->cmdToken);
+	    if (graphPtr->flags & REDRAW_PENDING) {
+		Tcl_CancelIdleCall(DisplayGraph, graphPtr);
+	    }
+	    Tcl_EventuallyFree(graphPtr, DestroyGraph);
 	}
-	if (graphPtr->flags & REDRAW_PENDING) {
-	    Tcl_CancelIdleCall(DisplayGraph, graphPtr);
-	}
-	Tcl_EventuallyFree(graphPtr, DestroyGraph);
     } else if (eventPtr->type == ConfigureNotify) {
 	graphPtr->flags |= (MAP_WORLD | REDRAW_WORLD);
 	Blt_EventuallyRedrawGraph(graphPtr);
@@ -389,7 +389,7 @@ GraphInstCmdDeleteProc(clientData)
 {
     Graph *graphPtr = clientData;
 
-    if (graphPtr->tkwin != NULL) {	/* NULL indicates window has
+   if (graphPtr->tkwin != NULL) {	/* NULL indicates window has
 					 * already been destroyed. */
 	Tk_Window tkwin;
 
@@ -796,6 +796,9 @@ DestroyGraph(dataPtr)
 {
     Graph *graphPtr = (Graph *)dataPtr;
 
+    if (graphPtr->flags & REDRAW_PENDING) {
+	Tcl_CancelIdleCall(DisplayGraph, graphPtr);
+    }
     Tk_FreeOptions(configSpecs, (char *)graphPtr, graphPtr->display, 0);
     /*
      * Destroy the individual components of the graph: elements, markers,
@@ -1730,7 +1733,6 @@ SnapOp(graphPtr, interp, argc, argv)
     /* Always re-compute the layout of the graph before snapping the photo. */
     graphPtr->width = data.width;
     graphPtr->height = data.height;
- fprintf(stderr, "calling LayoutGraph from SnapOp\n");
     Blt_LayoutGraph(graphPtr);
 
     drawable = Tk_WindowId(graphPtr->tkwin);
@@ -1775,7 +1777,6 @@ SnapOp(graphPtr, interp, argc, argv)
 	drawableDC.hdc = hDC;
 	drawableDC.type = TWD_WINDC;
 
- fprintf(stderr, "calling LayoutGraph from SnapOp\n");
 	Blt_LayoutGraph(graphPtr);
 	graphPtr->flags |= RESET_WORLD;
 	Blt_DrawGraph(graphPtr, (Drawable)&drawableDC, FALSE);
@@ -1817,8 +1818,7 @@ SnapOp(graphPtr, interp, argc, argv)
 	Tcl_AppendResult(interp, "bad snapshot format", (char *)NULL);
 	return TCL_ERROR;
     }
-    graphPtr->flags = MAP_WORLD;
-    Blt_EventuallyRedrawGraph(graphPtr);
+    graphPtr->flags |= MAP_WORLD;
     return result;
 }
 
@@ -2169,12 +2169,10 @@ void
 Blt_LayoutGraph(graphPtr)
     Graph *graphPtr;
 {
- fprintf(stderr, "in LayoutGraph\n");
     if (graphPtr->flags & RESET_AXES) {
 	Blt_ResetAxes(graphPtr);
     }
     if (graphPtr->flags & LAYOUT_NEEDED) {
- fprintf(stderr, "in LayoutGraph calling LayoutMargins\n");
 	Blt_LayoutMargins(graphPtr);
 	graphPtr->flags &= ~LAYOUT_NEEDED;
     }
@@ -2336,7 +2334,6 @@ DisplayGraph(clientData)
     }
     graphPtr->width = Tk_Width(graphPtr->tkwin);
     graphPtr->height = Tk_Height(graphPtr->tkwin);
- fprintf(stderr, "calling LayoutGraph from DisplayGraph\n");
     Blt_LayoutGraph(graphPtr);
     Blt_UpdateCrosshairs(graphPtr);
 

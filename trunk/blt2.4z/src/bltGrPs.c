@@ -984,11 +984,8 @@ GraphToPostScript(graphPtr, ident, psToken)
 	graphPtr->height=(int)((Tk_Height(graphPtr->tkwin) * yPixelsToPica) + 0.5);
     }
     Blt_UsePostScriptWidths(psToken, TRUE);
-    fprintf(stderr, "in GraphToPostScript w=%d, h=%d\n", graphPtr->width, 
-	    graphPtr->height);
     graphPtr->flags |= RESET_WORLD;
     Blt_ConfigureGraph(graphPtr);
- fprintf(stderr, "calling LayoutGraph from GraphToPostScript\n");
     Blt_LayoutGraph(graphPtr);
 
     result = PostScriptPreamble(graphPtr, ident, psToken);
@@ -1047,7 +1044,7 @@ GraphToPostScript(graphPtr, ident, psToken)
     /* Reset height and width of graph window */
     graphPtr->width = Tk_Width(graphPtr->tkwin);
     graphPtr->height = Tk_Height(graphPtr->tkwin);
-    graphPtr->flags = MAP_WORLD;
+    graphPtr->flags |= MAP_WORLD;
 
     /*
      * Redraw the graph in order to re-calculate the layout as soon as
@@ -1055,12 +1052,7 @@ GraphToPostScript(graphPtr, ident, psToken)
      */
     Blt_UsePostScriptWidths(psToken, FALSE);
     Blt_ConfigureGraph(graphPtr);
-    graphPtr->flags = RESET_WORLD;
-#ifdef notdef
- fprintf(stderr, "calling again LayoutGraph from GraphToPostScript\n");
-    Blt_LayoutGraph(graphPtr);
-    Blt_EventuallyRedrawGraph(graphPtr);
-#endif
+    graphPtr->flags |= RESET_WORLD;
     return result;
 }
 
@@ -1249,8 +1241,7 @@ CreateWindowsEPS(
 	GlobalUnlock(hMem);
 	GlobalFree(hMem);
     }
-    graphPtr->flags = MAP_WORLD;
-    Blt_EventuallyRedrawGraph(graphPtr);
+    graphPtr->flags |= MAP_WORLD;
     return result;
 }
 
