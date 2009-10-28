@@ -712,6 +712,7 @@ static FontMap psFontMap[] =
     {"New Century Schoolbook", "NewCenturySchlbk",},
     {"New York", "Times",},
     {"Palatino", "Palatino",},
+    {"Swiss 721", "Helvetica",},
     {"Symbol", "Symbol",},
     {"Times New Roman", "Times",},
     {"Times Roman", "Times",},
@@ -740,35 +741,35 @@ static int nFontNames = (sizeof(psFontMap) / sizeof(FontMap));
  * -----------------------------------------------------------------
  */
 static char *
-XFontStructToPostScript(tkwin, fontPtr)
-    Tk_Window tkwin;		/* Window to query for atoms */
-    XFontStruct *fontPtr;	/* Font structure to map to name */
+XFontStructToPostScript(tkwin, fsPtr)
+    Tk_Window tkwin;			/* Window to query for atoms */
+    XFontStruct *fsPtr;			/* Font structure to map to name */
 {
     Atom atom;
+    unsigned long retval;
     char *fullName, *family, *foundry;
     register char *src, *dest;
     int familyLen;
     char *start;
     static char string[200];	/* What size? */
 
-    if (XGetFontProperty(fontPtr, XA_FULL_NAME, &atom) == False) {
-	return NULL;
+    fullName = family = foundry = NULL;
+    if (XGetFontProperty(fsPtr, XA_FULL_NAME, &atom)) {
+	fullName = NameOfAtom(tkwin, atom);
     }
-    fullName = NameOfAtom(tkwin, atom);
-    if (fullName == NULL) {
-	return NULL;
-    }
-    family = foundry = NULL;
-    if (XGetFontProperty(fontPtr, Tk_InternAtom(tkwin, "FOUNDRY"), &atom)) {
+    atom = Tk_InternAtom(tkwin, "FOUNDRY");
+    if (XGetFontProperty(fsPtr, atom, &atom)) {
 	foundry = NameOfAtom(tkwin, atom);
-    }
-    if (XGetFontProperty(fontPtr, XA_FAMILY_NAME, &atom)) {
+    }	
+    if (XGetFontProperty(fsPtr, XA_FAMILY_NAME, &atom)) {
 	family = NameOfAtom(tkwin, atom);
-    }
+    }	
+    fprintf(stderr, "foundry=%s family=%s fullname=%s\n",
+	    foundry, family, fullName);
     /*
      * Try to map the font only if the foundry is Adobe
      */
-    if ((foundry == NULL) || (family == NULL)) {
+    if ((foundry == NULL) || (family == NULL) || (fullName == NULL)) {
 	return NULL;
     }
     src = NULL;
@@ -1310,7 +1311,7 @@ Blt_FontToPostScript(tokenPtr, font)
     struct PsTokenStruct *tokenPtr;
     Tk_Font font;		/* Tk font to query about */
 {
-    XFontStruct *fontPtr = (XFontStruct *)font;
+    XFontStruct *fsPtr = (XFontStruct *)font;
     Tcl_Interp *interp = tokenPtr->interp;
     char *fontName;
     double pointSize;
@@ -1359,10 +1360,10 @@ Blt_FontToPostScript(tokenPtr, font)
      * font description, so we have to check to see if this is really a
      * PostScript font.
      */
-    family = ((TkFont *) fontPtr)->fa.family;
+    family = ((TkFont *) fsPtr)->fa.family;
+    fprintf(stderr, "xchecking(%s) for %s\n", Tk_NameOfFont(font), family);
     for (i = 0; i < nFontNames; i++) {
-	if (strncasecmp(psFontMap[i].alias, family, strlen(psFontMap[i].alias))
-		 == 0) {
+	if (strcasecmp(psFontMap[i].alias, family) == 0) {
 	    Tcl_DString dString;
 
 	    Tcl_DStringInit(&dString);
@@ -1386,22 +1387,26 @@ Blt_FontToPostScript(tokenPtr, font)
 #ifndef  WIN32
 #if (TK_MAJOR_VERSION > 4)
     /* Can you believe what I have to go through to get an XFontStruct? */
-    fontPtr = XLoadQueryFont(Tk_Display(tokenPtr->tkwin), Tk_NameOfFont(font));
+#ifdef notdef
+    fsPtr = XLoadQueryFont(Tk_Display(tokenPtr->tkwin), Tk_NameOfFont(font));
 #endif
-    if (fontPtr != NULL) {
+    fsPtr = XQueryFont(Tk_Display(tokenPtr->tkwin), Tk_FontId(font));
+    fprintf(stderr, "XQueryFont(%s)=%x\n", Tk_NameOfFont(font), fsPtr);
+#endif
+    if (fsPtr != NULL) {
 	unsigned long fontProp;
 
-	if (XGetFontProperty(fontPtr, XA_POINT_SIZE, &fontProp) != False) {
+	if (XGetFontProperty(fsPtr, XA_POINT_SIZE, &fontProp) != False) {
 	    pointSize = (double)fontProp / 10.0;
 	}
-	fontName = XFontStructToPostScript(tokenPtr->tkwin, fontPtr);
+	fontName = XFontStructToPostScript(tokenPtr->tkwin, fsPtr);
 #if (TK_MAJOR_VERSION > 4)
-	XFreeFont(Tk_Display(tokenPtr->tkwin), fontPtr);
+	XFreeFontInfo(NULL, fsPtr, 0);
 #endif /* TK_MAJOR_VERSION > 4 */
     }
 #endif /* !WIN32 */
     if ((fontName == NULL) || (fontName[0] == '\0')) {
-	fontName = "Helvetica-Bold";	/* Defaulting to a known PS font */
+	fontName = "HeLveTica-Bold";	/* Defaulting to a known PS font */
     }
     Blt_FormatToPostScript(tokenPtr, "%g /%s SetFont\n", pointSize, fontName);
 }
@@ -1411,9 +1416,11 @@ double
 Blt_PostScriptFontName(Tcl_Interp *interp, Tk_Font font, Tcl_DString *dsPtr)
 {
     Tk_Window tkwin;
-    XFontStruct *fontPtr = (XFontStruct *)font;
+    XFontStruct *fsPtr = (XFontStruct *)font;
     char *fontName;
     double pointSize;
+    TkFont *tkFontPtr;
+
 #if (TK_MAJOR_VERSION > 4)
     Tk_Uid family;
     register int i;
@@ -1422,6 +1429,7 @@ Blt_PostScriptFontName(Tcl_Interp *interp, Tk_Font font, Tcl_DString *dsPtr)
     fontName = Tk_NameOfFont(font);
     pointSize = 12.0;
     Tcl_DStringInit(dsPtr);
+    tkFontPtr = (TkFont *)font;
 #if (TK_MAJOR_VERSION > 4)
     /*
      * Otherwise do a quick test to see if it's a PostScript font.
@@ -1429,10 +1437,10 @@ Blt_PostScriptFontName(Tcl_Interp *interp, Tk_Font font, Tcl_DString *dsPtr)
      * font description, so we have to check to see if this is really a
      * PostScript font.
      */
-    family = ((TkFont *) fontPtr)->fa.family;
+    family = tkFontPtr->fa.family;
+    fprintf(stderr, "checking (%s) for  %s\n", Tk_NameOfFont(font), family);
     for (i = 0; i < nFontNames; i++) {
-	if (strncasecmp(psFontMap[i].alias, family, strlen(psFontMap[i].alias))
-		 == 0) {
+	if (strcasecmp(psFontMap[i].alias, family) == 0) {
 	    pointSize = (double)Tk_PostscriptFontName(font, dsPtr);
 	    return pointSize;
 	}
@@ -1448,22 +1456,26 @@ Blt_PostScriptFontName(Tcl_Interp *interp, Tk_Font font, Tcl_DString *dsPtr)
 #if (TK_MAJOR_VERSION > 4)
     tkwin = Tk_MainWindow(interp);
     /* Can you believe what I have to go through to get an XFontStruct? */
-    fontPtr = XLoadQueryFont(Tk_Display(tkwin), Tk_NameOfFont(font));
+#ifdef notdef
+    fsPtr = XLoadQueryFont(Tk_Display(tkwin), Tk_NameOfFont(font));
 #endif
-    if (fontPtr != NULL) {
+    fsPtr = XQueryFont(Tk_Display(tkwin), Tk_FontId(font));
+    fprintf(stderr, "XQueryFont(%s)=%x\n", Tk_NameOfFont(font), fsPtr);
+#endif
+    if (fsPtr != NULL) {
 	unsigned long fontProp;
 
-	if (XGetFontProperty(fontPtr, XA_POINT_SIZE, &fontProp) != False) {
+	if (XGetFontProperty(fsPtr, XA_POINT_SIZE, &fontProp) != False) {
 	    pointSize = (double)fontProp / 10.0;
 	}
-	fontName = XFontStructToPostScript(tkwin, fontPtr);
+	fontName = XFontStructToPostScript(tkwin, fsPtr);
 #if (TK_MAJOR_VERSION > 4)
-	XFreeFont(Tk_Display(tkwin), fontPtr);
+	XFreeFontInfo(NULL, fsPtr, 0);
 #endif /* TK_MAJOR_VERSION > 4 */
     }
 #endif /* !WIN32 */
     if ((fontName == NULL) || (fontName[0] == '\0')) {
-	fontName = "Helvetica-Bold";	/* Defaulting to a known PS font */
+	fontName = "HelvetiCA-Bold";	/* Defaulting to a known PS font */
     }
     Tcl_DStringAppend(dsPtr, fontName, -1);
     return pointSize;
