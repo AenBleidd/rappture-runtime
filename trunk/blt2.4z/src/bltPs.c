@@ -38,6 +38,37 @@
 
 #define PS_MAXPATH	1500	/* Maximum number of components in a PostScript
 				 * (level 1) path. */
+#define FONT_ITALIC	(1<<0)
+#define FONT_BOLD	(1<<1)
+
+/*
+ * Possible values for the "weight" field in a TkFontAttributes structure.
+ * Weight is a subjective term and depends on what the company that created
+ * the font considers bold.
+ */
+
+#define TK_FW_NORMAL	0
+#define TK_FW_BOLD	1
+
+#define TK_FW_UNKNOWN	-1	/* Unknown weight.  This value is used for
+				 * error checking and is never actually stored
+				 * in the weight field. */
+
+/*
+ * Possible values for the "slant" field in a TkFontAttributes structure.
+ */
+
+#define TK_FS_ROMAN	0	
+#define TK_FS_ITALIC	1
+#define TK_FS_OBLIQUE	2	/* This value is only used when parsing X
+				 * font names to determine the closest
+				 * match.  It is only stored in the
+				 * XLFDAttributes structure, never in the
+				 * slant field of the TkFontAttributes. */
+
+#define TK_FS_UNKNOWN	-1	/* Unknown slant.  This value is used for
+				 * error checking and is never actually stored
+				 * in the slant field. */
 static Tcl_Interp *psInterp;
 
 PsToken
@@ -303,6 +334,179 @@ Blt_FileToPostScript(tokenPtr, fileName)
     Tcl_Close(interp, channel);
     return TCL_OK;
 }
+
+
+typedef struct {
+    const char *alias;
+    const char *fontName;
+} FamilyMap;
+
+static FamilyMap familyMap[] =
+{
+    { "Arial",		        "Helvetica"	   },
+    { "AvantGarde",             "AvantGarde"       },
+    { "Bookman",                "Bookman"          },
+    { "Courier New",            "Courier"          },
+    { "Courier",                "Courier"          },
+    { "Geneva",                 "Helvetica"        },
+    { "Helvetica",              "Helvetica"        },
+    { "Mathematica1",		"Helvetica"	   },
+    { "Monaco",                 "Courier"          },
+    { "New Century Schoolbook", "NewCenturySchlbk" },
+    { "New York",               "Times"            },
+    { "Nimbus Roman No9 L"	"Times"		   },
+    { "Nimbus Sans L Condensed","Helvetica"        },
+    { "Nimbus Sans L",		"Helvetica"        },
+    { "Palatino",               "Palatino"         },
+    { "Standard Symbols L",	"Symbol"           },
+    { "Swiss 721",              "Helvetica"        },
+    { "Symbol",                 "Symbol"           },
+    { "Times New Roman",        "Times"            },
+    { "Times Roman",            "Times"            },
+    { "Times",                  "Times"            },
+    { "ZapfChancery",           "ZapfChancery"     },
+    { "ZapfDingbats",           "ZapfDingbats"     }
+};
+
+static int nFamilyNames = (sizeof(familyMap) / sizeof(FamilyMap));
+
+static const char *
+FamilyToPsFamily(const char *family) 
+{
+    FamilyMap *fp, *fend;
+
+    if (strncasecmp(family, "itc ", 4) == 0) {
+	family += 4;
+    }
+    for (fp = familyMap, fend = fp + nFamilyNames; fp < fend; fp++) {
+	if (strcasecmp(fp->alias, family) == 0) {
+	    return fp->fontName;
+	}
+    }
+    return NULL;
+}
+
+void
+Blt_Ps_FontName(const char *family, int flags, Tcl_DString *resultPtr)
+{
+    const char *familyName, *weightName, *slantName;
+    int len;
+
+    len = Tcl_DStringLength(resultPtr);
+
+    familyName = FamilyToPsFamily(family);
+    if (familyName == NULL) {
+	Tcl_UniChar ch;
+	char *src, *dest;
+	int upper;
+
+	/*
+	 * Inline, capitalize the first letter of each word, lowercase the
+	 * rest of the letters in each word, and then take out the spaces
+	 * between the words.  This may make the DString shorter, which is
+	 * safe to do.
+	 */
+	Tcl_DStringAppend(resultPtr, family, -1);
+	src = dest = Tcl_DStringValue(resultPtr) + len;
+	upper = TRUE;
+	while (*src != '\0') {
+	    while (isspace(*src)) { /* INTL: ISO space */
+		src++;
+		upper = TRUE;
+	    }
+	    src += Tcl_UtfToUniChar(src, &ch);
+	    if (upper) {
+		ch = Tcl_UniCharToUpper(ch);
+		upper = FALSE;
+	    } else {
+	        ch = Tcl_UniCharToLower(ch);
+	    }
+	    dest += Tcl_UniCharToUtf(ch, dest);
+	}
+	*dest = '\0';
+	Tcl_DStringSetLength(resultPtr, dest - Tcl_DStringValue(resultPtr));
+	familyName = Tcl_DStringValue(resultPtr) + len;
+    }
+    if (familyName != Tcl_DStringValue(resultPtr) + len) {
+	Tcl_DStringAppend(resultPtr, familyName, -1);
+	familyName = Tcl_DStringValue(resultPtr) + len;
+    }
+    if (strcasecmp(familyName, "NewCenturySchoolbook") == 0) {
+	Tcl_DStringSetLength(resultPtr, len);
+	Tcl_DStringAppend(resultPtr, "NewCenturySchlbk", -1);
+	familyName = Tcl_DStringValue(resultPtr) + len;
+    }
+
+    /* Get the string to use for the weight. */
+    weightName = NULL;
+    if (flags & FONT_BOLD) {
+	if ((strcmp(familyName, "Bookman") == 0) || 
+	    (strcmp(familyName, "AvantGarde") == 0)) {
+	    weightName = "Demi";
+	} else {
+	    weightName = "Bold";
+	}
+    } else {
+	if (strcmp(familyName, "Bookman") == 0) {
+	    weightName = "Light";
+	} else if (strcmp(familyName, "AvantGarde") == 0) {
+	    weightName = "Book";
+	} else if (strcmp(familyName, "ZapfChancery") == 0) {
+	    weightName = "Medium";
+	}
+    }
+
+    /* Get the string to use for the slant. */
+    slantName = NULL;
+    if (flags & FONT_ITALIC) {
+	if ((strcmp(familyName, "Helvetica") == 0) || 
+	    (strcmp(familyName, "Courier") == 0) || 
+	    (strcmp(familyName, "AvantGarde") == 0)) {
+	    slantName = "Oblique";
+	} else {
+	    slantName = "Italic";
+	}
+    }
+
+    /*
+     * The string "Roman" needs to be added to some fonts that are not bold
+     * and not italic.
+     */
+    if ((slantName == NULL) && (weightName == NULL)) {
+	if ((strcmp(familyName, "Times") == 0) || 
+	    (strcmp(familyName, "NewCenturySchlbk") == 0) || 
+	    (strcmp(familyName, "Palatino") == 0)) {
+	    Tcl_DStringAppend(resultPtr, "-Roman", -1);
+	}
+    } else {
+	Tcl_DStringAppend(resultPtr, "-", -1);
+	if (weightName != NULL) {
+	    Tcl_DStringAppend(resultPtr, weightName, -1);
+	}
+	if (slantName != NULL) {
+	    Tcl_DStringAppend(resultPtr, slantName, -1);
+	}
+    }
+}
+
+static int
+PostscriptFontName(Tk_Font font, Tcl_DString *resultPtr) 
+{
+    TkFont *tkFontPtr;
+    unsigned int flags;
+
+    tkFontPtr = (TkFont *)font;
+    flags = 0;
+    if (tkFontPtr->fa.slant != TK_FS_ROMAN) {
+	flags |= FONT_ITALIC;
+    }
+    if (tkFontPtr->fa.weight != TK_FW_NORMAL) {
+	flags |= FONT_BOLD;
+    }
+    Blt_Ps_FontName(tkFontPtr->fa.family, flags, resultPtr);
+    return tkFontPtr->fa.size;
+}
+
 /*
  *----------------------------------------------------------------------
  *
@@ -1367,7 +1571,7 @@ Blt_FontToPostScript(tokenPtr, font)
 	    Tcl_DString dString;
 
 	    Tcl_DStringInit(&dString);
-	    pointSize = (double)Tk_PostscriptFontName(font, &dString);
+	    pointSize = (double)PostscriptFontName(font, &dString);
 	    fontName = Tcl_DStringValue(&dString);
 	    Blt_FormatToPostScript(tokenPtr, "%g /%s SetFont\n", pointSize,
 		fontName);
@@ -1441,7 +1645,7 @@ Blt_PostScriptFontName(Tcl_Interp *interp, Tk_Font font, Tcl_DString *dsPtr)
     fprintf(stderr, "checking (%s) for  %s\n", Tk_NameOfFont(font), family);
     for (i = 0; i < nFontNames; i++) {
 	if (strcasecmp(psFontMap[i].alias, family) == 0) {
-	    pointSize = (double)Tk_PostscriptFontName(font, dsPtr);
+	    pointSize = (double)PostscriptFontName(font, dsPtr);
 	    return pointSize;
 	}
     }

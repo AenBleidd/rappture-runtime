@@ -28,13 +28,13 @@
 #define _BLT_TKINT_H
 
 typedef struct {
-    Tk_Uid family;		/* Font family. The most important field. */
-    int pointsize;		/* Pointsize of font, 0 for default size, or
-				 * negative number meaning pixel size. */
-    int weight;			/* Weight flag; see below for def'n. */
-    int slant;			/* Slant flag; see below for def'n. */
-    int underline;		/* Non-zero for underline font. */
-    int overstrike;		/* Non-zero for overstrike font. */
+    Tk_Uid family;		  /* Font family. The most important field. */
+    int size;			  /* Pointsize of font, 0 for default size, or
+				   * negative number meaning pixel size. */
+    int weight;			       /* Weight flag; see below for def'n. */
+    int slant;				/* Slant flag; see below for def'n. */
+    int underline;			/* Non-zero for underline font. */
+    int overstrike;			/* Non-zero for overstrike font. */
 } TkFontAttributes;
 
 typedef struct {
