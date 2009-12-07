@@ -371,14 +371,12 @@ proc blt::tv::AutoScroll { w } {
 
 proc blt::tv::SetSelectionAnchor { w tagOrId } {
     set index [$w index $tagOrId]
-    # If the anchor hasn't changed, don't do anything
-    if { $index != [$w index anchor] } {
-	$w selection clearall
-	$w see $index
-	$w focus $index
-	$w selection set $index
-	$w selection anchor $index
-    }
+
+    $w selection clearall
+    $w see $index
+    $w focus $index
+    $w selection set $index
+    $w selection anchor $index
 }
 
 # ----------------------------------------------------------------------
