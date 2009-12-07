@@ -4049,6 +4049,7 @@ DrawVerticals(
 	y += (height - tvPtr->button.height) / 2;
 	x1 = x2 = x + ICONWIDTH(level) + ICONWIDTH(level + 1) / 2;
 	y1 = y + tvPtr->button.height / 2;
+	y1 = y + height / 2;
 	y2 = y1 + entryPtr->vertLineLength;
 	if ((entryPtr == tvPtr->rootPtr) && (tvPtr->flags & TV_HIDE_ROOT)) {
 	    y1 += entryPtr->height;
@@ -4307,6 +4308,8 @@ Blt_TreeViewDrawIcon(
 	int top, bottom;
 	int topInset, botInset;
 	int width, height;
+	int selected;
+	Tk_3DBorder border;
 
 	level = DEPTH(tvPtr, entryPtr->node);
 	entryHeight = MAX3(entryPtr->lineHeight, entryPtr->iconHeight, 
@@ -4331,6 +4334,15 @@ Blt_TreeViewDrawIcon(
 	} else if (bottom >= maxY) {
 	    height = maxY - y;
 	}
+
+	selected = Blt_TreeViewEntryIsSelected(tvPtr, entryPtr);
+	if (selected) {
+	    border = SELECT_BORDER(tvPtr);
+	} else {
+	    border = Blt_TreeViewGetStyleBorder(tvPtr, tvPtr->stylePtr);
+	}
+	Blt_Fill3DRectangle(tvPtr->tkwin, drawable, border, x, y,
+		width, height, 0, TK_RELIEF_FLAT);
 	Tk_RedrawImage(TreeViewIconBits(icon), 0, top, width, height, 
 		drawable, x, y);
     } 
