@@ -968,8 +968,6 @@ XFontStructToPostScript(tkwin, fsPtr)
     if (XGetFontProperty(fsPtr, XA_FAMILY_NAME, &atom)) {
 	family = NameOfAtom(tkwin, atom);
     }	
-    fprintf(stderr, "foundry=%s family=%s fullname=%s\n",
-	    foundry, family, fullName);
     /*
      * Try to map the font only if the foundry is Adobe
      */
@@ -1565,7 +1563,6 @@ Blt_FontToPostScript(tokenPtr, font)
      * PostScript font.
      */
     family = ((TkFont *) fsPtr)->fa.family;
-    fprintf(stderr, "xchecking(%s) for %s\n", Tk_NameOfFont(font), family);
     for (i = 0; i < nFontNames; i++) {
 	if (strcasecmp(psFontMap[i].alias, family) == 0) {
 	    Tcl_DString dString;
@@ -1595,7 +1592,6 @@ Blt_FontToPostScript(tokenPtr, font)
     fsPtr = XLoadQueryFont(Tk_Display(tokenPtr->tkwin), Tk_NameOfFont(font));
 #endif
     fsPtr = XQueryFont(Tk_Display(tokenPtr->tkwin), Tk_FontId(font));
-    fprintf(stderr, "XQueryFont(%s)=%x\n", Tk_NameOfFont(font), fsPtr);
 #endif
     if (fsPtr != NULL) {
 	unsigned long fontProp;
@@ -1642,7 +1638,6 @@ Blt_PostScriptFontName(Tcl_Interp *interp, Tk_Font font, Tcl_DString *dsPtr)
      * PostScript font.
      */
     family = tkFontPtr->fa.family;
-    fprintf(stderr, "checking (%s) for  %s\n", Tk_NameOfFont(font), family);
     for (i = 0; i < nFontNames; i++) {
 	if (strcasecmp(psFontMap[i].alias, family) == 0) {
 	    pointSize = (double)PostscriptFontName(font, dsPtr);
@@ -1664,7 +1659,6 @@ Blt_PostScriptFontName(Tcl_Interp *interp, Tk_Font font, Tcl_DString *dsPtr)
     fsPtr = XLoadQueryFont(Tk_Display(tkwin), Tk_NameOfFont(font));
 #endif
     fsPtr = XQueryFont(Tk_Display(tkwin), Tk_FontId(font));
-    fprintf(stderr, "XQueryFont(%s)=%x\n", Tk_NameOfFont(font), fsPtr);
 #endif
     if (fsPtr != NULL) {
 	unsigned long fontProp;
