@@ -1485,9 +1485,6 @@ StringWidth(Tk_Font font, const char *string, int nBytes)
 	    c1 = c2;
 	}
     }
-    fprintf(stderr, "stringwidth of %s is %d (ps=%f)\n",
-	    string, (int)round((width * afmPtr->pointSize) / 1000.0),
-	    afmPtr->pointSize);
     return (int)round((width * afmPtr->pointSize) / 1000.0);
 }
 
@@ -1502,15 +1499,10 @@ FontMetrics(Tk_Font font, Tk_FontMetrics *fmPtr)
     if (afmPtr == NULL) {
 	return TCL_ERROR;
     }
-    fprintf(stderr, "Blt_GetFontMetrics: font=%s, pointSize=%g ascender=%g, descender=%g\n",
-	    Tk_NameOfFont(font), afmPtr->pointSize, afmPtr->ascender, afmPtr->descender);
     fmPtr->ascent  = (int)round((afmPtr->pointSize * afmPtr->ascender)/1000.0);
     fmPtr->descent = (int)round((afmPtr->pointSize * -afmPtr->descender)/1000.0);
     fmPtr->linespace = (int)
 	round((afmPtr->pointSize*(afmPtr->ascender-afmPtr->descender))/1000.0);
-    fprintf(stderr, "Blt_GetFontMetrics: font=%s, ascent=%d, descent=%d linespace=%d\n",
-	    Tk_NameOfFont(font), fmPtr->ascent, fmPtr->descent, 
-	    fmPtr->linespace);
     return TCL_OK;
 }
 
