@@ -4724,11 +4724,27 @@ TypeOp(graphPtr, interp, argc, argv)
     char **argv;
 {
     Marker *markerPtr;
+    char *type;
 
     if (NameToMarker(graphPtr, argv[3], &markerPtr) != TCL_OK) {
 	return TCL_ERROR;
     }
-    Tcl_SetResult(interp, markerPtr->classUid, TCL_STATIC);
+    if (classUid == bltTextMarkerUid) {
+	type = "text";
+    } else if (classUid == bltLineMarkerUid) {
+	type = "line";
+    } else if (classUid == bltPolygonMarkerUid) {
+	type = "polygon";
+    } else if (classUid == bltImageMarkerUid) {
+	type = "image";
+    } else if (classUid == bltBitmapMarkerUid) {
+	type = "bitmap";
+    } else if (classUid == bltWindowMarkerUid) {
+	type = "window";
+    } else {
+	type = "???";
+    }
+    Tcl_SetResult(interp, type, TCL_STATIC);
     return TCL_OK;
 }
 
