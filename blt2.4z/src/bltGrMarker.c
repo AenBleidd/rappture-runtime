@@ -4729,17 +4729,17 @@ TypeOp(graphPtr, interp, argc, argv)
     if (NameToMarker(graphPtr, argv[3], &markerPtr) != TCL_OK) {
 	return TCL_ERROR;
     }
-    if (classUid == bltTextMarkerUid) {
+    if (markerPtr->classUid == bltTextMarkerUid) {
 	type = "text";
-    } else if (classUid == bltLineMarkerUid) {
+    } else if (markerPtr->classUid == bltLineMarkerUid) {
 	type = "line";
-    } else if (classUid == bltPolygonMarkerUid) {
+    } else if (markerPtr->classUid == bltPolygonMarkerUid) {
 	type = "polygon";
-    } else if (classUid == bltImageMarkerUid) {
+    } else if (markerPtr->classUid == bltImageMarkerUid) {
 	type = "image";
-    } else if (classUid == bltBitmapMarkerUid) {
+    } else if (markerPtr->classUid == bltBitmapMarkerUid) {
 	type = "bitmap";
-    } else if (classUid == bltWindowMarkerUid) {
+    } else if (markerPtr->classUid == bltWindowMarkerUid) {
 	type = "window";
     } else {
 	type = "???";
