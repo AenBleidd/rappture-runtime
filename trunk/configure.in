@@ -188,6 +188,10 @@ if test "${with_zlib}" = "no" ; then
   AC_CHECK_LIB(z, deflate, [with_zlib="no"], [with_zlib="yes"])
 fi
 
+if test "$with_vtk" = "no" ; then
+  with_cmake="no"
+fi
+
 #ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$PWD/tcl8.4.11 --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
 
 stage1_dirs=""

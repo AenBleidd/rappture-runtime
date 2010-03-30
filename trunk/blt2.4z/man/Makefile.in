@@ -2,15 +2,17 @@
 # 	Makefile for manual page files 
 # ------------------------------------------------------------------------
 
-prefix  	= @prefix@
-mandir  	= @mandir@
-sectiondir 	= $(mandir)/mann
-srcdir		= @srcdir@
 datadir		= @datadir@
 datarootdir	= @datarootdir@
+mandir  	= @mandir@
+man1dir =	$(mandir)/man1
+man3dir =	$(mandir)/man3
+manndir =	$(mandir)/mann
+prefix  	= @prefix@
+srcdir		= @srcdir@
 version		= @BLT_VERSION@
 
-instdirs	= $(mandir) $(mandir)/mann $(mandir)/man3
+instdirs =	$(man1dir) $(manndir) $(man3dir)
 
 MAN_N		= BLT.n barchart.n beep.n bgexec.n bitmap.n \
 		  bltdebug.n busy.n container.n cutbuffer.n \
@@ -40,12 +42,12 @@ install: mkdirs install-mann install-man3
 
 install-mann: $(MAN_N)
 	for i in *.n ; do \
-		$(INSTALL_DATA) $$i $(INSTALL_ROOT)$(mandir)/mann; \
+		$(INSTALL_DATA) $$i $(INSTALL_ROOT)$(manndir); \
 	done
 
 install-man3: $(MAN_3)
 	for i in *.3 ; do \
-		$(INSTALL_DATA) $$i $(INSTALL_ROOT)$(mandir)/man3; \
+		$(INSTALL_DATA) $$i $(INSTALL_ROOT)$(man3dir); \
 	done
 
 mkdirs:
