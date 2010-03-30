@@ -26,12 +26,14 @@ PATCH_LEVEL		= @TCL_PATCH_LEVEL@
 # to the "configure" script.  The *dir vars are standard configure
 # substitutions that are based off prefix and exec_prefix.
 
-prefix			= @prefix@
-exec_prefix		= @exec_prefix@
 bindir			= @bindir@
-libdir			= @libdir@
+datadir			= @datadir@
+datarootdir		= @datarootdir@
+exec_prefix		= @exec_prefix@
 includedir		= @includedir@
+libdir			= @libdir@
 mandir			= @mandir@
+prefix			= @prefix@
 
 # The following definition can be set to non-null for special systems
 # like AFS with replication.  It allows the pathnames used for installation

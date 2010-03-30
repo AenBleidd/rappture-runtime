@@ -74,8 +74,8 @@ exec_prefix	= @exec_prefix@
 bindir		= @bindir@
 libdir		= @libdir@
 datadir		= @datadir@
-datarootdir	= @datarootdir@
-mandir		= @mandir@
+datarootdir	= $(prefix)/share
+mandir		= $(datarootdir)/man
 includedir	= @includedir@
 
 DESTDIR		=
