@@ -3450,7 +3450,7 @@ dx=dx-4.4.4
 # Option default
 #
 default_blt=yes
-default_cmake=yes
+default_cmake=no
 default_expat=no
 default_htmlwidget=yes
 default_itcl=yes
@@ -3742,10 +3742,6 @@ else
   with_zlib="yes"
 fi
 
-fi
-
-if test "$with_vtk" = "no" ; then
-  with_cmake="no"
 fi
 
 #ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$PWD/tcl8.4.11 --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
