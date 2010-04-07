@@ -98,7 +98,7 @@ mkdir -p $build_dir
 
 # Stage1: tcl, tk
 # expat, zlib if enabled with --with-xxx
-stage1_flags="--with-expat --with-zlib ${x_includes} ${x_libraries}"
+stage1_flags="--with-cmake --with-expat --with-zlib ${x_includes} ${x_libraries}"
 # Stage2: blt, htmlwidget, itk, shape, tcllib, tdom, tkimg, tls, vornoi, vtk
 stage2_flags="${x_includes} ${x_libraries}"
 
