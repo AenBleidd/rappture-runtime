@@ -954,6 +954,7 @@ EXTERN Blt_ReallocProc *Blt_ReallocProcPtr;
 EXTERN char *Blt_Strdup _ANSI_ARGS_((CONST char *ptr));
 EXTERN void *Blt_Calloc _ANSI_ARGS_((unsigned int nElem, size_t size));
 
+EXTERN void Blt_InitXRandrConfig(Tcl_Interp *interp);
 
 #ifdef WIN32
 #include "bltWin.h"

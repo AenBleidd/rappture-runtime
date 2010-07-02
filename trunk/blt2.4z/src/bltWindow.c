@@ -1805,3 +1805,55 @@ Blt_DeleteWindowInstanceData(tkwin)
 
 #endif
 
+
+#if HAVE_RANDR
+#include <X11/Xlib.h>
+#include <X11/Xlibint.h>
+#include <X11/Xproto.h>
+#include <X11/extensions/randr.h>
+#include <X11/extensions/Xrandr.h>
+#include <X11/extensions/Xrender.h>	/* we share subpixel information */
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ *  XRandrEventProc --
+ *
+ *	Invoked by Tk_HandleEvent whenever a ConfigureNotify or
+ *	RRScreenChangeNotify event is received on the root window.
+ *
+ *---------------------------------------------------------------------------
+ */
+static int
+XRandrEventProc(ClientData clientData, XEvent *eventPtr)
+{
+    Window root = (Window)clientData;
+
+    if (eventPtr->xany.window == root) {
+	if ((eventPtr->type == RRScreenChangeNotify) ||
+	    (eventPtr->type == ConfigureNotify)) {
+	    XRRUpdateConfiguration(eventPtr);
+	}
+    }
+    return 0;
+}
+
+void
+Blt_InitXRandrConfig(Tcl_Interp *interp) 
+{
+    Tk_Window tkwin;
+    Window root;
+
+    tkwin = Tk_MainWindow(interp);
+    root = Tk_RootWindow(tkwin);
+    Tk_CreateGenericHandler(XRandrEventProc, (ClientData)root);
+    XRRSelectInput(Tk_Display(tkwin), root, RRScreenChangeNotifyMask);
+    XSelectInput(Tk_Display(tkwin), root, StructureNotifyMask);
+}
+
+#else 
+void
+Blt_InitXRandrConfig(Tcl_Interp *interp) 
+{
+}
+#endif	/* HAVE_XRANDR */

@@ -492,6 +492,7 @@ Blt_Init(interp)
 	    }
 	}
 	Blt_InitEpsCanvasItem(interp);
+	Blt_InitXRandrConfig(interp);
 	Tcl_SetAssocData(interp, BLT_THREAD_KEY, NULL, 
 		(ClientData)(flags | BLT_TK_CMDS));
     }
@@ -571,6 +572,7 @@ Blt_Init(interp)
 	    }
 	}
 	Blt_InitEpsCanvasItem(interp);
+	Blt_InitXRandrConfig(interp);
 	Tcl_SetAssocData(interp, BLT_THREAD_KEY, NULL, 
 		(ClientData)(flags | BLT_TK_CMDS));
     }
