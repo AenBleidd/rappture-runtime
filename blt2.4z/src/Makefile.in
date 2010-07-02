@@ -15,6 +15,7 @@ DEFINES =	@DEFINES@
 EXTRA_CFLAGS =	@GCCFLAGS@
 LDFLAGS =	@LDFLAGS@ @LD_RUN_PATH@
 version =	@BLT_MAJOR_VERSION@@BLT_MINOR_VERSION@
+XRANDR_LIB_SPEC =	@XRANDR_LIB_SPEC@
 
 # ------------------------------------------------------------------------
 # 	Source and targer installation directories 
@@ -43,7 +44,7 @@ INCLUDES =	-I. -I$(srcdir) @INCLUDES@
 #       Libraries directives for Tcl, Tk, X11, and BLT
 # ------------------------------------------------------------------------
 
-LIBS =		@LIB_SPECS@ @EXTRA_LIB_SPECS@
+LIBS =		@LIB_SPECS@ @EXTRA_LIB_SPECS@ $(XRANDR_LIB_SPEC)
 TCL_ONLY_LIBS = @TCL_ONLY_LIB_SPECS@ @EXTRA_LIB_SPECS@
 
 # ------------------------------------------------------------------------
