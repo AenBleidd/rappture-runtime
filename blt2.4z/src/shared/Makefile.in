@@ -33,7 +33,7 @@ instdirs =	$(exec_prefix) $(libdir)
 
 scriptdir =	@BLT_LIBRARY@
 
-LIBS =		@LIB_SPECS@ @EXTRA_LIB_SPECS@
+LIBS =		@LIB_SPECS@ @EXTRA_LIB_SPECS@ $(XRANDR_LIB_SPEC)
 TCL_ONLY_LIB_SPECS = @TCL_ONLY_LIB_SPECS@ @EXTRA_LIB_SPECS@
 
 # ------------------------------------------------------------------------
