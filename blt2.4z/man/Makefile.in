@@ -39,7 +39,7 @@ VPATH		= $(srcdir)
 all: man.macros $(MANPAGES)
 
 install: mkdirs install-mann install-man3
-
+h	
 install-mann: $(MAN_N)
 	for i in *.n ; do \
 		$(INSTALL_DATA) $$i $(INSTALL_ROOT)$(manndir); \
