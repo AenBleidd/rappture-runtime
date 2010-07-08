@@ -2588,30 +2588,6 @@ ConfigureTextMarker(markerPtr)
     tmPtr->fillGC = newGC;
     Blt_ResetTextStyle(graphPtr->tkwin, &tmPtr->style);
 
-    if (Blt_ConfigModified(tmPtr->classPtr->configSpecs, "-text", 
-	(char *)NULL)) {
-	if (tmPtr->textPtr != NULL) {
-	    Blt_Free(tmPtr->textPtr);
-	    tmPtr->textPtr = NULL;
-	}
-	tmPtr->width = tmPtr->height = 0;
-	if (tmPtr->string != NULL) {
-	    register int i;
-	    double rotWidth, rotHeight;
-
-	    tmPtr->textPtr = Blt_GetTextLayout(tmPtr->string, &tmPtr->style);
-	    Blt_GetBoundingBox(tmPtr->textPtr->width, tmPtr->textPtr->height, 
-	       tmPtr->style.theta, &rotWidth, &rotHeight, tmPtr->outline);
-	    tmPtr->width = ROUND(rotWidth);
-	    tmPtr->height = ROUND(rotHeight);
-	    for (i = 0; i < 4; i++) {
-		tmPtr->outline[i].x += ROUND(rotWidth * 0.5);
-		tmPtr->outline[i].y += ROUND(rotHeight * 0.5);
-	    }
-	    tmPtr->outline[4].x = tmPtr->outline[0].x;
-	    tmPtr->outline[4].y = tmPtr->outline[0].y;
-	}
-    }
     tmPtr->flags |= MAP_ITEM;
     if (tmPtr->drawUnder) {
 	graphPtr->flags |= REDRAW_BACKING_STORE;
@@ -2648,15 +2624,35 @@ MapTextMarker(markerPtr)
     TextMarker *tmPtr = (TextMarker *)markerPtr;
     Extents2D exts;
     Point2D anchorPos;
-
+    double rotWidth, rotHeight;
+    int i;
+    
+    tmPtr->width = tmPtr->height = 0;
+    if (tmPtr->textPtr != NULL) {
+	Blt_Free(tmPtr->textPtr);
+	tmPtr->textPtr = NULL;
+    }
     if (tmPtr->string == NULL) {
 	return;
     }
+    tmPtr->textPtr = Blt_GetTextLayout(tmPtr->string, &tmPtr->style);
+    Blt_GetBoundingBox(tmPtr->textPtr->width, tmPtr->textPtr->height, 
+	tmPtr->style.theta, &rotWidth, &rotHeight, tmPtr->outline);
+    tmPtr->width = ROUND(rotWidth);
+    tmPtr->height = ROUND(rotHeight);
+    for (i = 0; i < 4; i++) {
+	tmPtr->outline[i].x += ROUND(rotWidth * 0.5);
+	tmPtr->outline[i].y += ROUND(rotHeight * 0.5);
+    }
+    tmPtr->outline[4].x = tmPtr->outline[0].x;
+    tmPtr->outline[4].y = tmPtr->outline[0].y;
+
     anchorPos = MapPoint(graphPtr, tmPtr->worldPts, &tmPtr->axes);
     anchorPos = Blt_TranslatePoint(&anchorPos, tmPtr->width, tmPtr->height, 
 	tmPtr->anchor);
     anchorPos.x += tmPtr->xOffset;
     anchorPos.y += tmPtr->yOffset;
+
     /*
      * Determine the bounding box of the text and test to see if it
      * is at least partially contained within the plotting area.
