@@ -1806,6 +1806,7 @@ Blt_DeleteWindowInstanceData(tkwin)
 #endif
 
 
+
 #if HAVE_RANDR
 #include <X11/Xlib.h>
 #include <X11/Xlibint.h>
@@ -1813,6 +1814,14 @@ Blt_DeleteWindowInstanceData(tkwin)
 #include <X11/extensions/randr.h>
 #include <X11/extensions/Xrandr.h>
 #include <X11/extensions/Xrender.h>	/* we share subpixel information */
+
+typedef struct {
+    int major, minor;			/* XRandR version numbers. */
+    int eventNum, errorNum;		/* Event offset of XRandr */
+    Display *display;
+    Tk_Window mainWindow;		/* Main window of interpreter. */
+    Window root;			/* Root window of screen. */
+} XRandr;
 
 /*
  *---------------------------------------------------------------------------
@@ -1827,12 +1836,14 @@ Blt_DeleteWindowInstanceData(tkwin)
 static int
 XRandrEventProc(ClientData clientData, XEvent *eventPtr)
 {
-    Window root = (Window)clientData;
+    XRandr *rrPtr = clientData;
 
-    if (eventPtr->xany.window == root) {
-	if ((eventPtr->type == RRScreenChangeNotify) ||
+    if (eventPtr->xany.window == rrPtr->root) {
+	if ((eventPtr->type + (rrPtr->eventNum + RRScreenChangeNotify)) ||
 	    (eventPtr->type == ConfigureNotify)) {
-	    XRRUpdateConfiguration(eventPtr);
+	    if (!XRRUpdateConfiguration(eventPtr)) {
+		fprintf(stderr, "can't update screen configuration\n");
+	    }
 	}
     }
     return 0;
@@ -1842,15 +1853,25 @@ void
 Blt_InitXRandrConfig(Tcl_Interp *interp) 
 {
     Tk_Window tkwin;
-    Window root;
+    static XRandr rr;
 
     tkwin = Tk_MainWindow(interp);
-    root = Tk_RootWindow(tkwin);
-    Tk_CreateGenericHandler(XRandrEventProc, (ClientData)root);
-    XRRSelectInput(Tk_Display(tkwin), root, RRScreenChangeNotifyMask);
-    XSelectInput(Tk_Display(tkwin), root, StructureNotifyMask);
+    rr.mainWindow = tkwin;
+    rr.root = Tk_RootWindow(tkwin);
+    rr.display = Tk_Display(tkwin);
+    if (!XRRQueryExtension(rr.display, &rr.eventNum, &rr.errorNum)) {
+	fprintf(stderr, "Xserver does not support the RANDR extension.\n");
+	return;
+    }
+    if (!XRRQueryVersion(rr.display, &rr.major, &rr.minor)) {
+	fprintf(stderr, "Xserver didn't report RANDR version numbers?\n");
+    }
+    Tk_CreateGenericHandler(XRandrEventProc, &rr);
+    XRRSelectInput(rr.display, rr.root, RRScreenChangeNotifyMask);
+#ifdef notdef
+    XSelectInput(rr.display, rr.root, StructureNotifyMask);
+#endif
 }
-
 #else 
 void
 Blt_InitXRandrConfig(Tcl_Interp *interp) 
