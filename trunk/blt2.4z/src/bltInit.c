@@ -452,6 +452,7 @@ Blt_Init(interp)
 	Tcl_CreateMathFunc(interp, "max", 2, args, MaxMathProc, (ClientData)0);
 	Blt_RegisterArrayObj(interp);
 	bltEmptyStringObjPtr = Tcl_NewStringObj("", -1);
+	Tcl_IncrRefCount(bltEmptyStringObjPtr);
 	bltNaN = MakeNaN();
 	if (Tcl_PkgProvide(interp, "BLT", BLT_VERSION) != TCL_OK) {
 	    return TCL_ERROR;

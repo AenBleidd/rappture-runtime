@@ -307,7 +307,7 @@ Tk_GetColorByValue(tkwin, colorPtr)
      * First, check to see if there's already a mapping for this color
      * name.
      */
-
+    memset(&valueKey, 0, sizeof(ValueKey));
     valueKey.red = colorPtr->red;
     valueKey.green = colorPtr->green;
     valueKey.blue = colorPtr->blue;

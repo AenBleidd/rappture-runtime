@@ -574,6 +574,7 @@ PYMOL_DIR
 ITK_DIR
 ITCL_DIR
 HTMLWIDGET_DIR
+EXPECT_DIR
 EXPAT_DIR
 CMAKE_DIR
 BLT_DIR
@@ -641,6 +642,7 @@ enable_64bit
 with_blt
 with_cmake
 with_expat
+with_expect
 with_htmlwidget
 with_itcl
 with_itk
@@ -1289,6 +1291,7 @@ Optional Packages:
   --with-blt=DIR          Build blt2.4z [default=yes]]
   --with-cmake=DIR        Build cmake-2.6.3 [default=yes]
   --with-expat=DIR        Build expat-2.0.1 [default=yes]]
+  --with-expect=DIR       Build expect-5.44.1.15 [default=yes]]
   --with-htmlwidget=DIR   Build htmlwidget [default=yes]
   --with-itcl=DIR         Build itcl-3.3 [default=yes]
   --with-itk=DIR          Build itk-3.3 [default=yes]
@@ -2087,6 +2090,7 @@ fi
 libdir=$exec_prefix/lib
 includedir=$prefix/include
 
+topsrcdir=`cd $srcdir; pwd`
 # RR_SRC_DIR=`cd $srcdir/..; pwd`
 RR_SRC_DIR=`pwd`
 
@@ -3431,6 +3435,7 @@ fi
 blt=blt2.4z
 cmake=cmake-2.4.8
 expat=expat-2.0.1
+expect=expect-5.44.1.15
 htmlwidget=htmlwidget-3a14
 itcl=itcl3.3
 itk=itk3.3
@@ -3452,6 +3457,7 @@ dx=dx-4.4.4
 default_blt=yes
 default_cmake=no
 default_expat=no
+default_expect=yes
 default_htmlwidget=yes
 default_itcl=yes
 default_itk=yes
@@ -3504,6 +3510,15 @@ if test "${with_expat+set}" = set; then :
   withval=$with_expat; with_expat=$withval
 else
   with_expat=$default_expat
+fi
+
+
+
+# Check whether --with-expect was given.
+if test "${with_expect+set}" = set; then :
+  withval=$with_expect; with_expect=$withval
+else
+  with_expect=$default_expect
 fi
 
 
@@ -3652,7 +3667,7 @@ fi
 
 
 stage1_targets="expat tcl tk zlib cmake"
-stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
+stage2_targets="expect itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
 stage3_targets="vtk pymol dx"
 
 if test "${with_expat}" = "no" ; then
@@ -3798,12 +3813,12 @@ fi
 if test "${STAGE}" = "stage2"; then
   my_subdirs=$stage2_dirs
   my_makefile="Makefile:stages/Makefile-stage2.in"
-  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
+  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir --with-tclinclude=$topsrcdir/$tcl/../generic"
 fi
 if test "${STAGE}" = "stage3"; then
   my_subdirs=$stage3_dirs
   my_makefile="Makefile:stages/Makefile-stage3.in"
-  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"i
+  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
 fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for X" >&5
@@ -4006,6 +4021,7 @@ fi
 if test "${x_libraries}" = "NONE" ; then
    as_fn_error "can't find X11 libraries, required by tk, blt, htmlwidget, pymol, shape, tkimg" "$LINENO" 5
 fi
+
 
 
 

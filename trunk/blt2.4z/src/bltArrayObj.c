@@ -203,7 +203,7 @@ Blt_NewArrayObj(objc, objv)
     for (i = 0; i < objc; i += 2) {
 	hPtr = Blt_CreateHashEntry(tablePtr, Tcl_GetString(objv[i]), &isNew);
 	if ((i + 1) == objc) {
-	    objPtr = bltEmptyStringObjPtr;
+	    objPtr = Tcl_NewStringObj("", -1);
 	} else {
 	    objPtr = objv[i+1];
 	}

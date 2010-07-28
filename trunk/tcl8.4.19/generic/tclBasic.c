@@ -4310,7 +4310,6 @@ Tcl_Eval(interp, string)
      * object system in Tcl 8.0, we have to mirror the object result
      * back into the string result (some callers may expect it there).
      */
-
     Tcl_SetResult(interp, TclGetString(Tcl_GetObjResult(interp)),
 	    TCL_VOLATILE);
     return code;

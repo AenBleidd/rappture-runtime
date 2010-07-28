@@ -416,6 +416,7 @@ CreateClient(
 
     dataPtr = GetTileInterpData(interp);
 
+    memset(&key, 0, sizeof(TileKey));
     key.nameId = Tk_GetUid(name);
     key.display = Tk_Display(tkwin);
     key.depth = Tk_Depth(tkwin);

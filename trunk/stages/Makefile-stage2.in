@@ -15,6 +15,7 @@ VPATH			= $(srcdir)
 INSTALL			= @INSTALL@
 
 BLT_DIR			= @BLT_DIR@
+EXPECT_DIR		= @EXPECT_DIR@
 HTMLWIDGET_DIR		= @HTMLWIDGET_DIR@
 ITCL_DIR		= @ITCL_DIR@
 ITK_DIR			= @ITK_DIR@
@@ -27,6 +28,9 @@ VORONOI_DIR 		= @VORONOI_DIR@
 
 ifneq ($(BLT_DIR),)
    subdirs += $(BLT_DIR)
+endif
+ifneq ($(EXPECT_DIR),)
+   subdirs += $(EXPECT_DIR)
 endif
 ifneq ($(HTMLWIDGET_DIR),)
    subdirs += $(HTMLWIDGET_DIR)

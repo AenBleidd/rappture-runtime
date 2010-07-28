@@ -477,7 +477,7 @@ IconToObj(clientData, interp, tkwin, widgRec, offset)
     TreeViewIcon icon = *(TreeViewIcon *)(widgRec + offset);
 
     if (icon == NULL) {
-	return bltEmptyStringObjPtr;
+	return Tcl_NewStringObj("", -1);
     }
     return Tcl_NewStringObj(Blt_NameOfImage((icon)->tkImage), -1);
 }

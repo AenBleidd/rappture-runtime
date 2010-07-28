@@ -306,9 +306,9 @@ Blt_ConfigSpec bltTreeViewSpecs[] =
     {BLT_CONFIG_CUSTOM, "-button", "button", "Button",
 	DEF_TV_BUTTON, Blt_Offset(TreeView, buttonFlags),
 	BLT_CONFIG_DONT_SET_DEFAULT, &buttonOption},
-    {BLT_CONFIG_STRING, "-closecommand", "closeCommand", "CloseCommand",
-	(char *)NULL, Blt_Offset(TreeView, closeCmd), 
-	BLT_CONFIG_NULL_OK},
+    {BLT_CONFIG_CUSTOM, "-closecommand", "closeCommand", "CloseCommand",
+	(char *)NULL, Blt_Offset(TreeView, closeCmd),
+	BLT_CONFIG_NULL_OK, &bltTreeViewUidOption},
     {BLT_CONFIG_ACTIVE_CURSOR, "-cursor", "cursor", "Cursor",
 	(char *)NULL, Blt_Offset(TreeView, cursor), BLT_CONFIG_NULL_OK},
     {BLT_CONFIG_DASHES, "-dashes", "dashes", "Dashes",
@@ -584,7 +584,7 @@ TreeToObj(
     Blt_Tree tree = *(Blt_Tree *)(widgRec + offset);
 
     if (tree == NULL) {
-	return bltEmptyStringObjPtr;
+	return Tcl_NewStringObj("", -1);
     } else {
 	return Tcl_NewStringObj(Blt_TreeName(tree), -1);
     }
@@ -840,13 +840,16 @@ ButtonToObj(
 {
     int bool;
     unsigned int flags = *(int *)(widgRec + offset);
+    Tcl_Obj *objPtr;
 
     bool = (flags & BUTTON_MASK);
     if (bool == BUTTON_AUTO) {
-	return Tcl_NewStringObj("auto", 4);
+	objPtr = Tcl_NewStringObj("auto", 4);
     } else {
-	return Tcl_NewBooleanObj(bool);
+	objPtr = Tcl_NewBooleanObj(bool);
     }
+    Tcl_IncrRefCount(objPtr);
+    return objPtr;
 }
 
 /*
@@ -910,7 +913,7 @@ SeparatorToObj(
     char *separator = *(char **)(widgRec + offset);
 
     if (separator == SEPARATOR_NONE) {
-	return bltEmptyStringObjPtr;
+	return Tcl_NewStringObj("", -1);
     } else if (separator == SEPARATOR_LIST) {
 	return Tcl_NewStringObj("list", -1);
     }  else {
@@ -1123,6 +1126,9 @@ ObjToUid(
     if (*string != '\0') {
 	newId = Blt_TreeViewGetUid(tvPtr, string);
     }
+    if (*uidPtr != NULL) {
+	Blt_TreeViewFreeUid(tvPtr, *uidPtr);
+    }	
     *uidPtr = newId;
     return TCL_OK;
 }
@@ -1151,7 +1157,7 @@ UidToObj(
     UID uid = *(UID *)(widgRec + offset);
 
     if (uid == NULL) {
-	return bltEmptyStringObjPtr;
+	return Tcl_NewStringObj("", -1);
     }
     return Tcl_NewStringObj(uid, -1);
 }
@@ -1182,6 +1188,7 @@ FreeUid(
 	TreeView *tvPtr = clientData;
 
 	Blt_TreeViewFreeUid(tvPtr, *uidPtr);
+	*uidPtr = NULL;
     }
 }
 
