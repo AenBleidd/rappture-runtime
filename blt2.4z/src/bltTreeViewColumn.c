@@ -303,7 +303,7 @@ ColumnToObj(clientData, interp, tkwin, widgRec, offset)
     TreeViewColumn *columnPtr = *(TreeViewColumn **)(widgRec + offset);
 
     if (columnPtr == NULL) {
-	return bltEmptyStringObjPtr;
+	return Tcl_NewStringObj("", -1);
     }
     return Tcl_NewStringObj(columnPtr->key, -1);
 }
@@ -402,7 +402,7 @@ DataToObj(clientData, interp, tkwin, widgRec, offset)
 	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
 	if (Blt_TreeViewGetData(entryPtr, valuePtr->columnPtr->key, &objPtr)
 	    != TCL_OK) {
-	    objPtr = bltEmptyStringObjPtr;
+	    objPtr = Tcl_NewStringObj("", -1);
 	} 
 	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
     }
@@ -501,7 +501,7 @@ StyleToObj(clientData, interp, tkwin, widgRec, offset)
     TreeViewStyle *stylePtr = *(TreeViewStyle **)(widgRec + offset);
 
     if (stylePtr == NULL) {
-	return bltEmptyStringObjPtr;
+	return Tcl_NewStringObj("", -1);
     }
     return Tcl_NewStringObj(stylePtr->name, -1);
 }
@@ -1704,12 +1704,12 @@ CompareNodes(n1Ptr, n2Ptr)
 
 	key = tvPtr->sortColumnPtr->key;
 	if (Blt_TreeViewGetData(e1Ptr, key, &objPtr) != TCL_OK) {
-	    e1Ptr->dataObjPtr = bltEmptyStringObjPtr;
+	    e1Ptr->dataObjPtr = Tcl_NewStringObj("", -1);
 	} else {
 	    e1Ptr->dataObjPtr = objPtr;
 	}
 	if (Blt_TreeViewGetData(e2Ptr, key, &objPtr) != TCL_OK) {
-	    e2Ptr->dataObjPtr = bltEmptyStringObjPtr;
+	    e2Ptr->dataObjPtr = Tcl_NewStringObj("", -1);
 	} else {
 	    e2Ptr->dataObjPtr = objPtr;
 	}
@@ -2005,7 +2005,7 @@ Blt_TreeViewSortFlatView(tvPtr)
 	for(p = tvPtr->flatArr; *p != NULL; p++) {
 	    entryPtr = *p;
 	    if (Blt_TreeViewGetData(entryPtr, key, &objPtr) != TCL_OK) {
-		objPtr = bltEmptyStringObjPtr;
+		objPtr = Tcl_NewStringObj("", -1);
 	    }
 	    entryPtr->dataObjPtr = objPtr;
 	    Tcl_IncrRefCount(entryPtr->dataObjPtr);

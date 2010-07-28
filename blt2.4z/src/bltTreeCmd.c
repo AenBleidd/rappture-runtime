@@ -1440,7 +1440,7 @@ RestoreNode(TreeCmd *cmdPtr, int argc, char **argv, RestoreData *dataPtr)
 	if ((i + 1) < nElem) {
 	    valueObjPtr = Tcl_NewStringObj(elemArr[i + 1], -1);
 	} else {
-	    valueObjPtr = bltEmptyStringObjPtr;
+	    valueObjPtr = Tcl_NewStringObj("", -1);
 	}
 	Tcl_IncrRefCount(valueObjPtr);
 	result = Blt_TreeSetValue(cmdPtr->interp, cmdPtr->tree, node, 

@@ -2738,7 +2738,10 @@ GetFontAttributes(display, fontStructPtr, faPtr)
     
     if ((XGetFontProperty(fontStructPtr, XA_FONT, &value) != False) &&
 	    (value != 0)) {
-	name = XGetAtomName(display, (Atom) value);
+	Atom atom;
+	
+	atom = (Atom)value;
+	name = XGetAtomName(display, atom);
 	if (TkFontParseXLFD(name, &faPtr->fa, &faPtr->xa) != TCL_OK) {
 	    faPtr->fa.family = Tk_GetUid(name);
 	    faPtr->xa.foundry = Tk_GetUid("");

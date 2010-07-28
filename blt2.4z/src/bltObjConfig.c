@@ -1048,6 +1048,12 @@ DoConfig(interp, tkwin, specPtr, objPtr, widgRec)
 	    break;
 
 	case BLT_CONFIG_CUSTOM: 
+	    if ((*specPtr->customPtr->parseProc)(specPtr->customPtr->clientData,
+		 interp, tkwin, objPtr, widgRec, specPtr->offset) != TCL_OK) {
+		return TCL_ERROR;
+	    }
+	    break;
+#ifdef notdef
 	    {
 		if ((*(char **)ptr != NULL) && 
 		    (specPtr->customPtr->freeProc != NULL)) {
@@ -1070,7 +1076,7 @@ DoConfig(interp, tkwin, specPtr, objPtr, widgRec)
 		}
 	    }
 	    break;
-
+#endif
 	case BLT_CONFIG_DOUBLE: 
 	    {
 		double newDouble;
@@ -1594,59 +1600,65 @@ FormatConfigValue(interp, tkwin, specPtr, widgRec)
 }
 
 /*
- *--------------------------------------------------------------
+ *---------------------------------------------------------------------------
  *
  * FormatConfigInfo --
  *
- *	Create a valid Tcl list holding the configuration information
+ *	Create a valid TCL list holding the configuration information
  *	for a single configuration option.
  *
  * Results:
- *	A Tcl list, dynamically allocated.  The caller is expected to
+ *	A TCL list, dynamically allocated.  The caller is expected to
  *	arrange for this list to be freed eventually.
  *
  * Side effects:
  *	Memory is allocated.
  *
- *--------------------------------------------------------------
+ *---------------------------------------------------------------------------
  */
 static Tcl_Obj *
-FormatConfigInfo(interp, tkwin, specPtr, widgRec)
-    Tcl_Interp *interp;			/* Interpreter to use for things
-					 * like floating-point precision. */
-    Tk_Window tkwin;			/* Window corresponding to widget. */
-    register Blt_ConfigSpec *specPtr;	/* Pointer to information describing
-					 * option. */
-    char *widgRec;			/* Pointer to record holding current
-					 * values of info for widget. */
+FormatConfigInfo(
+    Tcl_Interp *interp,		/* Interpreter to use for things
+				 * like floating-point precision. */
+    Tk_Window tkwin,		/* Window corresponding to widget. */
+    Blt_ConfigSpec *sp,		/* Pointer to information describing
+				 * option. */
+    char *widgRec)		/* Pointer to record holding current
+				 * values of info for widget. */
 {
-    Tcl_Obj *objv[5];
     Tcl_Obj *listObjPtr;
-    register int i;
 
-    for (i = 0; i < 5; i++) {
-	objv[i] = bltEmptyStringObjPtr;
+    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **)NULL);
+    if (sp->switchName != NULL) {
+	Tcl_ListObjAppendElement(interp, listObjPtr, 
+		Tcl_NewStringObj(sp->switchName, -1));
+    }  else {
+	Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewStringObj("", -1));
     }
-    if (specPtr->switchName != NULL) {
-	objv[0] = Tcl_NewStringObj(specPtr->switchName, -1);
-    } 
-    if (specPtr->dbName != NULL) {
-	objv[1] = Tcl_NewStringObj(specPtr->dbName, -1);
+    if (sp->dbName != NULL) {
+	Tcl_ListObjAppendElement(interp, listObjPtr,  
+		Tcl_NewStringObj(sp->dbName, -1));
+    } else {
+	Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewStringObj("", -1));
     }
-    if (specPtr->type == BLT_CONFIG_SYNONYM) {
-	listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **)NULL);
-	Tcl_ListObjAppendElement(interp, listObjPtr, objv[0]);
-	Tcl_ListObjAppendElement(interp, listObjPtr, objv[1]);
+    if (sp->type == BLT_CONFIG_SYNONYM) {
 	return listObjPtr;
     } 
-    if (specPtr->dbClass != NULL) {
-	objv[2] = Tcl_NewStringObj(specPtr->dbClass, -1);
+    if (sp->dbClass != NULL) {
+	Tcl_ListObjAppendElement(interp, listObjPtr, 
+		Tcl_NewStringObj(sp->dbClass, -1));
+    } else {
+	Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewStringObj("", -1));
     }
-    if (specPtr->defValue != NULL) {
-	objv[3] = Tcl_NewStringObj(specPtr->defValue, -1);
+    if (sp->defValue != NULL) {
+	Tcl_ListObjAppendElement(interp, listObjPtr, 
+		Tcl_NewStringObj(sp->defValue, -1));
+    } else {
+	Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewStringObj("", -1));
     }
-    objv[4] = FormatConfigValue(interp, tkwin, specPtr, widgRec);
-    return Tcl_NewListObj(5, objv);
+    Tcl_ListObjAppendElement(interp, listObjPtr, 
+	FormatConfigValue(interp, tkwin, sp, widgRec));
+    return listObjPtr;
 }
 
 /*
@@ -2155,7 +2167,9 @@ Blt_FreeObjOptions(specs, widgRec, display, needFlags)
 	    break;
 
 	case BLT_CONFIG_LISTOBJ:
-	    Tcl_DecrRefCount(*(Tcl_Obj **)ptr);
+	    if (*((Tcl_Obj **) ptr) != NULL) {
+		Tcl_DecrRefCount(*(Tcl_Obj **)ptr);
+	    }
 	    break;
 
 	case BLT_CONFIG_LIST:

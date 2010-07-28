@@ -17,6 +17,7 @@ fi
 libdir=$exec_prefix/lib
 includedir=$prefix/include
 
+topsrcdir=`cd $srcdir; pwd`
 # RR_SRC_DIR=`cd $srcdir/..; pwd`
 RR_SRC_DIR=`pwd`
 AC_SUBST(RR_SRC_DIR)
@@ -36,6 +37,7 @@ AC_SUBST(VERSION)
 blt=blt2.4z
 cmake=cmake-2.4.8
 expat=expat-2.0.1
+expect=expect-5.44.1.15
 htmlwidget=htmlwidget-3a14
 itcl=itcl3.3
 itk=itk3.3
@@ -57,6 +59,7 @@ dx=dx-4.4.4
 default_blt=yes
 default_cmake=no
 default_expat=no
+default_expect=yes
 default_htmlwidget=yes
 default_itcl=yes
 default_itk=yes
@@ -95,6 +98,11 @@ AC_ARG_WITH([expat],
   AS_HELP_STRING([--with-expat[=DIR]], 
     [Build expat-2.0.1 @<:@default=yes@:>@])], 
 	[with_expat=$withval], [with_expat=$default_expat])
+
+AC_ARG_WITH([expect],
+  AS_HELP_STRING([--with-expect[=DIR]], 
+    [Build expect-5.44.1.15 @<:@default=yes@:>@])], 
+	[with_expect=$withval], [with_expect=$default_expect])
 
 AC_ARG_WITH([htmlwidget],
   [AS_HELP_STRING([--with-htmlwidget[=DIR]], 
@@ -177,7 +185,7 @@ AC_ARG_WITH([dx],
 	[with_dx=$withval], [with_dx=$default_dx])
 
 stage1_targets="expat tcl tk zlib cmake"
-stage2_targets="itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
+stage2_targets="expect itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
 stage3_targets="vtk pymol dx"
 
 if test "${with_expat}" = "no" ; then
@@ -242,12 +250,12 @@ fi
 if test "${STAGE}" = "stage2"; then
   my_subdirs=$stage2_dirs
   my_makefile="Makefile:stages/Makefile-stage2.in"
-  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
+  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir --with-tclinclude=$topsrcdir/$tcl/../generic"
 fi
 if test "${STAGE}" = "stage3"; then
   my_subdirs=$stage3_dirs
   my_makefile="Makefile:stages/Makefile-stage3.in"
-  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"i
+  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
 fi
 
 AC_PATH_X
@@ -262,6 +270,7 @@ fi
 AC_SUBST(BLT_DIR)
 AC_SUBST(CMAKE_DIR)
 AC_SUBST(EXPAT_DIR)
+AC_SUBST(EXPECT_DIR)
 AC_SUBST(HTMLWIDGET_DIR)
 AC_SUBST(ITCL_DIR)
 AC_SUBST(ITK_DIR)

@@ -2071,6 +2071,7 @@ DestroyTab(setPtr, tabPtr)
 {
     Blt_HashEntry *hPtr;
 
+    Tk_FreeOptions(tabConfigSpecs, (char *)tabPtr, setPtr->display, 0);
     if (tabPtr->flags & TAB_REDRAW) {
 	Tcl_CancelIdleCall(DisplayTearoff, tabPtr);
     }
@@ -2098,7 +2099,6 @@ DestroyTab(setPtr, tabPtr)
     if (tabPtr == setPtr->startPtr) {
 	setPtr->startPtr = NULL;
     }
-    Tk_FreeOptions(tabConfigSpecs, (char *)tabPtr, setPtr->display, 0);
     if (tabPtr->text != NULL) {
 	Blt_FreeUid(tabPtr->text);
     }
