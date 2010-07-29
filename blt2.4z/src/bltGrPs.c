@@ -1124,6 +1124,7 @@ CreateWindowsEPS(
     unsigned char *buffer, *psBuffer;
     double dpiX, dpiY;
     double xPixelsToPica, yPixelsToPica; /* Scales to convert pixels to pica */
+    Screen *screenPtr;
     
     Blt_AppendToPostScript(psToken, "\n", (char *)NULL);
     psBuffer = Blt_PostScriptFromToken(psToken);

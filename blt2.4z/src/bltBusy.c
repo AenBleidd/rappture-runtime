@@ -151,8 +151,9 @@ ShowBusyWindow(busyPtr)
 	GetCursorPos(&point);
 	SetCursorPos(point.x, point.y);
     }
-#endif /* WIN32 */
+#else 
     XFlush(busyPtr->display);
+#endif /* WIN32 */
 }
 
 static void
@@ -178,8 +179,9 @@ HideBusyWindow(busyPtr)
 	GetCursorPos(&point);
 	SetCursorPos(point.x, point.y);
     }
-#endif /* WIN32 */
+#else 
     XFlush(busyPtr->display);
+#endif /* WIN32 */
 }
 
 /*
