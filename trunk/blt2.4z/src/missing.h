@@ -40,8 +40,9 @@
 #define GetStockPen(i)       ((HPEN)GetStockObject(i))
 #endif
 
-
+#ifndef DM_SPECVERSION
 #define DM_SPECVERSION 0x0401
+#endif
 
 #define DMPAPER_ISO_B4              42	/* B4 (ISO) 250 x 353 mm              */
 #define DMPAPER_JAPANESE_POSTCARD   43	/* Japanese Postcard 100 x 148 mm     */

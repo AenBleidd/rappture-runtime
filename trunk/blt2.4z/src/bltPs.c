@@ -504,7 +504,7 @@ PostscriptFontName(Tk_Font font, Tcl_DString *resultPtr)
 	flags |= FONT_BOLD;
     }
     Blt_Ps_FontName(tkFontPtr->fa.family, flags, resultPtr);
-    return tkFontPtr->fa.size;
+    return tkFontPtr->fa.pointsize;
 }
 
 /*
