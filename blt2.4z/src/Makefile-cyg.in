@@ -73,6 +73,7 @@ TCL_ONLY_OBJS =	bltAlloc.o \
 		bltArrayObj.o \
 		bltBgexec.o \
 		bltChain.o \
+		bltCsv.o \
 		bltDebug.o \
 		bltHash.o \
 		bltList.o \
@@ -111,6 +112,7 @@ OBJS =		$(GRAPH_OBJS) \
 		bltImage.o \
 		bltWinImage.o \
 		bltPs.o \
+		bltPsAfm.o \
 		bltTable.o \
 		bltTabnotebook.o \
 		bltTabset.o \
