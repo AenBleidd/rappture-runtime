@@ -112,6 +112,8 @@ case $host_os in
    *Darwin* )
       DYLD_LIBRARY_PATH=$build_dir/lib
       export DYLD_LIBRARY_PATH
+      XMKMF=false
+      export XMKMF
       ;;
    *Linux*  )
       LD_LIBRARY_PATH=$build_dir/lib
