@@ -611,6 +611,7 @@ FreeTree(
 	Blt_TreeApply(root, DeleteApplyProc, tvPtr);
 	Blt_TreeViewClearSelection(tvPtr);
 	Blt_TreeReleaseToken(*treePtr);
+	*treePtr = NULL;
     }
 }
 
@@ -2882,8 +2883,10 @@ DestroyTreeView(DestroyData dataPtr)	/* Pointer to the widget record. */
     TreeViewEntry *entryPtr;
     TreeViewStyle *stylePtr;
 
+    if (tvPtr->tree != NULL) {
     Blt_TreeDeleteEventHandler(tvPtr->tree, TREE_NOTIFY_ALL, TreeEventProc, 
 	   tvPtr);
+    }
     for (hPtr = Blt_FirstHashEntry(&tvPtr->entryTable, &cursor); hPtr != NULL;
 	 hPtr = Blt_NextHashEntry(&cursor)) {
 	entryPtr = Blt_GetHashValue(hPtr);
