@@ -89,7 +89,7 @@ int
 Tkimg_Init (interp)
       Tcl_Interp *interp; /* Interpreter to initialise. */
 {
-    EXTERN int TkimgInitUtilities _ANSI_ARGS_ ((Tcl_Interp* interp));
+    extern int TkimgInitUtilities _ANSI_ARGS_ ((Tcl_Interp* interp));
 
 #if TCL_DOES_STUBS
     extern TkimgStubs tkimgStubs;
