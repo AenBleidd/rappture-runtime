@@ -155,12 +155,12 @@ typedef unsigned int UINT16;
 typedef short INT16;
 #endif
 
-#ifdef notdef
 /* INT32 must hold at least signed 32-bit values. */
 
 #ifndef XMD_H			/* X11/xmd.h correctly defines INT32 */
+#ifndef BUILDING_TIFF
 typedef long INT32;
-#endif
+#endif /* BUILDING_TIFF */
 #endif
 
 /* Datatype used for image dimensions.  The JPEG standard only supports
