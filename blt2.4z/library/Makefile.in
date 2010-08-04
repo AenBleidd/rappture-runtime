@@ -20,6 +20,10 @@ SHELL        = /bin/sh
 
 cursors = 	treeview.xbm \
 		treeview_m.xbm
+WIN32 = 	@WIN32@
+ifneq ("$(WIN32)", "")
+cursors += 	treeview.cur
+endif
 
 miscFiles     = \
 		bltCanvEps.pro \
