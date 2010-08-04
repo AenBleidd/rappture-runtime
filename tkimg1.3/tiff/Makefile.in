@@ -225,7 +225,8 @@ CONFIG_CLEAN_FILES = Makefile pkgIndex.tcl
 CPPFLAGS	= @CPPFLAGS@ -DPACKAGE_NAME=\"$(DPACKAGE)\"	\
 		-DTIFFTCL_VERSION=\"$(tifftcl_VERSION)\"	\
 		-DJPEGTCL_VERSION=\"$(jpegtcl_VERSION)\"	\
-		-DZLIBTCL_VERSION=\"$(zlibtcl_VERSION)\"
+		-DZLIBTCL_VERSION=\"$(zlibtcl_VERSION)\" \
+		-DBUILDING_TIFF
 
 LIBS		= @LIBS@
 AR		= ar
