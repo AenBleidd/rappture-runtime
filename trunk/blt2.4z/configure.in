@@ -255,6 +255,13 @@ if test "${blt_enable_jpeg}" != "no" ; then
   CPPFLAGS=${jpeg_save_CPPFLAGS}
 fi
 
+WIN32=
+if test "${blt_platform}" = "win"; then
+  AC_DEFINE_UNQUOTED([WIN32], [1], [Define if building for Win32.])
+  WIN32=yes
+fi
+AC_SUBST(WIN32)
+
 # Run this check after jpeglib.h because jpeglib.h sets HAVE_STDLIB_H
 AC_CHECK_HEADERS(stdlib.h unistd.h)
 
