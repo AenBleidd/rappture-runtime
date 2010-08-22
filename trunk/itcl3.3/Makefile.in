@@ -237,6 +237,7 @@ $(PKG_STUB_LIB_FILE): $(PKG_STUB_OBJECTS)
 	-rm -f $(PKG_STUB_LIB_FILE)
 	${MAKE_STUB_LIB}
 	$(RANLIB_STUB) $(PKG_STUB_LIB_FILE)
+	cp $(PKG_STUB_LIB_FILE) lib$(PKG_STUB_LIB_FILE)
 
 #========================================================================
 # We need to enumerate the list of .c to .o lines here.
