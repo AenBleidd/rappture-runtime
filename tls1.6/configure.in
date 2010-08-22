@@ -178,7 +178,7 @@ if test "${TEA_PLATFORM}" = "windows" ; then
 	TEA_ADD_LIBS([-libpath:${SSL_LIB_DIR_NATIVE}])
     fi
     if test -n "${OPENSSL}"; then
-        TEA_ADD_LIBS([ssleay32.lib libeay32.lib])
+        TEA_ADD_LIBS([-L${SSL_LIB_DIR} -lssl -lcrypto])
     else
         TEA_ADD_LIBS([sslc32.lib])
     fi
