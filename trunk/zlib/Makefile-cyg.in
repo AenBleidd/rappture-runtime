@@ -22,16 +22,21 @@ ZLIB_DIR		= @ZLIB_DIR@
 all: zlib
 
 zlib:
-	$(MAKE) -C $(ZLIB_DIR) all 
+	$(MAKE) -C $(ZLIB_DIR) -f win32/Makefile.gcc all 
 
 install: 
 	$(MKDIR_P) $(destdir)
-	$(MAKE) -C $(ZLIB_DIR) install prefix=$(exec_prefix)
+	$(MAKE) -C $(ZLIB_DIR) -f win32/Makefile.gcc install \
+		prefix=$(exec_prefix) \
+		SHARED_MODE=1 \
+		BINARY_PATH=$(bindir) \
+		LIBRARY_PATH=$(libdir) \
+		INCLUDE_PATH=$(includedir)
 
 clean: 
-	$(MAKE) -C $(ZLIB_DIR) clean
+	$(MAKE) -C $(ZLIB_DIR) -f win32/Makefile.gcc clean
 
 distclean: 
-	$(MAKE) -C $(ZLIB_DIR) distclean
+	$(MAKE) -C $(ZLIB_DIR) -f win32/Makefile.gcc distclean
 	$(RM) Makefile *~
 
