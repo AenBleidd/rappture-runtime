@@ -2167,11 +2167,23 @@ TypeOp(graphPtr, interp, argc, argv)
     char **argv;		/* Element name */
 {
     Element *elemPtr;
+    const char *string;
 
     if (NameToElement(graphPtr, argv[3], &elemPtr) != TCL_OK) {
 	return TCL_ERROR;	/* Can't find named element */
     }
-    Tcl_SetResult(interp, elemPtr->classUid, TCL_STATIC);
+    if (strcmp(elemPtr->classUid, "BarElement") == 0) {
+	string = "bar";
+    } else if (strcmp(elemPtr->classUid, "LineElement") == 0) {
+	string = "line";
+    } else if (strcmp(elemPtr->classUid, "StripElement") == 0) {
+	string = "strip";
+    } else if (strcmp(elemPtr->classUid, "ContourElement") == 0) {
+	string = "contour";
+    } else {
+	string = "???";	
+    }
+    Tcl_SetResult(interp, string, TCL_STATIC);
     return TCL_OK;
 }
 
