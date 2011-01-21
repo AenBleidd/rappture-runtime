@@ -129,7 +129,6 @@ proc blt::tv::Initialize { w } {
     
     $w bind Entry <ButtonPress-1> { 	
 	blt::tv::SetSelectionAnchor %W current
-	set blt::tv::scroll 1
     }
 
     $w bind Entry <Double-ButtonPress-1> {
@@ -146,6 +145,7 @@ proc blt::tv::Initialize { w } {
 	set blt::tv::x %x
 	set blt::tv::y %y
 	set index [%W nearest %x %y]
+	set blt::tv::scroll 1
 	if { [%W cget -selectmode] == "multiple" } {
 	    %W selection mark $index
 	} else {
