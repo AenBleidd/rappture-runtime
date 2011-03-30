@@ -20,10 +20,6 @@ package require BLT
 #    table . .g -resize both
 #
 # --------------------------------------------------------------------------
-if { $tcl_version >= 8.0 } {
-    namespace import blt::*
-    namespace import -force blt::tile::*
-}
 
 source scripts/demo.tcl
 
@@ -55,8 +51,8 @@ set data {
 }
 set image [image create photo -format gif -data $data]
 
-set graph [graph .g]
-table . \
+set graph [blt::graph .g]
+blt::table . \
     0,0 $graph -fill both 
 
 source scripts/graph2.tcl
@@ -114,8 +110,8 @@ proc MakeSnapshot {} {
     wm title $top "Snapshot \#$unique of \"[$graph cget -title]\""
     label $top.lab -image $im 
     button $top.but -text "Dismiss" -command "DestroySnapshot $top"
-    table $top $top.lab
-    table $top $top.but -pady 4 
+    blt::table $top $top.lab
+    blt::table $top $top.but -pady 4 
     focus $top.but
 }
 
