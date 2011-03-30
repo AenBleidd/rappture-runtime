@@ -3450,14 +3450,14 @@ fi
 blt=blt2.4z
 cmake=cmake-2.8.2
 expat=expat-2.0.1
-expect=expect-5.44.1.15
+expect=expect5.45
 htmlwidget=htmlwidget-3a14
 itcl=itcl3.3
 itk=itk3.3
 pymol=pymol
 shape=shape0.4/unix
 tcl=tcl8.4.19/unix
-tcllib=tcllib-1.9
+tcllib=tcllib-1.12
 tdom=tDOM-0.8.2
 tk=tk8.4.19/unix
 tkimg=tkimg1.3

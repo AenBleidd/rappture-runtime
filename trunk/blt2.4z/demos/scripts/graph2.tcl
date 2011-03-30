@@ -66,7 +66,7 @@ for { set level 30 } { $level <= 100 } { incr level 10 } {
     set color [format "#dd0d%0.2x" [expr round($level*2.55)]]
     set pen "pen$count"
     set symbol "symbol$count"
-    bitmap compose $symbol [lindex $letters $count] \
+    blt::bitmap compose $symbol [lindex $letters $count] \
     	-font -*-helvetica-medium-r-*-*-34-*-*-*-*-*-*-*
     $graph pen create $pen \
 	-color $color \
@@ -89,16 +89,16 @@ $graph xaxis use degrees
 set tcl_precision 15
 set pi1_2 [expr 3.14159265358979323846/180.0]
 
-vector create w x sinX cosX radians
+blt::vector create w x sinX cosX radians
 x seq -360.0 360.0 10.0
 #x seq -360.0 -180.0 30.0
 radians expr { x * $pi1_2 }
 sinX expr sin(radians)
 cosX expr cos(radians)
 cosX dup w
-vector destroy radians
+blt::vector destroy radians
 
-vector create xh xl yh yl
+blt::vector create xh xl yh yl
 set pct [expr ($cosX(max) - $cosX(min)) * 0.025]
 yh expr {cosX + $pct}
 yl expr {cosX - $pct}
