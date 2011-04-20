@@ -837,6 +837,9 @@ extern int Blt_JPEGToPhoto _ANSI_ARGS_((Tcl_Interp *interp, char *fileName,
 /* #define NO_TED */
 
 #ifndef NO_BEEP
+extern Tcl_AppInitProc Blt_ArcBallInit;
+#endif
+#ifndef NO_BEEP
 extern Tcl_AppInitProc Blt_BeepInit;
 #endif
 #ifndef NO_BGEXEC

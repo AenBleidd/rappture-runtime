@@ -1882,3 +1882,457 @@ Blt_Get3DBorder(interp, tkwin, borderName)
 }
 
 #endif
+
+
+typedef struct {
+    float x, y, z;
+} Vector3f;
+
+typedef struct {
+    float x, y, z, w;
+} Quaternion;
+
+typedef float RotationMatrix[3][3];
+
+typedef struct {
+    Vector3f click;      
+    Vector3f drag;		
+    float xScale;   
+    float yScale;  
+} ArcBall;
+
+/*
+ * Arcball sphere constants:
+ * Diameter is       2.0f
+ * Radius is         1.0f
+ * Radius squared is 1.0f
+ */
+
+#ifdef _MSC_VER
+#define sqrtf(x) sqrt(x)
+#endif
+
+/* assuming IEEE-754 (float), which i believe has max precision of 7 bits */
+static INLINE float 
+LengthVector3f(Vector3f *a)
+{
+    return sqrtf((a->x * a->x) + (a->y * a->y) + (a->z * a->z));
+}
+
+static INLINE float 
+DotProductVector3f(Vector3f *a,  Vector3f *b)
+{
+    return (a->x * b->x) + (a->y * b->y) + (a->z * b->z);
+}
+
+/**
+  * Calculate the cross product of two 3D vectors: c = a x b.
+  * "c" must not refer to the same memory location as "a" or "b".
+  */
+static INLINE void 
+CrossProductVector3f(Vector3f *a, Vector3f *b, Vector3f *c)
+{
+    c->x = (a->y * b->z) - (b->y * a->z);
+    c->y = (a->z * b->x) - (b->z * a->x);
+    c->z = (a->x * b->y) - (b->x * a->y);
+}
+
+static void 
+MatrixToQuaternion(RotationMatrix rot, Quaternion *q)
+{
+    float trace;
+
+    // I removed + 1.0f; see discussion with Ethan
+    trace = rot[0][0] + rot[1][1] + rot[2][2]; 
+    if( trace > 0 ) {			// I changed M_EPSILON to 0
+	float s;
+
+	s = 0.5f / sqrtf(trace + 1.0f);
+	q->w = 0.25f / s;
+	q->x = (rot[2][1] - rot[1][2]) * s;
+	q->y = (rot[0][2] - rot[2][0]) * s;
+	q->z = (rot[1][0] - rot[0][1]) * s;
+    } else if ((rot[0][0] > rot[1][1]) && (rot[0][0] > rot[2][2])) {
+	float s;
+	
+	s = 2.0f * sqrtf(1.0f + rot[0][0] - rot[1][1] - rot[2][2]);
+	q->w = (rot[2][1] - rot[1][2]) / s;
+	q->x = 0.25f * s;
+	q->y = (rot[0][1] + rot[1][0]) / s;
+	q->z = (rot[0][2] + rot[2][0]) / s;
+    } else if (rot[1][1] > rot[2][2]) {
+	float s;
+	
+	s = 2.0f * sqrtf(1.0f + rot[1][1] - rot[0][0] - rot[2][2]);
+	q->w = (rot[0][2] - rot[2][0]) / s;
+	q->x = (rot[0][1] + rot[1][0]) / s;
+	q->y = 0.25f * s;
+	q->z = (rot[1][2] + rot[2][1]) / s;
+    } else {
+	float s;
+	
+	s = 2.0f * sqrtf(1.0f + rot[2][2] - rot[0][0] - rot[1][1]);
+	q->w = (rot[1][0] - rot[0][1]) / s;
+	q->x = (rot[0][2] + rot[2][0]) / s;
+	q->y = (rot[1][2] + rot[2][1]) / s;
+	q->z = 0.25f * s;
+    }
+}
+
+static void 
+PointOnSphere(ArcBall *arcPtr, float x, float y, Vector3f *outPtr)
+{
+    float sx, sy;
+    float d;
+
+    /* Adjust point coords and scale down to range of [-1 ... 1] */
+    sx = (x * arcPtr->xScale)  - 1.0f;
+    sy = 1.0f - (y * arcPtr->yScale);
+
+    /* Compute the square of the length of the vector to the point from the
+     * center. */
+    d = (sx * sx) + (sy * sy);
+
+    /* If the point is mapped outside of the sphere ... 
+     * (length > radius squared)
+     */
+    if (d > 1.0f) {
+        float scale;
+
+        /* Compute a normalizing factor (radius / sqrt(length)) */
+        scale = 1.0f / sqrtf(d);
+
+        /* Return the "normalized" vector, a point on the sphere */
+        outPtr->x = sx * scale;
+        outPtr->y = sy * scale;
+        outPtr->z = 0.0f;
+    } else {   /* else it's on the inside */
+        /* Return a vector to a point mapped inside the sphere
+         * sqrt(radius squared - length) */
+        outPtr->x = sx;
+        outPtr->y = sy;
+        outPtr->z = sqrtf(1.0f - d);
+    }
+}
+
+static void 
+SetArcBallBounds(ArcBall *arcPtr, float w, float h)
+{
+    if (w <= 1.0f ) {
+        w = 2.0f;
+    }
+    if (h <= 1.0f ) {
+        h = 2.0f;
+    }
+    /* Set adjustment factor for width/height */
+    arcPtr->xScale = 1.0f / ((w - 1.0f) * 0.5f);
+    arcPtr->yScale = 1.0f / ((h - 1.0f) * 0.5f);
+}
+
+/* Mouse down: Supply mouse position in x and y */
+static void 
+ArcBallOnClick(ArcBall *arcPtr, float x, float y)
+{
+    PointOnSphere (arcPtr, x, y, &arcPtr->click);
+}
+
+/* Mouse drag, calculate rotation: Supply mouse position in x and y */
+static void 
+ArcBallOnDrag(ArcBall *arcPtr, float x, float y, Quaternion *q)
+{
+    /* Map the point to the sphere */
+    PointOnSphere(arcPtr, x, y, &arcPtr->drag);
+
+    /* Return the quaternion equivalent to the rotation */
+    if (q != NULL) {
+        Vector3f perp;
+
+        /* Compute the vector perpendicular to the begin and end vectors */
+        CrossProductVector3f(&arcPtr->drag, &arcPtr->click, &perp);
+
+        /* Compute the length of the perpendicular vector */
+        if (LengthVector3f(&perp) > FLT_EPSILON) {
+            /* If its non-zero, we're ok, so return the perpendicular
+             * vector as the transform after all
+             */
+            q->x = perp.x;
+            q->y = perp.y;
+            q->z = perp.z;
+            /* In the quaternion values, w is cosine (theta / 2),
+             * where theta is rotation angle
+             */
+            q->w = DotProductVector3f(&arcPtr->click, &arcPtr->drag);
+        } else {
+            /* If it is zero, the begin and end vectors coincide,
+             * so return an identity transform
+             */
+            q->w = q->x = q->y = q->z = 0.0f;
+        }
+    }
+}
+
+static void 
+QuaternionToMatrix(const Quaternion* q, RotationMatrix rot)
+{
+    float n, s;
+    float xs, ys, zs;
+    float wx, wy, wz;
+    float xx, xy, xz;
+    float yy, yz, zz;
+
+    assert(rot && q);
+    
+    n = (q->x * q->x) + (q->y * q->y) + (q->z * q->z) + (q->w * q->w);
+
+    s = (n > 0.0f) ? (2.0f / n) : 0.0f;
+    
+    xs = q->x * s;  
+    ys = q->y * s;  
+    zs = q->z * s;
+    wx = q->w * xs; 
+    wy = q->w * ys; 
+    wz = q->w * zs;
+    xx = q->x * xs; 
+    xy = q->x * ys; 
+    xz = q->x * zs;
+    yy = q->y * ys; 
+    yz = q->y * zs; 
+    zz = q->z * zs;
+    
+    rot[0][0] = 1.0f - (yy + zz); 
+    rot[0][1] = xy - wz;  
+    rot[0][2] = xz + wy;
+    rot[1][0] = xy + wz;  
+    rot[1][1] = 1.0f - (xx + zz); 
+    rot[1][2] = yz - wx;
+    rot[2][0] = xz - wy;  
+    rot[2][1] = yz + wx;  
+    rot[2][2] = 1.0f - (xx + yy);
+}
+
+/* Return quaternion product qL * qR.  Note: order is important!
+ * To combine rotations, use the product Mul(Second, First),
+ * which gives the effect of rotating by First then Second. */
+static INLINE void
+CombineRotations(Quaternion *a, Quaternion *b, Quaternion *result)
+{
+    result->w = (a->w * b->w) - (a->x * b->x) - (a->y * b->y) - (a->z * b->z);
+    result->x = (a->w * b->x) + (a->x * b->w) + (a->y * b->z) - (a->z * b->y);
+    result->y = (a->w * b->y) + (a->y * b->w) + (a->z * b->x) - (a->x * b->z);
+    result->z = (a->w * b->z) + (a->z * b->w) + (a->x * b->y) - (a->y * b->x);
+}
+
+
+static int
+GetQuaternion(Tcl_Interp *interp, char *string, Quaternion *q)
+{
+    char **elems;
+    int n;
+    double x, y, z, w;
+    
+    if (Tcl_SplitList(interp, string, &n, &elems) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    if (n != 4) {
+	Tcl_AppendResult(interp, "wrong number of elements in quaternion \"",
+			 string, "\"", (char *)NULL);
+	Blt_Free(elems);
+	return TCL_ERROR;
+    }
+    if ((Tcl_GetDouble(interp, elems[0], &x) != TCL_OK) ||
+	(Tcl_GetDouble(interp, elems[1], &y) != TCL_OK) ||
+	(Tcl_GetDouble(interp, elems[2], &z) != TCL_OK) ||
+	(Tcl_GetDouble(interp, elems[3], &w) != TCL_OK)) {
+	Blt_Free(elems);
+	return TCL_ERROR;
+    }
+    q->x = x, q->y = y, q->z = z, q->w = w;
+    Blt_Free(elems);
+    return TCL_OK;
+}
+
+static int
+GetMatrix(Tcl_Interp *interp, char *string, RotationMatrix rot)
+{
+    char **elems;
+    int n;
+    int i, j, k;
+    
+    if (Tcl_SplitList(interp, string, &n, &elems) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    if (n != 9) {
+	Tcl_AppendResult(interp, "wrong # of elements in rotation matrix \"",
+		string, "\"", (char *)NULL);
+	Blt_Free(elems);
+	return TCL_ERROR;
+    }
+    k = 0;
+    for (i = 0; i < 3; i++) {
+	for (j = 0; j < 3; j++) {
+	    double x;
+
+	    if (Tcl_GetDouble(interp, elems[k], &x) != TCL_OK) {
+		Blt_Free(elems);
+		return TCL_ERROR;
+	    }
+	    rot[i][j] = x;
+	    k++;
+	}
+    }
+    Blt_Free(elems);
+    return TCL_OK;
+}
+
+static int
+ArcBallCombineOp(ClientData clientData, Tcl_Interp *interp, int argc, 
+		 char **argv)
+{
+    Tcl_Obj *listObjPtr;
+    Quaternion q1, q2, r;
+
+    if (GetQuaternion(interp, argv[2], &q1) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    if (GetQuaternion(interp, argv[3], &q2) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    CombineRotations(&q2, &q1, &r);
+    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(r.x));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(r.y));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(r.w));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(r.z));
+    Tcl_SetObjResult(interp, listObjPtr);
+    return TCL_OK;
+}
+
+static int
+ArcBallRotateOp(ClientData clientData, Tcl_Interp *interp, int argc, 
+		char **argv)
+{
+    ArcBall arcball;
+    Quaternion q;
+    Tcl_Obj *listObjPtr;
+    double x1, y1, x2, y2;
+    int w, h;
+
+    if ((Tcl_GetInt(interp, argv[2], &w) != TCL_OK) ||
+	(Tcl_GetInt(interp, argv[3], &h) != TCL_OK)) {
+	return TCL_ERROR;
+    }
+    if ((Tcl_GetDouble(interp, argv[4], &x1) != TCL_OK) ||
+	(Tcl_GetDouble(interp, argv[5], &y1) != TCL_OK) ||
+	(Tcl_GetDouble(interp, argv[6], &x2) != TCL_OK) ||
+	(Tcl_GetDouble(interp, argv[7], &y2) != TCL_OK)) {
+	return TCL_ERROR;
+    }
+    memset(&arcball, 0, sizeof(arcball));
+    SetArcBallBounds(&arcball, (float)w, (float)h);
+    ArcBallOnClick(&arcball, x1, y1);
+    ArcBallOnDrag(&arcball, x2, y2, &q);
+    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.x));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.y));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.w));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.z));
+    Tcl_SetObjResult(interp, listObjPtr);
+    return TCL_OK;
+}
+
+static int
+ArcBallMatrixOp(ClientData clientData, Tcl_Interp *interp, int argc, 
+		char **argv)
+{
+    Quaternion q;
+    RotationMatrix rot;
+    Tcl_Obj *listObjPtr;
+    int i, j;
+
+    if (GetQuaternion(interp, argv[2], &q) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    QuaternionToMatrix(&q, rot);
+    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+    for (i = 0; i < 3; i++) {
+	for (j = 0; j < 3; j++) {
+	    Tcl_Obj *objPtr;
+
+	    objPtr = Tcl_NewDoubleObj(rot[i][j]);
+	    Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+	}
+    }
+    Tcl_SetObjResult(interp, listObjPtr);
+    return TCL_OK;
+}
+
+static int
+ArcBallQuaternionOp(ClientData clientData, Tcl_Interp *interp, int argc, 
+		    char **argv)
+{
+    Quaternion q;
+    RotationMatrix rot;
+    Tcl_Obj *listObjPtr;
+
+    if (GetMatrix(interp, argv[2], rot) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    MatrixToQuaternion(rot, &q);
+    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.x));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.y));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.z));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.w));
+    Tcl_SetObjResult(interp, listObjPtr);
+    return TCL_OK;
+}
+
+static Blt_OpSpec arcBallOps[] =
+{
+    {"combine",    1, ArcBallCombineOp,    4, 4, "quat1 quat2",},
+    {"matrix",     1, ArcBallMatrixOp,     3, 3, "quat",},
+    {"quaternion", 1, ArcBallQuaternionOp, 3, 3, "matrix",},
+    {"rotate",     1, ArcBallRotateOp,     8, 8, "w h x1 y1 x2 y2",},
+};
+static int nArcBallOps = sizeof(arcBallOps) / sizeof(Blt_OpSpec);
+
+static int
+ArcBallCmd(ClientData clientData, Tcl_Interp *interp, int argc, char **argv)
+{
+    Tcl_CmdProc *proc;
+
+    proc = Blt_GetOp(interp, nArcBallOps, arcBallOps, BLT_OP_ARG1, argc, argv, 
+		     0);
+    if (proc == NULL) {
+	return TCL_ERROR;
+    }
+    return (*proc) (clientData, interp, argc, argv);
+}
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ * Blt_ArcBallCmdInitProc --
+ *
+ *	This procedure is invoked to initialize the "tree" command.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *	Creates the new command and adds a new entry into a global Tcl
+ *	associative array.
+ *
+ *---------------------------------------------------------------------------
+ */
+int
+Blt_ArcBallInit(Tcl_Interp *interp)
+{
+    static Blt_CmdSpec cmdSpec = { 
+	"arcball", ArcBallCmd, 
+    };
+    if (Blt_InitCmd(interp, "::blt", &cmdSpec) == NULL) {
+	return TCL_ERROR;
+    } 
+    return TCL_OK;
+}
