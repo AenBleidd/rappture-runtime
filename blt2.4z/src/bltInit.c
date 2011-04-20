@@ -215,6 +215,9 @@ static Tcl_AppInitProc *tkCmds[] =
 #ifndef NO_TREEVIEW
     Blt_TreeViewInit,
 #endif
+#ifndef NO_ARCBALL
+    Blt_ArcBallInit,
+#endif
 #if (BLT_MAJOR_VERSION == 3)
 #ifndef NO_MOUNTAIN
     Blt_MountainInit,
