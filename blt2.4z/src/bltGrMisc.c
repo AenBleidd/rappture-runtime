@@ -1885,42 +1885,37 @@ Blt_Get3DBorder(interp, tkwin, borderName)
 
 
 typedef struct {
-    float x, y, z;
-} Vector3f;
+    double x, y, z;
+} Vector3d;
 
 typedef struct {
-    float x, y, z, w;
+    double x, y, z, w;
 } Quaternion;
 
-typedef float RotationMatrix[3][3];
+typedef double RotationMatrix[3][3];
 
 typedef struct {
-    Vector3f click;      
-    Vector3f drag;		
-    float xScale;   
-    float yScale;  
+    Vector3d click;      
+    Vector3d drag;		
+    double xScale;   
+    double yScale;  
 } ArcBall;
 
 /*
  * Arcball sphere constants:
- * Diameter is       2.0f
- * Radius is         1.0f
- * Radius squared is 1.0f
+ * Diameter is       2.0
+ * Radius is         1.0
+ * Radius squared is 1.0
  */
 
-#ifdef _MSC_VER
-#define sqrtf(x) sqrt(x)
-#endif
-
-/* assuming IEEE-754 (float), which i believe has max precision of 7 bits */
-static INLINE float 
-LengthVector3f(Vector3f *a)
+static INLINE double 
+Length(Vector3d *a)
 {
-    return sqrtf((a->x * a->x) + (a->y * a->y) + (a->z * a->z));
+    return sqrt((a->x * a->x) + (a->y * a->y) + (a->z * a->z));
 }
 
-static INLINE float 
-DotProductVector3f(Vector3f *a,  Vector3f *b)
+static INLINE double 
+DotProduct(Vector3d *a,  Vector3d *b)
 {
     return (a->x * b->x) + (a->y * b->y) + (a->z * b->z);
 }
@@ -1930,7 +1925,7 @@ DotProductVector3f(Vector3f *a,  Vector3f *b)
   * "c" must not refer to the same memory location as "a" or "b".
   */
 static INLINE void 
-CrossProductVector3f(Vector3f *a, Vector3f *b, Vector3f *c)
+CrossProduct(Vector3d *a, Vector3d *b, Vector3d *c)
 {
     c->x = (a->y * b->z) - (b->y * a->z);
     c->y = (a->z * b->x) - (b->z * a->x);
@@ -1940,54 +1935,54 @@ CrossProductVector3f(Vector3f *a, Vector3f *b, Vector3f *c)
 static void 
 MatrixToQuaternion(RotationMatrix rot, Quaternion *q)
 {
-    float trace;
+    double trace;
 
-    // I removed + 1.0f; see discussion with Ethan
+    // I removed + 1.0; see discussion with Ethan
     trace = rot[0][0] + rot[1][1] + rot[2][2]; 
     if( trace > 0 ) {			// I changed M_EPSILON to 0
-	float s;
+	double s;
 
-	s = 0.5f / sqrtf(trace + 1.0f);
-	q->w = 0.25f / s;
+	s = 0.5 / sqrt(trace + 1.0);
+	q->w = 0.25 / s;
 	q->x = (rot[2][1] - rot[1][2]) * s;
 	q->y = (rot[0][2] - rot[2][0]) * s;
 	q->z = (rot[1][0] - rot[0][1]) * s;
     } else if ((rot[0][0] > rot[1][1]) && (rot[0][0] > rot[2][2])) {
-	float s;
+	double s;
 	
-	s = 2.0f * sqrtf(1.0f + rot[0][0] - rot[1][1] - rot[2][2]);
+	s = 2.0 * sqrt(1.0 + rot[0][0] - rot[1][1] - rot[2][2]);
 	q->w = (rot[2][1] - rot[1][2]) / s;
-	q->x = 0.25f * s;
+	q->x = 0.25 * s;
 	q->y = (rot[0][1] + rot[1][0]) / s;
 	q->z = (rot[0][2] + rot[2][0]) / s;
     } else if (rot[1][1] > rot[2][2]) {
-	float s;
+	double s;
 	
-	s = 2.0f * sqrtf(1.0f + rot[1][1] - rot[0][0] - rot[2][2]);
+	s = 2.0 * sqrt(1.0 + rot[1][1] - rot[0][0] - rot[2][2]);
 	q->w = (rot[0][2] - rot[2][0]) / s;
 	q->x = (rot[0][1] + rot[1][0]) / s;
-	q->y = 0.25f * s;
+	q->y = 0.25 * s;
 	q->z = (rot[1][2] + rot[2][1]) / s;
     } else {
-	float s;
+	double s;
 	
-	s = 2.0f * sqrtf(1.0f + rot[2][2] - rot[0][0] - rot[1][1]);
+	s = 2.0 * sqrt(1.0 + rot[2][2] - rot[0][0] - rot[1][1]);
 	q->w = (rot[1][0] - rot[0][1]) / s;
 	q->x = (rot[0][2] + rot[2][0]) / s;
 	q->y = (rot[1][2] + rot[2][1]) / s;
-	q->z = 0.25f * s;
+	q->z = 0.25 * s;
     }
 }
 
 static void 
-PointOnSphere(ArcBall *arcPtr, float x, float y, Vector3f *outPtr)
+PointOnSphere(ArcBall *arcPtr, double x, double y, Vector3d *outPtr)
 {
-    float sx, sy;
-    float d;
+    double sx, sy;
+    double d;
 
     /* Adjust point coords and scale down to range of [-1 ... 1] */
-    sx = (x * arcPtr->xScale)  - 1.0f;
-    sy = 1.0f - (y * arcPtr->yScale);
+    sx = (x * arcPtr->xScale)  - 1.0;
+    sy = 1.0 - (y * arcPtr->yScale);
 
     /* Compute the square of the length of the vector to the point from the
      * center. */
@@ -1996,62 +1991,62 @@ PointOnSphere(ArcBall *arcPtr, float x, float y, Vector3f *outPtr)
     /* If the point is mapped outside of the sphere ... 
      * (length > radius squared)
      */
-    if (d > 1.0f) {
-        float scale;
+    if (d > 1.0) {
+        double scale;
 
         /* Compute a normalizing factor (radius / sqrt(length)) */
-        scale = 1.0f / sqrtf(d);
+        scale = 1.0 / sqrt(d);
 
         /* Return the "normalized" vector, a point on the sphere */
         outPtr->x = sx * scale;
         outPtr->y = sy * scale;
-        outPtr->z = 0.0f;
+        outPtr->z = 0.0;
     } else {   /* else it's on the inside */
         /* Return a vector to a point mapped inside the sphere
          * sqrt(radius squared - length) */
         outPtr->x = sx;
         outPtr->y = sy;
-        outPtr->z = sqrtf(1.0f - d);
+        outPtr->z = sqrt(1.0 - d);
     }
 }
 
 static void 
-SetArcBallBounds(ArcBall *arcPtr, float w, float h)
+SetArcBallBounds(ArcBall *arcPtr, double w, double h)
 {
-    if (w <= 1.0f ) {
-        w = 2.0f;
+    if (w <= 1.0 ) {
+        w = 2.0;
     }
-    if (h <= 1.0f ) {
-        h = 2.0f;
+    if (h <= 1.0 ) {
+        h = 2.0;
     }
     /* Set adjustment factor for width/height */
-    arcPtr->xScale = 1.0f / ((w - 1.0f) * 0.5f);
-    arcPtr->yScale = 1.0f / ((h - 1.0f) * 0.5f);
+    arcPtr->xScale = 1.0 / ((w - 1.0) * 0.5);
+    arcPtr->yScale = 1.0 / ((h - 1.0) * 0.5);
 }
 
 /* Mouse down: Supply mouse position in x and y */
 static void 
-ArcBallOnClick(ArcBall *arcPtr, float x, float y)
+ArcBallOnClick(ArcBall *arcPtr, double x, double y)
 {
     PointOnSphere (arcPtr, x, y, &arcPtr->click);
 }
 
 /* Mouse drag, calculate rotation: Supply mouse position in x and y */
 static void 
-ArcBallOnDrag(ArcBall *arcPtr, float x, float y, Quaternion *q)
+ArcBallOnDrag(ArcBall *arcPtr, double x, double y, Quaternion *q)
 {
     /* Map the point to the sphere */
     PointOnSphere(arcPtr, x, y, &arcPtr->drag);
 
     /* Return the quaternion equivalent to the rotation */
     if (q != NULL) {
-        Vector3f perp;
+        Vector3d perp;
 
         /* Compute the vector perpendicular to the begin and end vectors */
-        CrossProductVector3f(&arcPtr->drag, &arcPtr->click, &perp);
+        CrossProduct(&arcPtr->drag, &arcPtr->click, &perp);
 
         /* Compute the length of the perpendicular vector */
-        if (LengthVector3f(&perp) > FLT_EPSILON) {
+        if (Length(&perp) > DBL_EPSILON) {
             /* If its non-zero, we're ok, so return the perpendicular
              * vector as the transform after all
              */
@@ -2061,12 +2056,13 @@ ArcBallOnDrag(ArcBall *arcPtr, float x, float y, Quaternion *q)
             /* In the quaternion values, w is cosine (theta / 2),
              * where theta is rotation angle
              */
-            q->w = DotProductVector3f(&arcPtr->click, &arcPtr->drag);
+            q->w = DotProduct(&arcPtr->click, &arcPtr->drag);
         } else {
             /* If it is zero, the begin and end vectors coincide,
              * so return an identity transform
              */
-            q->w = q->x = q->y = q->z = 0.0f;
+            q->w = 1.0;
+	    q->x = q->y = q->z = 0.0;
         }
     }
 }
@@ -2074,17 +2070,17 @@ ArcBallOnDrag(ArcBall *arcPtr, float x, float y, Quaternion *q)
 static void 
 QuaternionToMatrix(const Quaternion* q, RotationMatrix rot)
 {
-    float n, s;
-    float xs, ys, zs;
-    float wx, wy, wz;
-    float xx, xy, xz;
-    float yy, yz, zz;
+    double n, s;
+    double xs, ys, zs;
+    double wx, wy, wz;
+    double xx, xy, xz;
+    double yy, yz, zz;
 
     assert(rot && q);
     
     n = (q->x * q->x) + (q->y * q->y) + (q->z * q->z) + (q->w * q->w);
 
-    s = (n > 0.0f) ? (2.0f / n) : 0.0f;
+    s = (n > 0.0) ? (2.0 / n) : 0.0;
     
     xs = q->x * s;  
     ys = q->y * s;  
@@ -2099,15 +2095,15 @@ QuaternionToMatrix(const Quaternion* q, RotationMatrix rot)
     yz = q->y * zs; 
     zz = q->z * zs;
     
-    rot[0][0] = 1.0f - (yy + zz); 
+    rot[0][0] = 1.0 - (yy + zz); 
     rot[0][1] = xy - wz;  
     rot[0][2] = xz + wy;
     rot[1][0] = xy + wz;  
-    rot[1][1] = 1.0f - (xx + zz); 
+    rot[1][1] = 1.0 - (xx + zz); 
     rot[1][2] = yz - wx;
     rot[2][0] = xz - wy;  
     rot[2][1] = yz + wx;  
-    rot[2][2] = 1.0f - (xx + yy);
+    rot[2][2] = 1.0 - (xx + yy);
 }
 
 /* Return quaternion product qL * qR.  Note: order is important!
@@ -2228,7 +2224,7 @@ ArcBallRotateOp(ClientData clientData, Tcl_Interp *interp, int argc,
 	return TCL_ERROR;
     }
     memset(&arcball, 0, sizeof(arcball));
-    SetArcBallBounds(&arcball, (float)w, (float)h);
+    SetArcBallBounds(&arcball, (double)w, (double)h);
     ArcBallOnClick(&arcball, x1, y1);
     ArcBallOnDrag(&arcball, x2, y2, &q);
     listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
