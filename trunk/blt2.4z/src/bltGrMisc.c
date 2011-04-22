@@ -1883,6 +1883,13 @@ Blt_Get3DBorder(interp, tkwin, borderName)
 
 #endif
 
+typedef struct {
+    Blt_HashTable arcballTable;	/* Hash table of trees keyed by address. */
+    Tcl_Interp *interp;
+} ArcBallCmdInterpData;
+
+#define ARCBALL_THREAD_KEY "BLT Arcball Command Data"
+
 
 typedef struct {
     double x, y, z;
@@ -1892,13 +1899,17 @@ typedef struct {
     double x, y, z, w;
 } Quaternion;
 
-typedef double RotationMatrix[3][3];
+typedef double HMatrix[3][3];
 
 typedef struct {
-    Vector3d click;      
-    Vector3d drag;		
-    double xScale;   
-    double yScale;  
+    Tcl_Interp *interp;
+    Blt_HashTable *tablePtr;
+    Blt_HashEntry *hashPtr;
+    ArcBallCmdInterpData *dataPtr;
+    Tcl_Command cmdToken;
+    Vector3d click, drag;		
+    Quaternion q;
+    double xScale, yScale;  
 } ArcBall;
 
 /*
@@ -1909,15 +1920,15 @@ typedef struct {
  */
 
 static INLINE double 
-Length(Vector3d *a)
+Length(Vector3d *v)
 {
-    return sqrt((a->x * a->x) + (a->y * a->y) + (a->z * a->z));
+    return sqrt((v->x * v->x) + (v->y * v->y) + (v->z * v->z));
 }
 
 static INLINE double 
-DotProduct(Vector3d *a,  Vector3d *b)
+DotProduct(Vector3d *v1, Vector3d *v2)
 {
-    return (a->x * b->x) + (a->y * b->y) + (a->z * b->z);
+    return (v1->x * v2->x) + (v1->y * v2->y) + (v1->z * v2->z);
 }
 
 /**
@@ -1925,51 +1936,58 @@ DotProduct(Vector3d *a,  Vector3d *b)
   * "c" must not refer to the same memory location as "a" or "b".
   */
 static INLINE void 
-CrossProduct(Vector3d *a, Vector3d *b, Vector3d *c)
+CrossProduct(Vector3d *v1, Vector3d *v2, Vector3d *resultPtr)
 {
-    c->x = (a->y * b->z) - (b->y * a->z);
-    c->y = (a->z * b->x) - (b->z * a->x);
-    c->z = (a->x * b->y) - (b->x * a->y);
+    resultPtr->x = (v1->y * v2->z) - (v1->z * v2->y);
+    resultPtr->y = (v1->z * v2->x) - (v1->x * v2->z);
+    resultPtr->z = (v1->x * v2->y) - (v1->y * v2->x);
 }
 
 static void 
-MatrixToQuaternion(RotationMatrix rot, Quaternion *q)
+MatrixToQuaternion(HMatrix A, Quaternion *q)
 {
     double trace;
 
+   /* This algorithm avoids near-zero divides by looking for a large component
+    * - first w, then x, y, or z.  When the trace is greater than zero, |w| is
+    * greater than 1/2, which is as small as a largest component can be.
+    * Otherwise, the largest diagonal entry corresponds to the largest of |x|,
+    * |y|, or |z|, one of which must be larger than |w|, and at least 1/2. */
+
     // I removed + 1.0; see discussion with Ethan
-    trace = rot[0][0] + rot[1][1] + rot[2][2]; 
-    if( trace > 0 ) {			// I changed M_EPSILON to 0
+    trace = A[0][0] + A[1][1] + A[2][2]; 
+    if (trace >= 0.0) {			// I changed M_EPSILON to 0
 	double s;
 
-	s = 0.5 / sqrt(trace + 1.0);
+	s = 0.5 / sqrt(trace + 1.0);  /* A[3][3] = 1.0 */
 	q->w = 0.25 / s;
-	q->x = (rot[2][1] - rot[1][2]) * s;
-	q->y = (rot[0][2] - rot[2][0]) * s;
-	q->z = (rot[1][0] - rot[0][1]) * s;
-    } else if ((rot[0][0] > rot[1][1]) && (rot[0][0] > rot[2][2])) {
+	q->x = (A[2][1] - A[1][2]) * s;
+	q->y = (A[0][2] - A[2][0]) * s;
+	q->z = (A[1][0] - A[0][1]) * s;
+
+    } else if ((A[0][0] > A[1][1]) && (A[0][0] > A[2][2])) {
 	double s;
 	
-	s = 2.0 * sqrt(1.0 + rot[0][0] - rot[1][1] - rot[2][2]);
-	q->w = (rot[2][1] - rot[1][2]) / s;
+	s = 2.0 * sqrt(A[0][0] - (A[1][1] + A[2][2]) + 1.0);
+	q->w = (A[2][1] - A[1][2]) / s;
 	q->x = 0.25 * s;
-	q->y = (rot[0][1] + rot[1][0]) / s;
-	q->z = (rot[0][2] + rot[2][0]) / s;
-    } else if (rot[1][1] > rot[2][2]) {
+	q->y = (A[0][1] + A[1][0]) / s;
+	q->z = (A[0][2] + A[2][0]) / s;
+    } else if (A[1][1] > A[2][2]) {
 	double s;
 	
-	s = 2.0 * sqrt(1.0 + rot[1][1] - rot[0][0] - rot[2][2]);
-	q->w = (rot[0][2] - rot[2][0]) / s;
-	q->x = (rot[0][1] + rot[1][0]) / s;
+	s = 2.0 * sqrt(1.0 + A[1][1] - A[0][0] - A[2][2]);
+	q->w = (A[0][2] - A[2][0]) / s;
+	q->x = (A[0][1] + A[1][0]) / s;
 	q->y = 0.25 * s;
-	q->z = (rot[1][2] + rot[2][1]) / s;
+	q->z = (A[1][2] + A[2][1]) / s;
     } else {
 	double s;
 	
-	s = 2.0 * sqrt(1.0 + rot[2][2] - rot[0][0] - rot[1][1]);
-	q->w = (rot[1][0] - rot[0][1]) / s;
-	q->x = (rot[0][2] + rot[2][0]) / s;
-	q->y = (rot[1][2] + rot[2][1]) / s;
+	s = 2.0 * sqrt(1.0 + A[2][2] - A[0][0] - A[1][1]);
+	q->w = (A[1][0] - A[0][1]) / s;
+	q->x = (A[0][2] + A[2][0]) / s;
+	q->y = (A[1][2] + A[2][1]) / s;
 	q->z = 0.25 * s;
     }
 }
@@ -1978,7 +1996,7 @@ static void
 PointOnSphere(ArcBall *arcPtr, double x, double y, Vector3d *outPtr)
 {
     double sx, sy;
-    double d;
+    double d2;
 
     /* Adjust point coords and scale down to range of [-1 ... 1] */
     sx = (x * arcPtr->xScale)  - 1.0;
@@ -1986,16 +2004,16 @@ PointOnSphere(ArcBall *arcPtr, double x, double y, Vector3d *outPtr)
 
     /* Compute the square of the length of the vector to the point from the
      * center. */
-    d = (sx * sx) + (sy * sy);
+    d2 = (sx * sx) + (sy * sy);
 
     /* If the point is mapped outside of the sphere ... 
      * (length > radius squared)
      */
-    if (d > 1.0) {
+    if (d2 > 1.0) {
         double scale;
 
         /* Compute a normalizing factor (radius / sqrt(length)) */
-        scale = 1.0 / sqrt(d);
+        scale = 1.0 / sqrt(d2);
 
         /* Return the "normalized" vector, a point on the sphere */
         outPtr->x = sx * scale;
@@ -2006,7 +2024,7 @@ PointOnSphere(ArcBall *arcPtr, double x, double y, Vector3d *outPtr)
          * sqrt(radius squared - length) */
         outPtr->x = sx;
         outPtr->y = sy;
-        outPtr->z = sqrt(1.0 - d);
+        outPtr->z = sqrt(1.0 - d2);
     }
 }
 
@@ -2024,16 +2042,83 @@ SetArcBallBounds(ArcBall *arcPtr, double w, double h)
     arcPtr->yScale = 1.0 / ((h - 1.0) * 0.5);
 }
 
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * GetArcBall --
+ *
+ *	Find the arcball command associated with the Tcl command "string".
+ *	
+ *	We have to do multiple lookups to get this right.  
+ *
+ *	The first step is to generate a canonical command name.  If an
+ *	unqualified command name (i.e. no namespace qualifier) is
+ *	given, we should search first the current namespace and then
+ *	the global one.  Most Tcl commands (like Tcl_GetCmdInfo) look
+ *	only at the global namespace.
+ *
+ *	Next check if the string is 
+ *		a) a Tcl command and 
+ *		b) really is a command for a tree object.  
+ *	Tcl_GetCommandInfo will get us the objClientData field that 
+ *	should be a cmdPtr.  We can verify that by searching our hashtable 
+ *	of cmdPtr addresses.
+ *
+ * Results:
+ *	A pointer to the tree command.  If no associated tree command
+ *	can be found, NULL is returned.  It's up to the calling routines
+ *	to generate an error message.
+ *
+ *---------------------------------------------------------------------- 
+ */
+static ArcBall *
+GetArcBall(
+    ArcBallCmdInterpData *dataPtr, 
+    Tcl_Interp *interp, 
+    const char *string)
+{
+    const char *name;
+    Tcl_Namespace *nsPtr;
+    Tcl_CmdInfo cmdInfo;
+    Blt_HashEntry *hPtr;
+    Tcl_DString dString;
+    char *abName;
+    int result;
+
+    /* Put apart the tree name and put is back together in a standard
+     * format. */
+    if (Blt_ParseQualifiedName(interp, string, &nsPtr, &name) != TCL_OK) {
+	return NULL;		/* No such parent namespace. */
+    }
+    if (nsPtr == NULL) {
+	nsPtr = Tcl_GetCurrentNamespace(interp);
+    }
+    /* Rebuild the fully qualified name. */
+    abName = Blt_GetQualifiedName(nsPtr, name, &dString);
+    result = Tcl_GetCommandInfo(interp, abName, &cmdInfo);
+    Tcl_DStringFree(&dString);
+    if (!result) {
+	return NULL;
+    }
+    hPtr = Blt_FindHashEntry(&dataPtr->arcballTable, 
+			     (char *)(cmdInfo.objClientData));
+    if (hPtr == NULL) {
+	return NULL;
+    }
+    return Blt_GetHashValue(hPtr);
+}
+
 /* Mouse down: Supply mouse position in x and y */
 static void 
-ArcBallOnClick(ArcBall *arcPtr, double x, double y)
+ClickArcBall(ArcBall *arcPtr, double x, double y)
 {
     PointOnSphere (arcPtr, x, y, &arcPtr->click);
 }
 
 /* Mouse drag, calculate rotation: Supply mouse position in x and y */
 static void 
-ArcBallOnDrag(ArcBall *arcPtr, double x, double y, Quaternion *q)
+DragArcBall(ArcBall *arcPtr, double x, double y, Quaternion *q)
 {
     /* Map the point to the sphere */
     PointOnSphere(arcPtr, x, y, &arcPtr->drag);
@@ -2061,14 +2146,13 @@ ArcBallOnDrag(ArcBall *arcPtr, double x, double y, Quaternion *q)
             /* If it is zero, the begin and end vectors coincide,
              * so return an identity transform
              */
-            q->w = 1.0;
-	    q->x = q->y = q->z = 0.0;
+            q->x = q->y = q->z = q->w = 0.0;
         }
     }
 }
 
 static void 
-QuaternionToMatrix(const Quaternion* q, RotationMatrix rot)
+QuaternionToMatrix(Quaternion* q, HMatrix A)
 {
     double n, s;
     double xs, ys, zs;
@@ -2076,8 +2160,6 @@ QuaternionToMatrix(const Quaternion* q, RotationMatrix rot)
     double xx, xy, xz;
     double yy, yz, zz;
 
-    assert(rot && q);
-    
     n = (q->x * q->x) + (q->y * q->y) + (q->z * q->z) + (q->w * q->w);
 
     s = (n > 0.0) ? (2.0 / n) : 0.0;
@@ -2095,60 +2177,120 @@ QuaternionToMatrix(const Quaternion* q, RotationMatrix rot)
     yz = q->y * zs; 
     zz = q->z * zs;
     
-    rot[0][0] = 1.0 - (yy + zz); 
-    rot[0][1] = xy - wz;  
-    rot[0][2] = xz + wy;
-    rot[1][0] = xy + wz;  
-    rot[1][1] = 1.0 - (xx + zz); 
-    rot[1][2] = yz - wx;
-    rot[2][0] = xz - wy;  
-    rot[2][1] = yz + wx;  
-    rot[2][2] = 1.0 - (xx + yy);
+    A[0][0] = 1.0 - (yy + zz); 
+    A[0][1] = xy - wz;  
+    A[0][2] = xz + wy;
+    A[1][0] = xy + wz;  
+    A[1][1] = 1.0 - (xx + zz); 
+    A[1][2] = yz - wx;
+    A[2][0] = xz - wy;  
+    A[2][1] = yz + wx;  
+    A[2][2] = 1.0 - (xx + yy);
+}
+
+/**
+ * Sets the value of this matrix to the result of multiplying itself
+ * with matrix m1. 
+ * @param m1 the other matrix 
+ */
+
+/** Multiply the upper left 3x3 parts of A and B to get AB **/
+static void 
+MultipleMatrices(HMatrix A, HMatrix B, HMatrix AB)
+{
+    int i;
+
+    for (i = 0; i < 3; i++) {
+	int j;
+
+	for (j = 0; j < 3; j++) {
+	    AB[i][j] = A[i][0]*B[0][j] + A[i][1]*B[1][j] + A[i][2]*B[2][j];
+	}
+    }
+} 
+
+static void 
+MultipleMatrices2(HMatrix A, HMatrix B, HMatrix AB)
+{
+    AB[0][0] = (A[0][0]*B[0][0]) + (A[0][1]*B[1][0]) + (A[0][2]*B[2][0]);
+    AB[0][1] = (A[0][0]*B[0][1]) + (A[0][1]*B[1][1]) + (A[0][2]*B[2][1]);
+    AB[0][2] = (A[0][0]*B[0][2]) + (A[0][1]*B[1][2]) + (A[0][2]*B[2][2]);
+    
+    AB[1][0] = (A[1][0]*B[0][0]) + (A[1][1]*B[1][0]) + (A[1][2]*B[2][0]);
+    AB[1][1] = (A[1][0]*B[0][1]) + (A[1][1]*B[1][1]) + (A[1][2]*B[2][1]);
+    AB[1][2] = (A[1][0]*B[0][2]) + (A[1][1]*B[1][2]) + (A[1][2]*B[2][2]);
+    
+    AB[2][0] = (A[2][0]*B[0][0]) + (A[2][1]*B[1][0]) + (A[2][2]*B[2][0]);
+    AB[2][1] = (A[2][0]*B[0][1]) + (A[2][1]*B[1][1]) + (A[2][2]*B[2][1]);
+    AB[2][2] = (A[2][0]*B[0][2]) + (A[2][1]*B[1][2]) + (A[2][2]*B[2][2]);
+}
+
+static double 
+Matrix4fSVD(HMatrix A) 
+{
+    // this is a simple svd.
+    // Not complete but fast and reasonable.
+    // See comment in Matrix3d.
+    return sqrt(((A[0][0]*A[0][0]) + (A[1][0]*A[1][0]) + 
+		 (A[2][0]*A[2][0]) + (A[0][1]*A[0][1]) + 
+		 (A[1][1]*A[1][1]) + (A[2][1]*A[2][1]) +
+		 (A[0][2]*A[0][2]) + (A[1][2]*A[1][2]) + 
+		 (A[2][2]*A[2][2])) / 3.0);
+}
+
+
+static void 
+SetMatrix4x4FromMatrix3x3(HMatrix m1, HMatrix result)
+{
+    result[0][0] = m1[0][0]; 
+    result[0][1] = m1[0][1]; 
+    result[0][2] = m1[0][2];
+    result[1][0] = m1[1][0]; 
+    result[1][1] = m1[1][1]; 
+    result[1][2] = m1[1][2];
+    result[2][0] = m1[2][0]; 
+    result[2][1] = m1[2][1]; 
+    result[2][2] = m1[2][2];
+}
+
+static void 
+ScaleMatrix(HMatrix A, double scale)
+{
+    A[0][0] *= scale; 
+    A[0][1] *= scale; 
+    A[0][2] *= scale;
+    A[1][0] *= scale; 
+    A[1][1] *= scale; 
+    A[1][2] *= scale;
+    A[2][0] *= scale; 
+    A[2][1] *= scale; 
+    A[2][2] *= scale;
+}
+
+static void 
+Matrix4fSetRotationFromMatrix3f(HMatrix A, HMatrix B)
+{
+    double scale;
+    
+    scale = Matrix4fSVD(A);
+    SetMatrix4x4FromMatrix3x3(B, A);
+    ScaleMatrix(A, scale);
 }
 
 /* Return quaternion product qL * qR.  Note: order is important!
  * To combine rotations, use the product Mul(Second, First),
  * which gives the effect of rotating by First then Second. */
-static INLINE void
-CombineRotations(Quaternion *a, Quaternion *b, Quaternion *result)
+static void
+CombineRotations(Quaternion *q1, Quaternion *q2, Quaternion *r)
 {
-    result->w = (a->w * b->w) - (a->x * b->x) - (a->y * b->y) - (a->z * b->z);
-    result->x = (a->w * b->x) + (a->x * b->w) + (a->y * b->z) - (a->z * b->y);
-    result->y = (a->w * b->y) + (a->y * b->w) + (a->z * b->x) - (a->x * b->z);
-    result->z = (a->w * b->z) + (a->z * b->w) + (a->x * b->y) - (a->y * b->x);
-}
-
-
-static int
-GetQuaternion(Tcl_Interp *interp, char *string, Quaternion *q)
-{
-    char **elems;
-    int n;
-    double x, y, z, w;
-    
-    if (Tcl_SplitList(interp, string, &n, &elems) != TCL_OK) {
-	return TCL_ERROR;
-    }
-    if (n != 4) {
-	Tcl_AppendResult(interp, "wrong number of elements in quaternion \"",
-			 string, "\"", (char *)NULL);
-	Blt_Free(elems);
-	return TCL_ERROR;
-    }
-    if ((Tcl_GetDouble(interp, elems[0], &x) != TCL_OK) ||
-	(Tcl_GetDouble(interp, elems[1], &y) != TCL_OK) ||
-	(Tcl_GetDouble(interp, elems[2], &z) != TCL_OK) ||
-	(Tcl_GetDouble(interp, elems[3], &w) != TCL_OK)) {
-	Blt_Free(elems);
-	return TCL_ERROR;
-    }
-    q->x = x, q->y = y, q->z = z, q->w = w;
-    Blt_Free(elems);
-    return TCL_OK;
+    r->w = (q1->w*q2->w) - (q1->x*q2->x) - (q1->y*q2->y) - (q1->z*q2->z);
+    r->x = (q1->w*q2->x) + (q1->x*q2->w) + (q1->y*q2->z) - (q1->z*q2->y);
+    r->y = (q1->w*q2->y) + (q1->y*q2->w) + (q1->z*q2->x) - (q1->x*q2->z);
+    r->z = (q1->w*q2->z) + (q1->z*q2->w) + (q1->x*q2->y) - (q1->y*q2->x);
 }
 
 static int
-GetMatrix(Tcl_Interp *interp, char *string, RotationMatrix rot)
+GetMatrix(Tcl_Interp *interp, char *string, HMatrix A)
 {
     char **elems;
     int n;
@@ -2172,7 +2314,7 @@ GetMatrix(Tcl_Interp *interp, char *string, RotationMatrix rot)
 		Blt_Free(elems);
 		return TCL_ERROR;
 	    }
-	    rot[i][j] = x;
+	    A[i][j] = x;
 	    k++;
 	}
     }
@@ -2181,57 +2323,33 @@ GetMatrix(Tcl_Interp *interp, char *string, RotationMatrix rot)
 }
 
 static int
-ArcBallCombineOp(ClientData clientData, Tcl_Interp *interp, int argc, 
-		 char **argv)
-{
-    Tcl_Obj *listObjPtr;
-    Quaternion q1, q2, r;
-
-    if (GetQuaternion(interp, argv[2], &q1) != TCL_OK) {
-	return TCL_ERROR;
-    }
-    if (GetQuaternion(interp, argv[3], &q2) != TCL_OK) {
-	return TCL_ERROR;
-    }
-    CombineRotations(&q2, &q1, &r);
-    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(r.x));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(r.y));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(r.w));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(r.z));
-    Tcl_SetObjResult(interp, listObjPtr);
-    return TCL_OK;
-}
-
-static int
 ArcBallRotateOp(ClientData clientData, Tcl_Interp *interp, int argc, 
 		char **argv)
 {
-    ArcBall arcball;
-    Quaternion q;
+    ArcBall *abPtr = clientData;
+    Quaternion q, p;
     Tcl_Obj *listObjPtr;
     double x1, y1, x2, y2;
-    int w, h;
 
-    if ((Tcl_GetInt(interp, argv[2], &w) != TCL_OK) ||
-	(Tcl_GetInt(interp, argv[3], &h) != TCL_OK)) {
+    if ((Tcl_GetDouble(interp, argv[2], &x1) != TCL_OK) ||
+	(Tcl_GetDouble(interp, argv[3], &y1) != TCL_OK) ||
+	(Tcl_GetDouble(interp, argv[4], &x2) != TCL_OK) ||
+	(Tcl_GetDouble(interp, argv[5], &y2) != TCL_OK)) {
 	return TCL_ERROR;
     }
-    if ((Tcl_GetDouble(interp, argv[4], &x1) != TCL_OK) ||
-	(Tcl_GetDouble(interp, argv[5], &y1) != TCL_OK) ||
-	(Tcl_GetDouble(interp, argv[6], &x2) != TCL_OK) ||
-	(Tcl_GetDouble(interp, argv[7], &y2) != TCL_OK)) {
-	return TCL_ERROR;
-    }
-    memset(&arcball, 0, sizeof(arcball));
-    SetArcBallBounds(&arcball, (double)w, (double)h);
-    ArcBallOnClick(&arcball, x1, y1);
-    ArcBallOnDrag(&arcball, x2, y2, &q);
+    ClickArcBall(abPtr, x1, y1);
+    DragArcBall(abPtr, x2, y2, &q);
+    p = abPtr->q;
+    CombineRotations(&q, &p, &abPtr->q);
+    fprintf(stderr, "p=%g %g %g %g\n", p.x, p.y, p.z, p.w);
+    fprintf(stderr, "q=%g %g %g %g\n", q.x, q.y, q.z, q.w);
+    fprintf(stderr, "combined=%g %g %g %g\n", abPtr->q.x, abPtr->q.y, 
+	    abPtr->q.z, abPtr->q.w);
     listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.x));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.y));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.w));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.z));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.x));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.y));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.z));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.w));
     Tcl_SetObjResult(interp, listObjPtr);
     return TCL_OK;
 }
@@ -2240,25 +2358,32 @@ static int
 ArcBallMatrixOp(ClientData clientData, Tcl_Interp *interp, int argc, 
 		char **argv)
 {
-    Quaternion q;
-    RotationMatrix rot;
-    Tcl_Obj *listObjPtr;
-    int i, j;
+    ArcBall *abPtr = clientData;
 
-    if (GetQuaternion(interp, argv[2], &q) != TCL_OK) {
-	return TCL_ERROR;
-    }
-    QuaternionToMatrix(&q, rot);
-    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
-    for (i = 0; i < 3; i++) {
-	for (j = 0; j < 3; j++) {
-	    Tcl_Obj *objPtr;
+    if (argc == 3) {
+	HMatrix A;
 
-	    objPtr = Tcl_NewDoubleObj(rot[i][j]);
-	    Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+	if (GetMatrix(interp, argv[2], A) != TCL_OK) {
+	    return TCL_ERROR;
 	}
+	MatrixToQuaternion(A, &abPtr->q);
+    } else {
+	HMatrix A;
+	Tcl_Obj *listObjPtr;
+	int i, j;
+
+	QuaternionToMatrix(&abPtr->q, A);
+	listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+	for (i = 0; i < 3; i++) {
+	    for (j = 0; j < 3; j++) {
+		Tcl_Obj *objPtr;
+		
+		objPtr = Tcl_NewDoubleObj(A[i][j]);
+		Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+	    }
+	}
+	Tcl_SetObjResult(interp, listObjPtr);
     }
-    Tcl_SetObjResult(interp, listObjPtr);
     return TCL_OK;
 }
 
@@ -2266,43 +2391,458 @@ static int
 ArcBallQuaternionOp(ClientData clientData, Tcl_Interp *interp, int argc, 
 		    char **argv)
 {
-    Quaternion q;
-    RotationMatrix rot;
+    ArcBall *abPtr = clientData;
     Tcl_Obj *listObjPtr;
 
-    if (GetMatrix(interp, argv[2], rot) != TCL_OK) {
-	return TCL_ERROR;
-    }
-    MatrixToQuaternion(rot, &q);
     listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.x));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.y));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.z));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(q.w));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.x));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.y));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.z));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.w));
     Tcl_SetObjResult(interp, listObjPtr);
     return TCL_OK;
 }
 
+static int
+ArcBallResetOp(ClientData clientData, Tcl_Interp *interp, int argc, 
+		    char **argv)
+{
+    ArcBall *abPtr = clientData;
+
+    fprintf(stderr, "arcball reset\n");
+    abPtr->q.x = abPtr->q.y = abPtr->q.z = 10.0;
+    abPtr->q.w = 1.0;
+    return TCL_OK;
+}
+
+static int
+ArcBallResizeOp(ClientData clientData, Tcl_Interp *interp, int argc, 
+		    char **argv)
+{
+    ArcBall *abPtr = clientData;
+    int w, h;
+
+    if ((Tcl_GetInt(interp, argv[2], &w) != TCL_OK) ||
+	(Tcl_GetInt(interp, argv[3], &h) != TCL_OK)) {
+	return TCL_ERROR;
+    }
+    SetArcBallBounds(abPtr, w, h);
+    return TCL_OK;
+}
+
+static ArcBall *
+CreateArcBall(double w, double h)
+{
+    ArcBall *abPtr;
+
+    abPtr = Blt_Calloc(1, sizeof(ArcBall));
+    SetArcBallBounds (abPtr, w, h);
+    return abPtr;
+}
+
+/*
+ * --------------------------------------------------------------
+ *
+ * ArcBallInstObjCmdOp --
+ *
+ * 	This procedure is invoked to process commands on behalf of
+ *	the tree object.
+ *
+ * Results:
+ *	A standard Tcl result.
+ *
+ * Side effects:
+ *	See the user documentation.
+ *
+ * --------------------------------------------------------------
+ */
 static Blt_OpSpec arcBallOps[] =
 {
-    {"combine",    1, ArcBallCombineOp,    4, 4, "quat1 quat2",},
-    {"matrix",     1, ArcBallMatrixOp,     3, 3, "quat",},
-    {"quaternion", 1, ArcBallQuaternionOp, 3, 3, "matrix",},
-    {"rotate",     1, ArcBallRotateOp,     8, 8, "w h x1 y1 x2 y2",},
+    {"matrix",     1, ArcBallMatrixOp,     2, 3, "?matrix?",},
+    {"quaternion", 1, ArcBallQuaternionOp, 2, 2, "",},
+    {"reset",      3, ArcBallResetOp,      2, 2, "",},
+    {"resize",     3, ArcBallResizeOp,     4, 4, "w h",},
+    {"rotate",     2, ArcBallRotateOp,     6, 6, "x1 y1 x2 y2",},
 };
 static int nArcBallOps = sizeof(arcBallOps) / sizeof(Blt_OpSpec);
 
 static int
-ArcBallCmd(ClientData clientData, Tcl_Interp *interp, int argc, char **argv)
+ArcBallInstCmd(ClientData clientData, Tcl_Interp *interp, int argc, 
+		 char **argv)
 {
     Tcl_CmdProc *proc;
+    int result;
+    ArcBall *abPtr = clientData;
 
     proc = Blt_GetOp(interp, nArcBallOps, arcBallOps, BLT_OP_ARG1, argc, argv, 
 		     0);
     if (proc == NULL) {
 	return TCL_ERROR;
     }
+    Tcl_Preserve(abPtr);
+    result = (*proc) (clientData, interp, argc, argv);
+    Tcl_Release(abPtr);
+    return result;
+}
+
+/*
+ * ----------------------------------------------------------------------
+ *
+ * ArcBallInstDeleteProc --
+ *
+ *	Deletes the command associated with the arcball.  This is
+ *	called only when the command associated with the arcball is
+ *	destroyed.
+ *
+ * Results:
+ *	None.
+ *
+ * ----------------------------------------------------------------------
+ */
+static void
+ArcBallInstDeleteProc(ClientData clientData)
+{
+    ArcBall *abPtr = clientData;
+
+    if (abPtr->hashPtr != NULL) {
+	Blt_DeleteHashEntry(abPtr->tablePtr, abPtr->hashPtr);
+    }
+    Blt_Free(abPtr);
+}
+
+/*
+ * ----------------------------------------------------------------------
+ *
+ * GenerateName --
+ *
+ *	Generates an unique arcball command name.  Arcball names are in
+ *	the form "arcballN", where N is a non-negative integer. Check 
+ *	each name generated to see if it is already a tree. We want
+ *	to recycle names if possible.
+ *	
+ * Results:
+ *	Returns the unique name.  The string itself is stored in the
+ *	dynamic string passed into the routine.
+ *
+ * ----------------------------------------------------------------------
+ */
+static const char *
+GenerateName(Tcl_Interp *interp, CONST char *prefix, CONST char *suffix,
+	     Tcl_DString *resultPtr)
+{
+
+    int n;
+    Tcl_Namespace *nsPtr;
+    char string[200];
+    Tcl_CmdInfo cmdInfo;
+    Tcl_DString dString;
+    CONST char *abName, *name;
+
+    /* 
+     * Parse the command and put back so that it's in a consistent
+     * format.  
+     *
+     *	t1         <current namespace>::t1
+     *	n1::t1     <current namespace>::n1::t1
+     *	::t1	   ::t1
+     *  ::n1::t1   ::n1::t1
+     */
+    abName = NULL;		/* Suppress compiler warning. */
+    for (n = 0; n < INT_MAX; n++) {
+	Tcl_DStringInit(&dString);
+	Tcl_DStringAppend(&dString, prefix, -1);
+	sprintf(string, "arcball%d", n);
+	Tcl_DStringAppend(&dString, string, -1);
+	Tcl_DStringAppend(&dString, suffix, -1);
+	abName = Tcl_DStringValue(&dString);
+	if (Blt_ParseQualifiedName(interp, abName, &nsPtr, &name) != TCL_OK) {
+	    Tcl_AppendResult(interp, "can't find namespace in \"", abName, 
+		"\"", (char *)NULL);
+	    return NULL;
+	}
+	if (nsPtr == NULL) {
+	    nsPtr = Tcl_GetCurrentNamespace(interp);
+	}
+	abName = Blt_GetQualifiedName(nsPtr, name, resultPtr);
+	/* 
+	 * Check if the command already exists. 
+	 */
+	if (Tcl_GetCommandInfo(interp, (char *)abName, &cmdInfo)) {
+	    continue;
+	}
+	break;
+    }
+    return abName;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * ArcBallCreateOp --
+ *
+ *	arcball create x w h 
+ *---------------------------------------------------------------------- 
+ */
+/*ARGSUSED*/
+static int
+ArcBallCreateOp(
+    ClientData clientData,	/* Interpreter-specific data. */
+    Tcl_Interp *interp,
+    int argc,
+    char **argv)
+{
+    ArcBallCmdInterpData *dataPtr = clientData;
+    const char *abName;
+    Tcl_DString dString;
+    int isNew;
+    ArcBall *abPtr;
+
+    abName = NULL;
+    if (argc == 5) {
+	abName = argv[2];
+	argc--;
+	argv++;
+    }
+    Tcl_DStringInit(&dString);
+    if (abName == NULL) {
+	abName = GenerateName(interp, "", "", &dString);
+    } else {
+	char *p;
+
+	p = strstr(abName, "#auto");
+	if (p != NULL) {
+	    *p = '\0';
+	    abName = GenerateName(interp, abName, p + 5, &dString);
+	    *p = '#';
+	} else {
+	    CONST char *name;
+	    Tcl_CmdInfo cmdInfo;
+	    Tcl_Namespace *nsPtr;
+
+	    nsPtr = NULL;
+	    /* 
+	     * Parse the command and put back so that it's in a consistent
+	     * format.  
+	     *
+	     *	t1         <current namespace>::t1
+	     *	n1::t1     <current namespace>::n1::t1
+	     *	::t1	   ::t1
+	     *  ::n1::t1   ::n1::t1
+	     */
+	    if (Blt_ParseQualifiedName(interp, abName, &nsPtr, &name) 
+		!= TCL_OK) {
+		Tcl_AppendResult(interp, "can't find namespace in \"", abName,
+			 "\"", (char *)NULL);
+		return TCL_ERROR;
+	    }
+	    if (nsPtr == NULL) {
+		nsPtr = Tcl_GetCurrentNamespace(interp);
+	    }
+	    abName = Blt_GetQualifiedName(nsPtr, name, &dString);
+	    /* 
+	     * Check if the command already exists. 
+	     */
+	    if (Tcl_GetCommandInfo(interp, (char *)abName, &cmdInfo)) {
+		Tcl_AppendResult(interp, "a command \"", abName,
+				 "\" already exists", (char *)NULL);
+		goto error;
+	    }
+	} 
+    } 
+    if (abName != NULL) {
+	int w, h;
+
+	if ((Tcl_GetInt(interp, argv[2], &w) != TCL_OK) ||
+	    (Tcl_GetInt(interp, argv[3], &h) != TCL_OK)) {
+	    goto error;
+	}
+	abPtr = CreateArcBall(w, h);
+	assert(abPtr);
+	abPtr->dataPtr = dataPtr;
+	abPtr->interp = interp;
+	abPtr->cmdToken = Tcl_CreateCommand(interp, (char *)abName, 
+		ArcBallInstCmd, abPtr, ArcBallInstDeleteProc);
+	abPtr->tablePtr = &dataPtr->arcballTable;
+	abPtr->hashPtr = Blt_CreateHashEntry(abPtr->tablePtr, (char *)abPtr,
+		&isNew);
+	Blt_SetHashValue(abPtr->hashPtr, abPtr);
+	Tcl_SetResult(interp, (char *)abName, TCL_VOLATILE);
+	Tcl_DStringFree(&dString);
+	return TCL_OK;
+    }
+ error:
+    Tcl_DStringFree(&dString);
+    return TCL_ERROR;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * ArcBallDestroyOp --
+ *
+ *---------------------------------------------------------------------- 
+ */
+/*ARGSUSED*/
+static int
+ArcBallDestroyOp(
+    ClientData clientData,	/* Interpreter-specific data. */
+    Tcl_Interp *interp,
+    int argc,
+    char **argv)
+{
+    ArcBallCmdInterpData *dataPtr = clientData;
+    int i;
+
+    for (i = 2; i < argc; i++) {
+	ArcBall *abPtr;
+
+	abPtr = GetArcBall(dataPtr, interp, argv[i]);
+	if (abPtr == NULL) {
+	    Tcl_AppendResult(interp, "can't find an arcball named \"", argv[i],
+			     "\"", (char *)NULL);
+	    return TCL_ERROR;
+	}
+	Tcl_DeleteCommandFromToken(interp, abPtr->cmdToken);
+    }
+    return TCL_OK;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * ArcBallNamesOp --
+ *
+ *---------------------------------------------------------------------- 
+ */
+/*ARGSUSED*/
+static int
+ArcBallNamesOp(
+    ClientData clientData,	/* Interpreter-specific data. */
+    Tcl_Interp *interp,
+    int argc,
+    char **argv)
+{
+    ArcBallCmdInterpData *dataPtr = clientData;
+    Blt_HashEntry *hPtr;
+    Blt_HashSearch cursor;
+    Tcl_Obj *listObjPtr;
+    Tcl_DString dString;
+
+    Tcl_DStringInit(&dString);
+    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+    for (hPtr = Blt_FirstHashEntry(&dataPtr->arcballTable, &cursor);
+	 hPtr != NULL; hPtr = Blt_NextHashEntry(&cursor)) {
+	ArcBall *abPtr;
+	const char *qualName;
+	Tcl_Obj *objPtr;
+
+	abPtr = Blt_GetHashValue(hPtr);
+	qualName = Blt_GetQualifiedName(
+		Blt_GetCommandNamespace(interp, abPtr->cmdToken), 
+		Tcl_GetCommandName(interp, abPtr->cmdToken), &dString);
+	if (argc == 3) {
+	    if (!Tcl_StringMatch(qualName, argv[2])) {
+		continue;
+	    }
+	}
+	objPtr = Tcl_NewStringObj(qualName, -1);
+	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+    }
+    Tcl_SetObjResult(interp, listObjPtr);
+    Tcl_DStringFree(&dString);
+    return TCL_OK;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * ArcBallCmd --
+ *
+ *---------------------------------------------------------------------- 
+ */
+static Blt_OpSpec arcBallCmdOps[] =
+{
+    {"create",  1, (Blt_Op)ArcBallCreateOp, 4, 5, "?name? w h",},
+    {"destroy", 1, (Blt_Op)ArcBallDestroyOp, 3, 0, "name...",},
+    {"names",   1, (Blt_Op)ArcBallNamesOp, 2, 3, "?pattern?...",},
+};
+
+static int nArcBallCmdOps = sizeof(arcBallCmdOps) / sizeof(Blt_OpSpec);
+
+/*ARGSUSED*/
+static int
+ArcBallCmd(
+    ClientData clientData,	/* Interpreter-specific data. */
+    Tcl_Interp *interp,
+    int argc,
+    char **argv)
+{
+    Blt_Op proc;
+
+    proc = Blt_GetOp(interp, nArcBallCmdOps, arcBallCmdOps, 
+			    BLT_OP_ARG1, argc, argv, 0);
+    if (proc == NULL) {
+	return TCL_ERROR;
+    }
     return (*proc) (clientData, interp, argc, argv);
+}
+
+/*
+ * -----------------------------------------------------------------------
+ *
+ * ArcballInterpDeleteProc --
+ *
+ *	This is called when the interpreter hosting the "arcball" command
+ *	is deleted.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *	Removes the hash table managing all arcballs.
+ *
+ * ------------------------------------------------------------------------
+ */
+/* ARGSUSED */
+static void
+ArcBallInterpDeleteProc(
+    ClientData clientData,	/* Interpreter-specific data. */
+    Tcl_Interp *interp)
+{
+    ArcBallCmdInterpData *dataPtr = clientData;
+
+    /* All tree instances should already have been destroyed when
+     * their respective Tcl commands were deleted. */
+    Blt_DeleteHashTable(&dataPtr->arcballTable);
+    Tcl_DeleteAssocData(interp, ARCBALL_THREAD_KEY);
+    Blt_Free(dataPtr);
+}
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * GetArcBallCmdInterpData --
+ *
+ *---------------------------------------------------------------------- 
+ */
+static ArcBallCmdInterpData *
+GetArcBallCmdInterpData(Tcl_Interp *interp)
+{
+    ArcBallCmdInterpData *dataPtr;
+    Tcl_InterpDeleteProc *proc;
+
+    dataPtr = (ArcBallCmdInterpData *)
+	Tcl_GetAssocData(interp, ARCBALL_THREAD_KEY, &proc);
+    if (dataPtr == NULL) {
+	dataPtr = Blt_Malloc(sizeof(ArcBallCmdInterpData));
+	assert(dataPtr);
+	dataPtr->interp = interp;
+	Tcl_SetAssocData(interp, ARCBALL_THREAD_KEY, ArcBallInterpDeleteProc,
+		 dataPtr);
+	Blt_InitHashTable(&dataPtr->arcballTable, BLT_ONE_WORD_KEYS);
+    }
+    return dataPtr;
 }
 
 /*
@@ -2325,10 +2865,13 @@ int
 Blt_ArcBallInit(Tcl_Interp *interp)
 {
     static Blt_CmdSpec cmdSpec = { 
-	"arcball", ArcBallCmd, 
+	"arcball", ArcBallCmd,
     };
+
+    cmdSpec.clientData = GetArcBallCmdInterpData(interp);
     if (Blt_InitCmd(interp, "::blt", &cmdSpec) == NULL) {
 	return TCL_ERROR;
     } 
     return TCL_OK;
 }
+
