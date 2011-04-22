@@ -2128,7 +2128,7 @@ DragArcBall(ArcBall *arcPtr, double x, double y, Quaternion *q)
         Vector3d perp;
 
         /* Compute the vector perpendicular to the begin and end vectors */
-        CrossProduct(&arcPtr->drag, &arcPtr->click, &perp);
+        CrossProduct(&arcPtr->click, &arcPtr->drag, &perp);
 
         /* Compute the length of the perpendicular vector */
         if (Length(&perp) > DBL_EPSILON) {
@@ -2146,7 +2146,8 @@ DragArcBall(ArcBall *arcPtr, double x, double y, Quaternion *q)
             /* If it is zero, the begin and end vectors coincide,
              * so return an identity transform
              */
-            q->x = q->y = q->z = q->w = 0.0;
+            q->w = 1.0;
+            q->x = q->y = q->z = 0.0;
         }
     }
 }
@@ -2346,10 +2347,10 @@ ArcBallRotateOp(ClientData clientData, Tcl_Interp *interp, int argc,
     fprintf(stderr, "combined=%g %g %g %g\n", abPtr->q.x, abPtr->q.y, 
 	    abPtr->q.z, abPtr->q.w);
     listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.w));
     Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.x));
     Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.y));
     Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.z));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.w));
     Tcl_SetObjResult(interp, listObjPtr);
     return TCL_OK;
 }
@@ -2395,10 +2396,10 @@ ArcBallQuaternionOp(ClientData clientData, Tcl_Interp *interp, int argc,
     Tcl_Obj *listObjPtr;
 
     listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.w));
     Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.x));
     Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.y));
     Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.z));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.w));
     Tcl_SetObjResult(interp, listObjPtr);
     return TCL_OK;
 }
@@ -2410,7 +2411,7 @@ ArcBallResetOp(ClientData clientData, Tcl_Interp *interp, int argc,
     ArcBall *abPtr = clientData;
 
     fprintf(stderr, "arcball reset\n");
-    abPtr->q.x = abPtr->q.y = abPtr->q.z = 10.0;
+    abPtr->q.x = abPtr->q.y = abPtr->q.z = 0.0;
     abPtr->q.w = 1.0;
     return TCL_OK;
 }
