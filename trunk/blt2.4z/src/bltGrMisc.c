@@ -2341,7 +2341,7 @@ ArcBallRotateOp(ClientData clientData, Tcl_Interp *interp, int argc,
     ClickArcBall(abPtr, x1, y1);
     DragArcBall(abPtr, x2, y2, &q);
     p = abPtr->q;
-    CombineRotations(&q, &p, &abPtr->q);
+    CombineRotations(&p, &q, &abPtr->q);
     fprintf(stderr, "p=%g %g %g %g\n", p.x, p.y, p.z, p.w);
     fprintf(stderr, "q=%g %g %g %g\n", q.x, q.y, q.z, q.w);
     fprintf(stderr, "combined=%g %g %g %g\n", abPtr->q.x, abPtr->q.y, 
