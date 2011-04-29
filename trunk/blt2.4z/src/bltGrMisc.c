@@ -2324,6 +2324,32 @@ GetMatrix(Tcl_Interp *interp, char *string, HMatrix A)
 }
 
 static int
+GetQuaternion(Tcl_Interp *interp, const char *string, Quaternion *q)
+{
+    double x, y, z, w;
+    char **elems;
+    int n;
+    
+    if (Tcl_SplitList(interp, string, &n, &elems) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    if (n != 4) {
+	Tcl_AppendResult(interp, "wrong # of elements in quaterion \"",
+		string, "\"", (char *)NULL);
+	Blt_Free(elems);
+	return TCL_ERROR;
+    }
+    if ((Tcl_GetDouble(interp, elems[0], &w) != TCL_OK) ||
+	(Tcl_GetDouble(interp, elems[1], &x) != TCL_OK) ||
+	(Tcl_GetDouble(interp, elems[2], &y) != TCL_OK) ||
+	(Tcl_GetDouble(interp, elems[3], &z) != TCL_OK)) {
+	return TCL_ERROR;
+    }
+    q->x = x, q->y = y, q->z = z, q->w = w;
+    return TCL_OK;
+}
+
+static int
 ArcBallRotateOp(ClientData clientData, Tcl_Interp *interp, int argc, 
 		char **argv)
 {
@@ -2389,14 +2415,28 @@ ArcBallQuaternionOp(ClientData clientData, Tcl_Interp *interp, int argc,
 		    char **argv)
 {
     ArcBall *abPtr = clientData;
-    Tcl_Obj *listObjPtr;
 
-    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.w));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.x));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.y));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.z));
-    Tcl_SetObjResult(interp, listObjPtr);
+    if (argc == 3) {
+	Quaternion q;
+
+	if (GetQuaternion(interp, argv[2], &q) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+	abPtr->q = q;
+    } else {
+	Tcl_Obj *objPtr, *listObjPtr;
+
+	listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+	objPtr = Tcl_NewDoubleObj(abPtr->q.w);
+	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+ 	objPtr = Tcl_NewDoubleObj(abPtr->q.x);
+	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+	objPtr = Tcl_NewDoubleObj(abPtr->q.y);
+	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+	objPtr = Tcl_NewDoubleObj(abPtr->q.z);
+	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+	Tcl_SetObjResult(interp, listObjPtr);
+    }
     return TCL_OK;
 }
 
@@ -2455,7 +2495,7 @@ CreateArcBall(double w, double h)
 static Blt_OpSpec arcBallOps[] =
 {
     {"matrix",     1, ArcBallMatrixOp,     2, 3, "?matrix?",},
-    {"quaternion", 1, ArcBallQuaternionOp, 2, 2, "",},
+    {"quaternion", 1, ArcBallQuaternionOp, 2, 3, "?quat?",},
     {"reset",      3, ArcBallResetOp,      2, 2, "",},
     {"resize",     3, ArcBallResizeOp,     4, 4, "w h",},
     {"rotate",     2, ArcBallRotateOp,     6, 6, "x1 y1 x2 y2",},
