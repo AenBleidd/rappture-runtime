@@ -50,7 +50,7 @@ tk=tk8.4.19/unix
 tkimg=tkimg1.3
 tls=tls1.6
 voronoi=voronoi
-vtk=vtk-5.6.0
+vtk=vtk-5.6.1
 zlib=zlib
 dx=dx-4.4.4
 
