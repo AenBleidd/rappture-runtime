@@ -2038,7 +2038,7 @@ GetMatrix(Tcl_Interp *interp, char *string, HMatrix A)
 
 /** Multiply the upper left 3x3 parts of A and B to get AB **/
 static void 
-MultipleMatrices(HMatrix A, HMatrix B, HMatrix AB)
+MultiplyMatrices(HMatrix A, HMatrix B, HMatrix AB)
 {
     int i;
 
@@ -2052,7 +2052,7 @@ MultipleMatrices(HMatrix A, HMatrix B, HMatrix AB)
 } 
 
 static void 
-MultipleMatrices2(HMatrix A, HMatrix B, HMatrix AB)
+MultiplyMatrices2(HMatrix A, HMatrix B, HMatrix AB)
 {
     AB[0][0] = (A[0][0]*B[0][0]) + (A[0][1]*B[1][0]) + (A[0][2]*B[2][0]);
     AB[0][1] = (A[0][0]*B[0][1]) + (A[0][1]*B[1][1]) + (A[0][2]*B[2][1]);
