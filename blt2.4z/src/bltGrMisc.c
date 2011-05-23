@@ -1899,6 +1899,10 @@ typedef struct {
     double x, y, z, w;
 } Quaternion;
 
+typedef struct {
+    double x, y, z;
+} EulerAngles;
+
 typedef double HMatrix[3][3];
 
 typedef struct {
@@ -1918,6 +1922,41 @@ typedef struct {
  * Radius is         1.0
  * Radius squared is 1.0
  */
+
+static int
+GetQuaternion(Tcl_Interp *interp, const char *string, Quaternion *q)
+{
+    double x, y, z, w;
+    char **elems;
+    int n;
+    
+    if (Tcl_SplitList(interp, string, &n, &elems) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    if (n != 4) {
+	Tcl_AppendResult(interp, "wrong # of elements in quaterion \"",
+		string, "\"", (char *)NULL);
+	Blt_Free(elems);
+	return TCL_ERROR;
+    }
+    if ((Tcl_GetDouble(interp, elems[0], &w) != TCL_OK) ||
+	(Tcl_GetDouble(interp, elems[1], &x) != TCL_OK) ||
+	(Tcl_GetDouble(interp, elems[2], &y) != TCL_OK) ||
+	(Tcl_GetDouble(interp, elems[3], &z) != TCL_OK)) {
+	Blt_Free(elems);
+	return TCL_ERROR;
+    }
+    Blt_Free(elems);
+    q->x = x, q->y = y, q->z = z, q->w = w;
+    return TCL_OK;
+}
+
+static INLINE void
+SetIdentity(Quaternion *q) 
+{
+    q->x = q->y = q->z = 0.0;
+    q->w = 1.0;
+}
 
 static INLINE double 
 Length(Vector3d *v)
@@ -1941,6 +1980,140 @@ CrossProduct(Vector3d *v1, Vector3d *v2, Vector3d *resultPtr)
     resultPtr->x = (v1->y * v2->z) - (v1->z * v2->y);
     resultPtr->y = (v1->z * v2->x) - (v1->x * v2->z);
     resultPtr->z = (v1->x * v2->y) - (v1->y * v2->x);
+}
+
+
+/* Return quaternion product qL * qR.  Note: order is important!
+ * To combine rotations, use the product Mul(Second, First),
+ * which gives the effect of rotating by First then Second. */
+static void
+CombineRotations(Quaternion *q1, Quaternion *q2, Quaternion *r)
+{
+    r->w = (q1->w*q2->w) - (q1->x*q2->x) - (q1->y*q2->y) - (q1->z*q2->z);
+    r->x = (q1->w*q2->x) + (q1->x*q2->w) + (q1->y*q2->z) - (q1->z*q2->y);
+    r->y = (q1->w*q2->y) + (q1->y*q2->w) + (q1->z*q2->x) - (q1->x*q2->z);
+    r->z = (q1->w*q2->z) + (q1->z*q2->w) + (q1->x*q2->y) - (q1->y*q2->x);
+}
+
+static int
+GetMatrix(Tcl_Interp *interp, char *string, HMatrix A)
+{
+    char **elems;
+    int n;
+    int i, j, k;
+    
+    if (Tcl_SplitList(interp, string, &n, &elems) != TCL_OK) {
+	return TCL_ERROR;
+    }
+    if (n != 9) {
+	Tcl_AppendResult(interp, "wrong # of elements in rotation matrix \"",
+		string, "\"", (char *)NULL);
+	Blt_Free(elems);
+	return TCL_ERROR;
+    }
+    k = 0;
+    for (i = 0; i < 3; i++) {
+	for (j = 0; j < 3; j++) {
+	    double x;
+
+	    if (Tcl_GetDouble(interp, elems[k], &x) != TCL_OK) {
+		Blt_Free(elems);
+		return TCL_ERROR;
+	    }
+	    A[i][j] = x;
+	    k++;
+	}
+    }
+    Blt_Free(elems);
+    return TCL_OK;
+}
+
+/**
+ * Sets the value of this matrix to the result of multiplying itself
+ * with matrix m1. 
+ * @param m1 the other matrix 
+ */
+
+/** Multiply the upper left 3x3 parts of A and B to get AB **/
+static void 
+MultipleMatrices(HMatrix A, HMatrix B, HMatrix AB)
+{
+    int i;
+
+    for (i = 0; i < 3; i++) {
+	int j;
+
+	for (j = 0; j < 3; j++) {
+	    AB[i][j] = A[i][0]*B[0][j] + A[i][1]*B[1][j] + A[i][2]*B[2][j];
+	}
+    }
+} 
+
+static void 
+MultipleMatrices2(HMatrix A, HMatrix B, HMatrix AB)
+{
+    AB[0][0] = (A[0][0]*B[0][0]) + (A[0][1]*B[1][0]) + (A[0][2]*B[2][0]);
+    AB[0][1] = (A[0][0]*B[0][1]) + (A[0][1]*B[1][1]) + (A[0][2]*B[2][1]);
+    AB[0][2] = (A[0][0]*B[0][2]) + (A[0][1]*B[1][2]) + (A[0][2]*B[2][2]);
+    
+    AB[1][0] = (A[1][0]*B[0][0]) + (A[1][1]*B[1][0]) + (A[1][2]*B[2][0]);
+    AB[1][1] = (A[1][0]*B[0][1]) + (A[1][1]*B[1][1]) + (A[1][2]*B[2][1]);
+    AB[1][2] = (A[1][0]*B[0][2]) + (A[1][1]*B[1][2]) + (A[1][2]*B[2][2]);
+    
+    AB[2][0] = (A[2][0]*B[0][0]) + (A[2][1]*B[1][0]) + (A[2][2]*B[2][0]);
+    AB[2][1] = (A[2][0]*B[0][1]) + (A[2][1]*B[1][1]) + (A[2][2]*B[2][1]);
+    AB[2][2] = (A[2][0]*B[0][2]) + (A[2][1]*B[1][2]) + (A[2][2]*B[2][2]);
+}
+
+static double 
+Matrix4fSVD(HMatrix A) 
+{
+    // this is a simple svd.
+    // Not complete but fast and reasonable.
+    // See comment in Matrix3d.
+    return sqrt(((A[0][0]*A[0][0]) + (A[1][0]*A[1][0]) + 
+		 (A[2][0]*A[2][0]) + (A[0][1]*A[0][1]) + 
+		 (A[1][1]*A[1][1]) + (A[2][1]*A[2][1]) +
+		 (A[0][2]*A[0][2]) + (A[1][2]*A[1][2]) + 
+		 (A[2][2]*A[2][2])) / 3.0);
+}
+
+static void 
+SetMatrix4x4FromMatrix3x3(HMatrix m1, HMatrix result)
+{
+    result[0][0] = m1[0][0]; 
+    result[0][1] = m1[0][1]; 
+    result[0][2] = m1[0][2];
+    result[1][0] = m1[1][0]; 
+    result[1][1] = m1[1][1]; 
+    result[1][2] = m1[1][2];
+    result[2][0] = m1[2][0]; 
+    result[2][1] = m1[2][1]; 
+    result[2][2] = m1[2][2];
+}
+
+static void 
+ScaleMatrix(HMatrix A, double scale)
+{
+    A[0][0] *= scale; 
+    A[0][1] *= scale; 
+    A[0][2] *= scale;
+    A[1][0] *= scale; 
+    A[1][1] *= scale; 
+    A[1][2] *= scale;
+    A[2][0] *= scale; 
+    A[2][1] *= scale; 
+    A[2][2] *= scale;
+}
+
+static void 
+Matrix4fSetRotationFromMatrix3f(HMatrix A, HMatrix B)
+{
+    double scale;
+    
+    scale = Matrix4fSVD(A);
+    SetMatrix4x4FromMatrix3x3(B, A);
+    ScaleMatrix(A, scale);
 }
 
 static void 
@@ -1993,53 +2166,40 @@ MatrixToQuaternion(HMatrix A, Quaternion *q)
 }
 
 static void 
-PointOnSphere(ArcBall *arcPtr, double x, double y, Vector3d *outPtr)
+QuaternionToMatrix(Quaternion* q, HMatrix A)
 {
-    double sx, sy;
-    double d2;
+    double n, s;
+    double xs, ys, zs;
+    double wx, wy, wz;
+    double xx, xy, xz;
+    double yy, yz, zz;
 
-    /* Adjust point coords and scale down to range of [-1 ... 1] */
-    sx = (x * arcPtr->xScale)  - 1.0;
-    sy = 1.0 - (y * arcPtr->yScale);
+    n = (q->x * q->x) + (q->y * q->y) + (q->z * q->z) + (q->w * q->w);
 
-    /* Compute the square of the length of the vector to the point from the
-     * center. */
-    d2 = (sx * sx) + (sy * sy);
-
-    /* If the point is mapped outside of the sphere ... 
-     * (length > radius squared)
-     */
-    if (d2 > 1.0) {
-        double scale;
-
-        /* Compute a normalizing factor (radius / sqrt(length)) */
-        scale = 1.0 / sqrt(d2);
-
-        /* Return the "normalized" vector, a point on the sphere */
-        outPtr->x = sx * scale;
-        outPtr->y = sy * scale;
-        outPtr->z = 0.0;
-    } else {   /* else it's on the inside */
-        /* Return a vector to a point mapped inside the sphere
-         * sqrt(radius squared - length) */
-        outPtr->x = sx;
-        outPtr->y = sy;
-        outPtr->z = sqrt(1.0 - d2);
-    }
-}
-
-static void 
-SetArcBallBounds(ArcBall *arcPtr, double w, double h)
-{
-    if (w <= 1.0 ) {
-        w = 2.0;
-    }
-    if (h <= 1.0 ) {
-        h = 2.0;
-    }
-    /* Set adjustment factor for width/height */
-    arcPtr->xScale = 1.0 / ((w - 1.0) * 0.5);
-    arcPtr->yScale = 1.0 / ((h - 1.0) * 0.5);
+    s = (n > 0.0) ? (2.0 / n) : 0.0;
+    
+    xs = q->x * s;  
+    ys = q->y * s;  
+    zs = q->z * s;
+    wx = q->w * xs; 
+    wy = q->w * ys; 
+    wz = q->w * zs;
+    xx = q->x * xs; 
+    xy = q->x * ys; 
+    xz = q->x * zs;
+    yy = q->y * ys; 
+    yz = q->y * zs; 
+    zz = q->z * zs;
+    
+    A[0][0] = 1.0 - (yy + zz); 
+    A[0][1] = xy - wz;  
+    A[0][2] = xz + wy;
+    A[1][0] = xy + wz;  
+    A[1][1] = 1.0 - (xx + zz); 
+    A[1][2] = yz - wx;
+    A[2][0] = xz - wy;  
+    A[2][1] = yz + wx;  
+    A[2][2] = 1.0 - (xx + yy);
 }
 
 
@@ -2109,6 +2269,66 @@ GetArcBall(
     return Blt_GetHashValue(hPtr);
 }
 
+static void 
+SetArcBallBounds(ArcBall *arcPtr, double w, double h)
+{
+    if (w <= 1.0 ) {
+        w = 2.0;
+    }
+    if (h <= 1.0 ) {
+        h = 2.0;
+    }
+    /* Set adjustment factor for width/height */
+    arcPtr->xScale = 1.0 / ((w - 1.0) * 0.5);
+    arcPtr->yScale = 1.0 / ((h - 1.0) * 0.5);
+}
+
+static ArcBall *
+CreateArcBall(double w, double h)
+{
+    ArcBall *abPtr;
+
+    abPtr = Blt_Calloc(1, sizeof(ArcBall));
+    SetArcBallBounds (abPtr, w, h);
+    return abPtr;
+}
+
+static void 
+PointOnSphere(ArcBall *arcPtr, double x, double y, Vector3d *outPtr)
+{
+    double sx, sy;
+    double d2;
+
+    /* Adjust point coords and scale down to range of [-1 ... 1] */
+    sx = (x * arcPtr->xScale)  - 1.0;
+    sy = 1.0 - (y * arcPtr->yScale);
+
+    /* Compute the square of the length of the vector to the point from the
+     * center. */
+    d2 = (sx * sx) + (sy * sy);
+
+    /* If the point is mapped outside of the sphere ... 
+     * (length > radius squared)
+     */
+    if (d2 > 1.0) {
+        double scale;
+
+        /* Compute a normalizing factor (radius / sqrt(length)) */
+        scale = 1.0 / sqrt(d2);
+
+        /* Return the "normalized" vector, a point on the sphere */
+        outPtr->x = sx * scale;
+        outPtr->y = sy * scale;
+        outPtr->z = 0.0;
+    } else {   /* else it's on the inside */
+        /* Return a vector to a point mapped inside the sphere
+         * sqrt(radius squared - length) */
+        outPtr->x = sx;
+        outPtr->y = sy;
+        outPtr->z = sqrt(1.0 - d2);
+    }
+}
+
 /* Mouse down: Supply mouse position in x and y */
 static void 
 ClickArcBall(ArcBall *arcPtr, double x, double y)
@@ -2152,181 +2372,10 @@ DragArcBall(ArcBall *arcPtr, double x, double y, Quaternion *q)
     }
 }
 
-static void 
-QuaternionToMatrix(Quaternion* q, HMatrix A)
-{
-    double n, s;
-    double xs, ys, zs;
-    double wx, wy, wz;
-    double xx, xy, xz;
-    double yy, yz, zz;
-
-    n = (q->x * q->x) + (q->y * q->y) + (q->z * q->z) + (q->w * q->w);
-
-    s = (n > 0.0) ? (2.0 / n) : 0.0;
-    
-    xs = q->x * s;  
-    ys = q->y * s;  
-    zs = q->z * s;
-    wx = q->w * xs; 
-    wy = q->w * ys; 
-    wz = q->w * zs;
-    xx = q->x * xs; 
-    xy = q->x * ys; 
-    xz = q->x * zs;
-    yy = q->y * ys; 
-    yz = q->y * zs; 
-    zz = q->z * zs;
-    
-    A[0][0] = 1.0 - (yy + zz); 
-    A[0][1] = xy - wz;  
-    A[0][2] = xz + wy;
-    A[1][0] = xy + wz;  
-    A[1][1] = 1.0 - (xx + zz); 
-    A[1][2] = yz - wx;
-    A[2][0] = xz - wy;  
-    A[2][1] = yz + wx;  
-    A[2][2] = 1.0 - (xx + yy);
-}
-
-/**
- * Sets the value of this matrix to the result of multiplying itself
- * with matrix m1. 
- * @param m1 the other matrix 
- */
-
-/** Multiply the upper left 3x3 parts of A and B to get AB **/
-static void 
-MultipleMatrices(HMatrix A, HMatrix B, HMatrix AB)
-{
-    int i;
-
-    for (i = 0; i < 3; i++) {
-	int j;
-
-	for (j = 0; j < 3; j++) {
-	    AB[i][j] = A[i][0]*B[0][j] + A[i][1]*B[1][j] + A[i][2]*B[2][j];
-	}
-    }
-} 
-
-static void 
-MultipleMatrices2(HMatrix A, HMatrix B, HMatrix AB)
-{
-    AB[0][0] = (A[0][0]*B[0][0]) + (A[0][1]*B[1][0]) + (A[0][2]*B[2][0]);
-    AB[0][1] = (A[0][0]*B[0][1]) + (A[0][1]*B[1][1]) + (A[0][2]*B[2][1]);
-    AB[0][2] = (A[0][0]*B[0][2]) + (A[0][1]*B[1][2]) + (A[0][2]*B[2][2]);
-    
-    AB[1][0] = (A[1][0]*B[0][0]) + (A[1][1]*B[1][0]) + (A[1][2]*B[2][0]);
-    AB[1][1] = (A[1][0]*B[0][1]) + (A[1][1]*B[1][1]) + (A[1][2]*B[2][1]);
-    AB[1][2] = (A[1][0]*B[0][2]) + (A[1][1]*B[1][2]) + (A[1][2]*B[2][2]);
-    
-    AB[2][0] = (A[2][0]*B[0][0]) + (A[2][1]*B[1][0]) + (A[2][2]*B[2][0]);
-    AB[2][1] = (A[2][0]*B[0][1]) + (A[2][1]*B[1][1]) + (A[2][2]*B[2][1]);
-    AB[2][2] = (A[2][0]*B[0][2]) + (A[2][1]*B[1][2]) + (A[2][2]*B[2][2]);
-}
-
-static double 
-Matrix4fSVD(HMatrix A) 
-{
-    // this is a simple svd.
-    // Not complete but fast and reasonable.
-    // See comment in Matrix3d.
-    return sqrt(((A[0][0]*A[0][0]) + (A[1][0]*A[1][0]) + 
-		 (A[2][0]*A[2][0]) + (A[0][1]*A[0][1]) + 
-		 (A[1][1]*A[1][1]) + (A[2][1]*A[2][1]) +
-		 (A[0][2]*A[0][2]) + (A[1][2]*A[1][2]) + 
-		 (A[2][2]*A[2][2])) / 3.0);
-}
-
-
-static void 
-SetMatrix4x4FromMatrix3x3(HMatrix m1, HMatrix result)
-{
-    result[0][0] = m1[0][0]; 
-    result[0][1] = m1[0][1]; 
-    result[0][2] = m1[0][2];
-    result[1][0] = m1[1][0]; 
-    result[1][1] = m1[1][1]; 
-    result[1][2] = m1[1][2];
-    result[2][0] = m1[2][0]; 
-    result[2][1] = m1[2][1]; 
-    result[2][2] = m1[2][2];
-}
-
-static void 
-ScaleMatrix(HMatrix A, double scale)
-{
-    A[0][0] *= scale; 
-    A[0][1] *= scale; 
-    A[0][2] *= scale;
-    A[1][0] *= scale; 
-    A[1][1] *= scale; 
-    A[1][2] *= scale;
-    A[2][0] *= scale; 
-    A[2][1] *= scale; 
-    A[2][2] *= scale;
-}
-
-static void 
-Matrix4fSetRotationFromMatrix3f(HMatrix A, HMatrix B)
-{
-    double scale;
-    
-    scale = Matrix4fSVD(A);
-    SetMatrix4x4FromMatrix3x3(B, A);
-    ScaleMatrix(A, scale);
-}
-
-/* Return quaternion product qL * qR.  Note: order is important!
- * To combine rotations, use the product Mul(Second, First),
- * which gives the effect of rotating by First then Second. */
-static void
-CombineRotations(Quaternion *q1, Quaternion *q2, Quaternion *r)
-{
-    r->w = (q1->w*q2->w) - (q1->x*q2->x) - (q1->y*q2->y) - (q1->z*q2->z);
-    r->x = (q1->w*q2->x) + (q1->x*q2->w) + (q1->y*q2->z) - (q1->z*q2->y);
-    r->y = (q1->w*q2->y) + (q1->y*q2->w) + (q1->z*q2->x) - (q1->x*q2->z);
-    r->z = (q1->w*q2->z) + (q1->z*q2->w) + (q1->x*q2->y) - (q1->y*q2->x);
-}
-
 static int
-GetMatrix(Tcl_Interp *interp, char *string, HMatrix A)
+GetEulerAngles(Tcl_Interp *interp, char *string, EulerAngles *e)
 {
-    char **elems;
-    int n;
-    int i, j, k;
-    
-    if (Tcl_SplitList(interp, string, &n, &elems) != TCL_OK) {
-	return TCL_ERROR;
-    }
-    if (n != 9) {
-	Tcl_AppendResult(interp, "wrong # of elements in rotation matrix \"",
-		string, "\"", (char *)NULL);
-	Blt_Free(elems);
-	return TCL_ERROR;
-    }
-    k = 0;
-    for (i = 0; i < 3; i++) {
-	for (j = 0; j < 3; j++) {
-	    double x;
-
-	    if (Tcl_GetDouble(interp, elems[k], &x) != TCL_OK) {
-		Blt_Free(elems);
-		return TCL_ERROR;
-	    }
-	    A[i][j] = x;
-	    k++;
-	}
-    }
-    Blt_Free(elems);
-    return TCL_OK;
-}
-
-static int
-GetQuaternion(Tcl_Interp *interp, const char *string, Quaternion *q)
-{
-    double x, y, z, w;
+    double x, y, z;
     char **elems;
     int n;
     
@@ -2339,44 +2388,134 @@ GetQuaternion(Tcl_Interp *interp, const char *string, Quaternion *q)
 	Blt_Free(elems);
 	return TCL_ERROR;
     }
-    if ((Tcl_GetDouble(interp, elems[0], &w) != TCL_OK) ||
-	(Tcl_GetDouble(interp, elems[1], &x) != TCL_OK) ||
-	(Tcl_GetDouble(interp, elems[2], &y) != TCL_OK) ||
-	(Tcl_GetDouble(interp, elems[3], &z) != TCL_OK)) {
+    if ((Tcl_GetDouble(interp, elems[0], &x) != TCL_OK) ||
+	(Tcl_GetDouble(interp, elems[1], &y) != TCL_OK) ||
+	(Tcl_GetDouble(interp, elems[2], &z) != TCL_OK)) {
+	Blt_Free(elems);
 	return TCL_ERROR;
     }
-    q->x = x, q->y = y, q->z = z, q->w = w;
+    Blt_Free(elems);
+    e->x = x, e->y = y, e->z = z;
     return TCL_OK;
 }
 
+/*
+ * --------------------------------------------------------------
+ *
+ * ArcBallEulerOp --
+ *
+ * 	Sets/gets the current quaternion in terms of euler angles.
+ *
+ * Results:
+ *	A standard Tcl result.  A list of three numbers representing
+ *	the euler angles will be returned.
+ *
+ *	$arcball euler "$x $y $z"
+ *	set angles [$arcball euler]
+ *
+ * --------------------------------------------------------------
+ */
 static int
-ArcBallRotateOp(ClientData clientData, Tcl_Interp *interp, int argc, 
-		char **argv)
+ArcBallEulerOp(ClientData clientData, Tcl_Interp *interp, int argc, 
+	       char **argv)
 {
     ArcBall *abPtr = clientData;
-    Quaternion q, p;
-    Tcl_Obj *listObjPtr;
-    double x1, y1, x2, y2;
 
-    if ((Tcl_GetDouble(interp, argv[2], &x1) != TCL_OK) ||
-	(Tcl_GetDouble(interp, argv[3], &y1) != TCL_OK) ||
-	(Tcl_GetDouble(interp, argv[4], &x2) != TCL_OK) ||
-	(Tcl_GetDouble(interp, argv[5], &y2) != TCL_OK)) {
-	return TCL_ERROR;
+    if (argc == 3) {
+	EulerAngles euler;
+	Quaternion q1, q2, q3;
+	double theta, phi, psi;
+
+	if (GetEulerAnglesFromObj(interp, argv[2], &euler) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+	theta = euler.x * DEG2RAD;
+	phi   = euler.y * DEG2RAD;
+	psi   = euler.z * DEG2RAD;
+	
+	q1.w = cos(theta * 0.5);
+	q1.x = sin(theta * 0.5);
+	q1.y = 0.0;
+	q1.z = 0.0;
+	
+	q2.w = cos(phi * 0.5);
+	q2.x = sin(phi * 0.5);
+	q2.y = 0.0;
+	q2.z = 0.0;
+	
+	CombineRotations(&q1, &q2, &q3);
+	
+	q1.w = cos(psi * 0.5);
+	q1.x = sin(psi * 0.5);
+	q1.y = 0.0;
+	q1.z = 0.0;
+	
+	CombineRotations(&q3, &q1, &abPtr->q);
+    } else {
+	HMatrix A;
+	double phi, cosPhi;
+	Tcl_Obj *objPtr, *listObjPtr;
+	double x, y, z;
+
+	QuaternionToMatrix(&abPtr->q, A);
+	phi = -asin(A[0][2]);		/* Calculate Y-axis angle */
+	cosPhi = cos(phi);
+	y = phi * RAD2DEG;
+	
+	if (fabs(cosPhi) > 0.005) {	/* Gimball lock? */
+	    double trx, try;
+
+	    trx =  A[2][2] / cosPhi;	/* No, so get X-axis angle */
+	    try = -A[1][2] / cosPhi;
+	    x  = atan2(try, trx) * RAD2DEG;
+	    
+	    trx =  A[0][0] / cosPhi;	/* Get Z-axis angle */
+	    try = -A[0][1] / cosPhi;
+	    z  = atan2(try, trx) * RAD2DEG;
+	} else {			/* Gimball lock has occurred */
+	    double trx, try;
+
+	    x = 0.0;			/* X-axis angle is zero. */
+	    
+	    trx = A[1][1];		/* Compute Z-axis angle */
+	    try = A[1][0];
+	    z  = atan2(try, trx) * RAD2DEG;
+	}
+	/* Clamp all angles to range */
+#define CLAMP(x)	(((x) < 0.0) ? 0.0 : ((x) > 360.0) ? 360.0 : (x))
+	x = CLAMP(x);
+	y = CLAMP(y);
+	z = CLAMP(z);
+
+	listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+	objPtr = Tcl_NewDoubleObj(x);
+	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+ 	objPtr = Tcl_NewDoubleObj(y);
+	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+	objPtr = Tcl_NewDoubleObj(z);
+	Tcl_ListObjAppendElement(interp, listObjPtr, objPtr);
+	Tcl_SetObjResult(interp, listObjPtr);
     }
-    ClickArcBall(abPtr, x1, y1);
-    DragArcBall(abPtr, x2, y2, &q);
-    p = abPtr->q;
-    CombineRotations(&p, &q, &abPtr->q);
-    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.w));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.x));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.y));
-    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.z));
-    Tcl_SetObjResult(interp, listObjPtr);
     return TCL_OK;
 }
 
+/*
+ * --------------------------------------------------------------
+ *
+ * ArcBallMatrixOp --
+ *
+ * 	Sets/gets the rotation matrix from the current quaternion.  The 3x3
+ * 	rotation matrix is represented by nine numbers (row-major).
+ *
+ * Results:
+ *	A standard Tcl result.  A list representing the rotation matrix is
+ *	returned.
+ *
+ *	$arcball matrix $matrix
+ *	set q [$arcball quaternion]
+ *
+ * --------------------------------------------------------------
+ */
 static int
 ArcBallMatrixOp(ClientData clientData, Tcl_Interp *interp, int argc, 
 		char **argv)
@@ -2410,6 +2549,22 @@ ArcBallMatrixOp(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_OK;
 }
 
+/*
+ * --------------------------------------------------------------
+ *
+ * ArcBallQuaternionOp --
+ *
+ * 	Sets/gets the current quaternion.
+ *
+ * Results:
+ *	A standard Tcl result.  A list representing the quaternion is
+ *	returned.
+ *
+ *	$arcball quaternion "$w $x $y $z"
+ *	set q [$arcball quaternion]
+ *
+ * --------------------------------------------------------------
+ */
 static int
 ArcBallQuaternionOp(ClientData clientData, Tcl_Interp *interp, int argc, 
 		    char **argv)
@@ -2440,17 +2595,45 @@ ArcBallQuaternionOp(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_OK;
 }
 
+/*
+ * --------------------------------------------------------------
+ *
+ * ArcBallResetOp --
+ *
+ * 	Resets the quaterion to identify.  Used also the initialize the
+ * 	quaternion.
+ *
+ * Results:
+ *	A standard Tcl result.  Always returns TCL_OK.
+ *
+ *	$arcball reset
+ *
+ * --------------------------------------------------------------
+ */
 static int
 ArcBallResetOp(ClientData clientData, Tcl_Interp *interp, int argc, 
 		    char **argv)
 {
     ArcBall *abPtr = clientData;
 
-    abPtr->q.x = abPtr->q.y = abPtr->q.z = 0.0;
-    abPtr->q.w = 1.0;
+    SetIdentity(&abPtr->q);
     return TCL_OK;
 }
 
+/*
+ * --------------------------------------------------------------
+ *
+ * ArcBallResizeOp --
+ *
+ * 	Sets new dimensions for the arcball window.
+ *
+ * Results:
+ *	A standard Tcl result.
+ *
+ *	$arcball resize $w $h
+ *
+ * --------------------------------------------------------------
+ */
 static int
 ArcBallResizeOp(ClientData clientData, Tcl_Interp *interp, int argc, 
 		    char **argv)
@@ -2466,20 +2649,54 @@ ArcBallResizeOp(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_OK;
 }
 
-static ArcBall *
-CreateArcBall(double w, double h)
+/*
+ * --------------------------------------------------------------
+ *
+ * ArcBallRotateOp --
+ *
+ * 	Rotates the arcball based upon the starting end ending coordinates
+ * 	in the window.
+ *
+ * Results:
+ *	A standard Tcl result.  A list representing the new rotated
+ *	quaternion is returned.
+ *
+ *	$arcball rotate $x1 $y1 $x2 $y2
+ *
+ * --------------------------------------------------------------
+ */
+static int
+ArcBallRotateOp(ClientData clientData, Tcl_Interp *interp, int argc, 
+		char **argv)
 {
-    ArcBall *abPtr;
+    ArcBall *abPtr = clientData;
+    Quaternion q, p;
+    Tcl_Obj *listObjPtr;
+    double x1, y1, x2, y2;
 
-    abPtr = Blt_Calloc(1, sizeof(ArcBall));
-    SetArcBallBounds (abPtr, w, h);
-    return abPtr;
+    if ((Tcl_GetDouble(interp, argv[2], &x1) != TCL_OK) ||
+	(Tcl_GetDouble(interp, argv[3], &y1) != TCL_OK) ||
+	(Tcl_GetDouble(interp, argv[4], &x2) != TCL_OK) ||
+	(Tcl_GetDouble(interp, argv[5], &y2) != TCL_OK)) {
+	return TCL_ERROR;
+    }
+    ClickArcBall(abPtr, x1, y1);
+    DragArcBall(abPtr, x2, y2, &q);
+    p = abPtr->q;
+    CombineRotations(&p, &q, &abPtr->q);
+    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.w));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.x));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.y));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(abPtr->q.z));
+    Tcl_SetObjResult(interp, listObjPtr);
+    return TCL_OK;
 }
 
 /*
  * --------------------------------------------------------------
  *
- * ArcBallInstObjCmdOp --
+ * ArcBallInstCmd --
  *
  * 	This procedure is invoked to process commands on behalf of
  *	the tree object.
@@ -2494,6 +2711,7 @@ CreateArcBall(double w, double h)
  */
 static Blt_OpSpec arcBallOps[] =
 {
+    {"euler",      1, ArcBallEulerOp,      2, 3, "?angles?",},
     {"matrix",     1, ArcBallMatrixOp,     2, 3, "?matrix?",},
     {"quaternion", 1, ArcBallQuaternionOp, 2, 3, "?quat?",},
     {"reset",      3, ArcBallResetOp,      2, 2, "",},
