@@ -1889,7 +1889,9 @@ typedef struct {
 } ArcBallCmdInterpData;
 
 #define ARCBALL_THREAD_KEY "BLT Arcball Command Data"
-
+/* #define DEG2RAD	(M_PI / 180.0) */
+#define DEG2RAD		0.017453292519943295
+#define RAD2DEG		57.29577951308232
 
 typedef struct {
     double x, y, z;
