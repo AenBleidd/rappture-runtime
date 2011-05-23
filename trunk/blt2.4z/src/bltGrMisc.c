@@ -2428,7 +2428,7 @@ ArcBallEulerOp(ClientData clientData, Tcl_Interp *interp, int argc,
 	Quaternion q1, q2, q3;
 	double theta, phi, psi;
 
-	if (GetEulerAnglesFromObj(interp, argv[2], &euler) != TCL_OK) {
+	if (GetEulerAngles(interp, argv[2], &euler) != TCL_OK) {
 	    return TCL_ERROR;
 	}
 	theta = euler.x * DEG2RAD;
