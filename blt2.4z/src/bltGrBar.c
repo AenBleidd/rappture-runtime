@@ -265,13 +265,6 @@ Tk_CustomOption bltBarModeOption =
 #define	DEF_PEN_VALUE_SHADOW		(char *)NULL
 #define DEF_PEN_SHOW_VALUES		"no"
 
-static Tk_OptionParseProc StringToColor;
-static Tk_OptionPrintProc ColorToString;
-static Tk_CustomOption colorOption =
-{
-    StringToColor, ColorToString, (ClientData)0
-};
-
 static Tk_ConfigSpec barPenConfigSpecs[] =
 {
     {TK_CONFIG_BORDER, "-background", "background", "Background",
@@ -293,10 +286,8 @@ static Tk_ConfigSpec barPenConfigSpecs[] =
     {TK_CONFIG_CUSTOM, "-borderwidth", "borderWidth", "BorderWidth",
 	DEF_PEN_BORDERWIDTH, Tk_Offset(BarPen, borderWidth), ALL_PENS,
 	&bltDistanceOption},
-    {TK_CONFIG_CUSTOM, "-color", "color", "Color", DEF_PEN_COLOR_COLOR, 
-	0, TK_CONFIG_COLOR_ONLY | ALL_PENS, &colorOption},
-    {TK_CONFIG_CUSTOM, "-color", "color", "Color", DEF_PEN_COLOR_MONO, 
-	0, TK_CONFIG_MONO_ONLY | ALL_PENS, &colorOption},
+    {TK_CONFIG_SYNONYM, "-color", "background", (char *)NULL,
+	(char *)NULL, 0, ALL_PENS},
     {TK_CONFIG_CUSTOM, "-errorbarcolor", "errorBarColor", "ErrorBarColor",
 	DEF_BAR_ERRORBAR_COLOR, Tk_Offset(BarPen, errorBarColor), 
 	ALL_PENS, &bltColorOption},
@@ -375,10 +366,8 @@ static Tk_ConfigSpec barElemConfigSpecs[] =
     {TK_CONFIG_CUSTOM, "-borderwidth", "borderWidth", "BorderWidth",
 	DEF_BAR_BORDERWIDTH, Tk_Offset(Bar, builtinPen.borderWidth),
 	0, &bltDistanceOption},
-    {TK_CONFIG_CUSTOM, "-color", "color", "Color", DEF_PEN_COLOR_COLOR, 
-	Tk_Offset(Bar, builtinPen), TK_CONFIG_COLOR_ONLY, &colorOption},
-    {TK_CONFIG_CUSTOM, "-color", "color", "Color", DEF_PEN_COLOR_MONO, 
-	Tk_Offset(Bar, builtinPen), TK_CONFIG_MONO_ONLY, &colorOption},
+    {TK_CONFIG_SYNONYM, "-color", "background", (char *)NULL,
+	(char *)NULL, 0, 0},
     {TK_CONFIG_CUSTOM, "-errorbarcolor", "errorBarColor", "ErrorBarColor",
 	DEF_BAR_ERRORBAR_COLOR, Tk_Offset(Bar, builtinPen.errorBarColor), 
 	0, &bltColorOption},
@@ -609,65 +598,6 @@ BarModeToString(clientData, tkwin, widgRec, offset, freeProcPtr)
     BarMode mode = *(BarMode *)(widgRec + offset);
 
     return NameOfBarMode(mode);
-}
-
-
-/*ARGSUSED*/
-static char *
-ColorToString(clientData, tkwin, widgRec, offset, freeProcPtr)
-    ClientData clientData;	/* Not used. */
-    Tk_Window tkwin;
-    char *widgRec;		/* Element information record */
-    int offset;			/* Offset of field in record */
-    Tcl_FreeProc **freeProcPtr;	/* Not used. */
-{
-    BarPen *penPtr = (BarPen *)(widgRec + offset);
-
-    *freeProcPtr = TCL_STATIC;
-    if ((penPtr->fgColor != NULL) && (penPtr->border != NULL)) {
-	char *color1, *color2;
-
-	color1 = Tk_NameOfColor(penPtr->fgColor);
-	color2 = Tk_NameOfColor(Tk_3DBorderColor(penPtr->border));
-	if (strcmp(color1, color2) == 0) {
-	    return color1;
-	}
-    }
-    return "";
-}
-
-/*ARGSUSED*/
-static int
-StringToColor(clientData, interp, tkwin, string, widgRec, offset)
-    ClientData clientData;	/* Not used. */
-    Tcl_Interp *interp;		/* Interpreter to send results back to */
-    Tk_Window tkwin;		/* Not used. */
-    char *string;		/* String representing field */
-    char *widgRec;		/* Element information record */
-    int offset;			/* Offset of field in record */
-{
-    BarPen *penPtr = (BarPen *)(widgRec + offset);
-    XColor *fgColor;
-    Tk_3DBorder border;
-
-    fgColor = Tk_GetColor(interp, tkwin, Tk_GetUid(string));
-    if (fgColor == NULL) {
-	return TCL_ERROR;
-    }
-    border = Tk_Get3DBorder(interp, tkwin, string);
-    if (border == NULL) {
-	Tk_FreeColor(fgColor);
-	return TCL_ERROR;
-    }
-    if (penPtr->fgColor != NULL) {
-	Tk_FreeColor(penPtr->fgColor);
-    }
-    penPtr->fgColor = fgColor;
-    if (penPtr->border != NULL) {
-	Tk_Free3DBorder(penPtr->border);
-    }
-    penPtr->border = border;
-    return TCL_OK;
 }
 
 /* 
