@@ -87,102 +87,102 @@ fi
 AC_ARG_WITH([blt],
   AS_HELP_STRING([--with-blt[=DIR]], 
     [Build blt2.4z @<:@default=yes@:>@])], 
-	[with_blt=$withval], [with_blt=$default_blt])
+	[], [with_blt=$default_blt])
 
 AC_ARG_WITH([cmake],
   AS_HELP_STRING([--with-cmake[=DIR]], 
      [Build cmake-2.6.3 @<:@default=yes@:>@]),
-        [with_cmake=$withval], [with_cmake=$default_cmake])
+        [], [with_cmake=$default_cmake])
 
 AC_ARG_WITH([expat],
   AS_HELP_STRING([--with-expat[=DIR]], 
     [Build expat-2.0.1 @<:@default=yes@:>@])], 
-	[with_expat=$withval], [with_expat=$default_expat])
+	[], [with_expat=$default_expat])
 
 AC_ARG_WITH([expect],
   AS_HELP_STRING([--with-expect[=DIR]], 
     [Build expect-5.44.1.15 @<:@default=yes@:>@])], 
-	[with_expect=$withval], [with_expect=$default_expect])
+	[], [with_expect=$default_expect])
 
 AC_ARG_WITH([htmlwidget],
   [AS_HELP_STRING([--with-htmlwidget[=DIR]], 
     [Build htmlwidget @<:@default=yes@:>@])], 
-	[with_htmlwidget=$withval], [with_htmlwidget=$default_htmlwidget])
+	[], [with_htmlwidget=$default_htmlwidget])
 
 AC_ARG_WITH([itcl],
   [AS_HELP_STRING([--with-itcl[=DIR]], 
     [Build itcl-3.3 @<:@default=yes@:>@])], 
-	[with_itcl=$withval], [with_itcl=$default_itcl])
+	[], [with_itcl=$default_itcl])
 
 AC_ARG_WITH([itk],
   [AS_HELP_STRING([--with-itk[=DIR]], 
     [Build itk-3.3 @<:@default=yes@:>@])], 
-	[with_itk=$withval], [with_itk=$default_itk])
+	[], [with_itk=$default_itk])
 
 AC_ARG_WITH([pymol],
   [AS_HELP_STRING([--with-pymol[=DIR]], 
      [Build pymol @<:@default=no@:>@])], 
-	[with_pymol=$withval], [with_pymol=$default_pymol])
+	[], [with_pymol=$default_pymol])
 
 AC_ARG_WITH([shape],
   [AS_HELP_STRING([--with-shape[=DIR]], 
     [Build shape-0.4 @<:@default=yes@:>@])], 
-	[with_shape=$withval], [with_shape=$default_shape])
+	[], [with_shape=$default_shape])
 
-AC_ARG_WITH([tDOM],
-  [AS_HELP_STRING([--with-tDOM[=DIR]], 
+AC_ARG_WITH([tdom],
+  [AS_HELP_STRING([--with-tdom[=DIR]], 
     [Build tDOM-0.8.2 @<:@default=yes@:>@])], 
-	[with_tdom=$withval], [with_tdom=$default_tdom])
+	[], [with_tdom=$default_tdom])
 
 AC_ARG_WITH([tcl],
   [AS_HELP_STRING([--with-tcl[=DIR]], 
     [Build tcl8.4.11 @<:@default=yes@:>@])], 
-	[with_tcl=$withval], [with_tcl=$default_tcl])
+	[], [with_tcl=$default_tcl])
 
 AC_ARG_WITH([tcllib],
   [AS_HELP_STRING([--with-tcllib[=DIR]], 
     [Build tcllib @<:@default=yes@:>@])], 
-	[with_tcllib=$withval], [with_tcllib=$default_tcllib])
+	[], [with_tcllib=$default_tcllib])
 
 AC_ARG_WITH([tk],
   [AS_HELP_STRING([--with-tk[=DIR]], 
     [Build tk8.4.11 @<:@default=yes@:>@])], 
-	[with_tk=$withval], [with_tk=$default_tk])
+	[], [with_tk=$default_tk])
 
 AC_ARG_WITH([tkimg],
   [AS_HELP_STRING([--with-tkimg[=DIR]], 
     [Build tkimg-1.3 @<:@default=yes@:>@])], 
-	[with_tkimg=$withval], [with_tkimg=$default_tkimg])
+	[], [with_tkimg=$default_tkimg])
 
 AC_ARG_WITH([tls],
   [AS_HELP_STRING([--with-tls[=DIR]], 
     [Build tls @<:@default=yes@:>@])], 
-	[with_tls=$withval], [with_tls=$default_tls])
+	[], [with_tls=$default_tls])
 
 AC_ARG_WITH([vtk],
   [AS_HELP_STRING([--with-vtk[=DIR]], 
     [Build vtk default=yes])], 
-	[with_vtk=$withval], [with_vtk=$default_vtk])
+	[], [with_vtk=$default_vtk])
 
 AC_ARG_WITH([zlib],
   [AS_HELP_STRING([--with-zlib[=DIR]], 
     [Build zlib-1.2.3 @<:@default=no@:>@])], 
-	[with_zlib=$withval], [with_zlib=$default_zlib])
+	[], [with_zlib=$default_zlib])
 
 AC_ARG_WITH([voronoi],
   [AS_HELP_STRING([--with-voronoi[=DIR]], 
     [Build voronoi @<:@default=no@:>@])], 
-	[with_voronoi=$withval], [with_voronoi=$default_voronoi])
+	[], [with_voronoi=$default_voronoi])
 
 AC_ARG_WITH([matlab],
   [AS_HELP_STRING([--with-matlab[=DIR]], 
     [Build matlab @<:@default=no@:>@])], 
-	[with_matlab=$withval], [with_matlab=$default_matlab])
+	[], [with_matlab=$default_matlab])
 
 AC_ARG_WITH([dx],
   [AS_HELP_STRING([--with-dx[=DIR]], 
     [Build opendx @<:@default=no@:>@])], 
-	[with_dx=$withval], [with_dx=$default_dx])
+	[], [with_dx=$default_dx])
 
 stage1_targets="expat tcl tk zlib cmake"
 stage2_targets="expect itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"

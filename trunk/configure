@@ -656,7 +656,7 @@ with_itcl
 with_itk
 with_pymol
 with_shape
-with_tDOM
+with_tdom
 with_tcl
 with_tcllib
 with_tk
@@ -1306,7 +1306,7 @@ Optional Packages:
   --with-itk=DIR          Build itk-3.3 [default=yes]
   --with-pymol=DIR        Build pymol [default=no]
   --with-shape=DIR        Build shape-0.4 [default=yes]
-  --with-tDOM=DIR         Build tDOM-0.8.2 [default=yes]
+  --with-tdom=DIR         Build tDOM-0.8.2 [default=yes]
   --with-tcl=DIR          Build tcl8.4.11 [default=yes]
   --with-tcllib=DIR       Build tcllib [default=yes]
   --with-tk=DIR           Build tk8.4.11 [default=yes]
@@ -3504,7 +3504,7 @@ fi
 
 # Check whether --with-blt was given.
 if test "${with_blt+set}" = set; then :
-  withval=$with_blt; with_blt=$withval
+  withval=$with_blt;
 else
   with_blt=$default_blt
 fi
@@ -3513,7 +3513,7 @@ fi
 
 # Check whether --with-cmake was given.
 if test "${with_cmake+set}" = set; then :
-  withval=$with_cmake; with_cmake=$withval
+  withval=$with_cmake;
 else
   with_cmake=$default_cmake
 fi
@@ -3522,7 +3522,7 @@ fi
 
 # Check whether --with-expat was given.
 if test "${with_expat+set}" = set; then :
-  withval=$with_expat; with_expat=$withval
+  withval=$with_expat;
 else
   with_expat=$default_expat
 fi
@@ -3531,7 +3531,7 @@ fi
 
 # Check whether --with-expect was given.
 if test "${with_expect+set}" = set; then :
-  withval=$with_expect; with_expect=$withval
+  withval=$with_expect;
 else
   with_expect=$default_expect
 fi
@@ -3540,7 +3540,7 @@ fi
 
 # Check whether --with-htmlwidget was given.
 if test "${with_htmlwidget+set}" = set; then :
-  withval=$with_htmlwidget; with_htmlwidget=$withval
+  withval=$with_htmlwidget;
 else
   with_htmlwidget=$default_htmlwidget
 fi
@@ -3549,7 +3549,7 @@ fi
 
 # Check whether --with-itcl was given.
 if test "${with_itcl+set}" = set; then :
-  withval=$with_itcl; with_itcl=$withval
+  withval=$with_itcl;
 else
   with_itcl=$default_itcl
 fi
@@ -3558,7 +3558,7 @@ fi
 
 # Check whether --with-itk was given.
 if test "${with_itk+set}" = set; then :
-  withval=$with_itk; with_itk=$withval
+  withval=$with_itk;
 else
   with_itk=$default_itk
 fi
@@ -3567,7 +3567,7 @@ fi
 
 # Check whether --with-pymol was given.
 if test "${with_pymol+set}" = set; then :
-  withval=$with_pymol; with_pymol=$withval
+  withval=$with_pymol;
 else
   with_pymol=$default_pymol
 fi
@@ -3576,16 +3576,16 @@ fi
 
 # Check whether --with-shape was given.
 if test "${with_shape+set}" = set; then :
-  withval=$with_shape; with_shape=$withval
+  withval=$with_shape;
 else
   with_shape=$default_shape
 fi
 
 
 
-# Check whether --with-tDOM was given.
-if test "${with_tDOM+set}" = set; then :
-  withval=$with_tDOM; with_tdom=$withval
+# Check whether --with-tdom was given.
+if test "${with_tdom+set}" = set; then :
+  withval=$with_tdom;
 else
   with_tdom=$default_tdom
 fi
@@ -3594,7 +3594,7 @@ fi
 
 # Check whether --with-tcl was given.
 if test "${with_tcl+set}" = set; then :
-  withval=$with_tcl; with_tcl=$withval
+  withval=$with_tcl;
 else
   with_tcl=$default_tcl
 fi
@@ -3603,7 +3603,7 @@ fi
 
 # Check whether --with-tcllib was given.
 if test "${with_tcllib+set}" = set; then :
-  withval=$with_tcllib; with_tcllib=$withval
+  withval=$with_tcllib;
 else
   with_tcllib=$default_tcllib
 fi
@@ -3612,7 +3612,7 @@ fi
 
 # Check whether --with-tk was given.
 if test "${with_tk+set}" = set; then :
-  withval=$with_tk; with_tk=$withval
+  withval=$with_tk;
 else
   with_tk=$default_tk
 fi
@@ -3621,7 +3621,7 @@ fi
 
 # Check whether --with-tkimg was given.
 if test "${with_tkimg+set}" = set; then :
-  withval=$with_tkimg; with_tkimg=$withval
+  withval=$with_tkimg;
 else
   with_tkimg=$default_tkimg
 fi
@@ -3630,7 +3630,7 @@ fi
 
 # Check whether --with-tls was given.
 if test "${with_tls+set}" = set; then :
-  withval=$with_tls; with_tls=$withval
+  withval=$with_tls;
 else
   with_tls=$default_tls
 fi
@@ -3639,7 +3639,7 @@ fi
 
 # Check whether --with-vtk was given.
 if test "${with_vtk+set}" = set; then :
-  withval=$with_vtk; with_vtk=$withval
+  withval=$with_vtk;
 else
   with_vtk=$default_vtk
 fi
@@ -3648,7 +3648,7 @@ fi
 
 # Check whether --with-zlib was given.
 if test "${with_zlib+set}" = set; then :
-  withval=$with_zlib; with_zlib=$withval
+  withval=$with_zlib;
 else
   with_zlib=$default_zlib
 fi
@@ -3657,7 +3657,7 @@ fi
 
 # Check whether --with-voronoi was given.
 if test "${with_voronoi+set}" = set; then :
-  withval=$with_voronoi; with_voronoi=$withval
+  withval=$with_voronoi;
 else
   with_voronoi=$default_voronoi
 fi
@@ -3666,7 +3666,7 @@ fi
 
 # Check whether --with-matlab was given.
 if test "${with_matlab+set}" = set; then :
-  withval=$with_matlab; with_matlab=$withval
+  withval=$with_matlab;
 else
   with_matlab=$default_matlab
 fi
@@ -3675,7 +3675,7 @@ fi
 
 # Check whether --with-dx was given.
 if test "${with_dx+set}" = set; then :
-  withval=$with_dx; with_dx=$withval
+  withval=$with_dx;
 else
   with_dx=$default_dx
 fi
