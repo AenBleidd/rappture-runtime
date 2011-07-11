@@ -18,7 +18,6 @@ libdir=$exec_prefix/lib
 includedir=$prefix/include
 
 topsrcdir=`cd $srcdir; pwd`
-# RR_SRC_DIR=`cd $srcdir/..; pwd`
 RR_SRC_DIR=`pwd`
 AC_SUBST(RR_SRC_DIR)
 
