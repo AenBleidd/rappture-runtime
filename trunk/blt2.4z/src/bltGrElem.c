@@ -1713,11 +1713,6 @@ ClosestOp(graphPtr, interp, argc, argv)
 	Tcl_AppendResult(interp, ": bad window y-coordinate", (char *)NULL);
 	return TCL_ERROR;
     }
-    if (graphPtr->inverted) {
-	int temp;
-
-	temp = x, x = y, y = temp;
-    }
     for (i = 6; i < argc; i += 2) {	/* Count switches-value pairs */
 	if ((argv[i][0] != '-') || 
 	    ((argv[i][1] == '-') && (argv[i][2] == '\0'))) {
