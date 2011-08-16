@@ -3197,15 +3197,17 @@ ConfigureAxis(graphPtr, axisPtr)
      * options have changed.  
      */
     graphPtr->flags |= REDRAW_WORLD;
-    if (!Blt_ConfigModified(configSpecs, "-*color", "-background", "-bg",
-		    (char *)NULL)) {
+    if (Blt_ConfigModified(configSpecs, "-autorange", "-bd", "-borderwidth", 
+	"-command", "-descending", "-hide", "-justify", "-labeloffset", 
+	"-limitsfont", "-limitsformat", "-linewidth", "-logscale", "-loose", 
+	"-majorticks", "-max", "-min", "-minorticks", "-relief", "-rotate", 
+	"-scrollmax", "-scrollmin", "-shiftby", "-showticks", "-stepsize", 
+	"-tickdivider", "-subdivisions", "-tickfont", "-ticklength", "-title", 
+	"-titlealternate", "-titlefont", "titleFont", (char *)NULL)) {
 	graphPtr->flags |= (MAP_WORLD | RESET_AXES);
 	axisPtr->flags |= AXIS_DIRTY;
     }
-	graphPtr->flags |= (MAP_WORLD | RESET_AXES);
-	axisPtr->flags |= AXIS_DIRTY;
     Blt_EventuallyRedrawGraph(graphPtr);
-
     return TCL_OK;
 }
 
