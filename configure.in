@@ -34,7 +34,7 @@ AC_CHECK_FUNC(atol,,AC_MSG_ERROR(oops! no atol ?!?))
 AC_SUBST(VERSION)
 
 blt=blt2.4z
-cmake=cmake-2.8.2
+cmake=cmake-2.8.5
 expat=expat-2.0.1
 expect=expect5.45
 htmlwidget=htmlwidget-3a14
