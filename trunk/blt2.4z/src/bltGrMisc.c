@@ -2384,8 +2384,8 @@ GetEulerAngles(Tcl_Interp *interp, char *string, EulerAngles *e)
     if (Tcl_SplitList(interp, string, &n, &elems) != TCL_OK) {
 	return TCL_ERROR;
     }
-    if (n != 4) {
-	Tcl_AppendResult(interp, "wrong # of elements in quaterion \"",
+    if (n != 3) {
+	Tcl_AppendResult(interp, "wrong # of elements in euler angle list \"",
 		string, "\"", (char *)NULL);
 	Blt_Free(elems);
 	return TCL_ERROR;
@@ -2418,8 +2418,7 @@ GetEulerAngles(Tcl_Interp *interp, char *string, EulerAngles *e)
  * --------------------------------------------------------------
  */
 static int
-ArcBallEulerOp(ClientData clientData, Tcl_Interp *interp, int argc, 
-	       char **argv)
+ArcBallEulerOp(ClientData clientData, Tcl_Interp *interp, int argc, char **argv)
 {
     ArcBall *abPtr = clientData;
 
