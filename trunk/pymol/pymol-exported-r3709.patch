@@ -206,7 +206,7 @@ diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +static void
 +user_write_data(png_structp png_ptr, png_bytep buf, png_size_t length)
 +{
-+    voidp write_io_ptr;
++    void *write_io_ptr;
 +    struct _CImage *data;
 +    int available;
 +    
