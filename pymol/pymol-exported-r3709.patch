@@ -1,4 +1,4 @@
-diff -u -r ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h
+diff -r -u '--exclude=.svn' ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h
 --- ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2009-03-14 16:46:51.000000000 -0400
 +++ ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2011-10-11 14:11:08.000000000 -0400
 @@ -74,7 +74,9 @@
@@ -12,226 +12,65 @@ diff -u -r ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h ../pymol/c
      /* Se */ 1.9, 1.85, 2.02, 2.0, 2.0, 2.0, 
      /* Zr */ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
      /* Pd */ 1.63, 1.72, 1.58, 1.93, 2.17, 2.0, 
-diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
+diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 --- ./layer0/MyPNG.c	2009-03-04 00:15:27.000000000 -0500
-+++ ../pymol/layer0/MyPNG.c	2011-10-12 15:35:52.000000000 -0400
-@@ -50,6 +50,232 @@
++++ ../pymol/layer0/MyPNG.c	2011-10-12 17:00:02.000000000 -0400
+@@ -40,7 +40,7 @@
+ #  define png_jmpbuf(png_ptr) ((png_ptr)->jmpbuf)
+ #endif
+ 
+-#endif
++#endif	/* _PYMOL_LIBPNG */
+ 
+ #include"os_std.h"
+ 
+@@ -49,6 +49,61 @@
+ #include"MemoryDebug.h"
  #include "Setting.h"
  
- 
-+/* PYMOLSERVER */
-+/*
-+ * Persistent image capture buffer *NJK*.  
-+ *
-+ * We make image buffer a pymol global to reduce time spent allocating and
-+ * reallocating memory for image captures.
-+ */
-+struct _CImage {
-+    void *data;
-+    int   allocated;
-+    int   used;
-+};
-+  
-+int 
-+ImageInit(PyMOLGlobals *G)
-+{
-+    CImage *I;
-+
-+    I = G->Image=Calloc(CImage,1);
-+    if (I != NULL) {
-+	UtilZeroMem(I,sizeof(CImage));
-+	I->data = NULL;
-+	I->used = 0;
-+	I->allocated = 0;
-+	return 1;
-+    }
-+    return 0;
-+}
-+
-+/* BMP save image support *NJK* */
-+static void
-+bmp_header_add_int(unsigned char* header, unsigned int pos, unsigned int data)
-+{ 
-+    header[pos++] = data & 0xff;
-+    header[pos++] = (data >> 8) & 0xff;
-+    header[pos++] = (data >> 16) & 0xff;
-+    header[pos++] = (data >> 24) & 0xff;
-+} 
-+
-+static void
-+bmp_header_add_short(unsigned char* header, unsigned int pos, 
-+		     unsigned short data)
-+{ 
-+    header[pos++] = data & 0xff;
-+    header[pos++] = (data >> 8) & 0xff;
-+} 
-+ 
-+int 
-+MyBMPWrite(PyMOLGlobals *G, char *bmp, unsigned char *save_image, int width, 
-+	   int height, float dpi)
-+{ 
-+    unsigned char header[54];
-+    int pos = 0;
-+    int pad = 0;
-+    int fsize = 0;
-+    int row = 0;
-+    int col = 0;
-+    unsigned char *scr;
-+    unsigned char *src = save_image;
-+    unsigned char tmp; 
-+    struct _CImage *data = G->Image;
-+    
-+    if ((3 * width) % 4 > 0)
-+	pad = 4 - ((3 * width) % 4);
-+    
-+    header[pos++] = 'B';
-+    header[pos++] = 'M';
-+    
-+    /* file size in bytes */
-+    fsize = (3 * width + pad) * height + sizeof(header);
-+    bmp_header_add_int(header,pos,fsize);
-+    pos+=4;
-+    
-+    /* reserved value (must be 0) */
-+    bmp_header_add_int(header, pos, 0);
-+    pos+=4;
-+    
-+    /* offset in bytes to start of bitmap data */
-+    bmp_header_add_int(header, pos, sizeof(header));
-+    pos+=4;
-+    
-+    /* size of the BITMAPINFOHEADER */
-+    bmp_header_add_int(header, pos, 40);
-+    pos+=4;
-+    
-+    /* width of the image in pixels */
-+    bmp_header_add_int(header, pos, width);
-+    pos+=4;
-+    
-+    /* height of the image in pixels */
-+    bmp_header_add_int(header, pos, height);
-+    pos+=4;
-+    
-+    /* 1 plane */
-+    bmp_header_add_short(header, pos, 1);
-+    pos+=2;
-+    
-+    /* 24 bits/pixel */
-+    bmp_header_add_short(header, pos, 24);
-+    pos+=2;
-+    
-+    /* no compression */
-+    /* size of image for compression */
-+    
-+    bmp_header_add_int(header, pos, 0);
-+    pos+=4;
-+    bmp_header_add_int(header, pos, 0);
-+    pos+=4;
-+    
-+    /* x pixels per meter */
-+    /* y pixels per meter */
-+    bmp_header_add_int(header, pos, 0);
-+    pos+=4;
-+    bmp_header_add_int(header, pos, 0);
-+    pos+=4;
-+    
-+    /* number of colors used (0 = compute from bits/pixel) */
-+    /* number of important colors (0 = all colors important) */
-+    bmp_header_add_int(header, pos, 0);
-+    pos+=4;
-+    bmp_header_add_int(header, pos, 0);
-+    pos+=4;
-+    
-+    if (data->allocated < fsize) {
-+  	char *newdata;
-+	
-+	newdata = realloc(data->data, fsize);
-+	
-+	if (newdata) {
-+	    data->data = newdata;
-+	    data->allocated = fsize;
-+	}
-+    }
-+    
-+    if (data->allocated < fsize) {
-+	return 0;
-+    }
-+    scr = data->data;
-+    
-+    for (row=0; row < height; row++) {
-+	for (col=0; col < width; col++) {
-+	    tmp = src[0];
-+	    scr[0] = src[2];
-+	    scr[1] = src[1];
-+	    scr[2] = tmp;
-+	    scr += 3;
-+	    src += 4;
-+	}
-+	scr += pad;  /* skip over padding already in screen data */
-+    }
-+
-+    if (strcmp(bmp,"-.bmp") == 0) {
-+	/* Sample counting patch *NJK* */
-+	fprintf(stdout,"bmp image follows: %d\n",fsize);
-+	fwrite(header, sizeof(header), 1, stdout);
-+	fwrite(data->data, 1, fsize - sizeof(header), stdout);
-+	fflush(stdout);
-+    } else {
-+	FILE *fp;
-+
-+	if(bmp[0] == 1) {
-+	    int fd;
-+	    if (sscanf(bmp+1, "%d", &fd) == 1) {
-+		fp = fdopen(fd, "wb");
-+	    }
-+	} else {
-+	    fp = fopen(bmp,"wb");
-+	}
-+	if (fp != NULL) {
-+	    fwrite(header, sizeof(header), 1, fp);
-+	    fwrite(data->data, 1, fsize - sizeof(header), fp);
-+	    fflush(fp);
-+	    fclose(fp);
-+	}
-+    }
-+    return 1;
-+}
-+
 +#ifdef _PYMOL_LIBPNG
-+/* PNG stdout support *NJK */
-+/* add ability to write PNG files to standard output        */
-+/* we have to write to memory first so we can inform client */
-+/* how much data is going to be sent                        */
++/* PYMOLSERVER */
++struct Buffer_ {
++    unsigned char *bytes;
++    size_t allocated;
++    size_t used;
++};
++
++/* PNG/PPM stdout support *NJK */
++/* add ability to write PNG/PPM files to standard output    */
 +
 +static void
 +PngWriteDataProc(png_structp png_ptr, png_bytep buf, png_size_t length)
 +{
 +    void *write_io_ptr;
-+    struct _CImage *data;
++    struct Buffer_ *bufPtr;
 +    int available;
 +    
 +    write_io_ptr = png_get_io_ptr(png_ptr);
-+    data = write_io_ptr;
-+    available = data->allocated - data->used;
++    bufPtr = write_io_ptr;
++    available = bufPtr->allocated - bufPtr->used;
 +    
 +    if (length > available) {
 +	unsigned char *newdata;
 +	int needed;
 +
 +	needed = length - available;
-+
 +	if (needed < 32768) {
 +	    needed = 32768;
 +	}
-+	newdata = realloc(data->data, data->allocated + needed);
++	if (bufPtr->bytes == NULL) {
++	    newdata = malloc(bufPtr->allocated + needed);
++	} else {
++	    newdata = realloc(bufPtr->bytes, bufPtr->allocated + needed);
++	}
 +	if (newdata == NULL) {
 +	    return;
 +	}
-+	data->data = newdata;
-+	data->allocated += needed;
++	bufPtr->bytes = newdata;
++	bufPtr->allocated += needed;
 +    }
-+    memcpy((unsigned char *)data->data + data->used, buf, length);
-+    data->used += length;
++    memcpy((unsigned char *)bufPtr->bytes + bufPtr->used, buf, length);
++    bufPtr->used += length;
 +    return;
 +}
 +
@@ -244,11 +83,18 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +#endif /* _PYMOL_LIBPNG */
 +
 +/* PYMOLSERVER */
-+
+ 
  int MyPNGWrite(PyMOLGlobals *G,char *file_name,unsigned char *data_ptr,
                 unsigned int width,unsigned int height,float dpi,
-                int format, int quiet)
-@@ -73,6 +299,12 @@
+@@ -58,6 +113,7 @@
+   case cMyPNG_FormatPNG:
+     {
+ #ifdef _PYMOL_LIBPNG
++  struct Buffer_ buf;
+   int ok=true;
+   FILE *fp = NULL;
+   png_structp png_ptr;
+@@ -73,6 +129,12 @@
    
    /* open the file, allowing use of an encoded file descriptor, with
       approach adapted from TJO: chr(1) followed by ascii-format integer */
@@ -261,7 +107,7 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
    if(file_name[0] == 1) {
      if( sscanf(file_name+1, "%d", &fd) == 1) {
        fp = fdopen(fd, "wb");
-@@ -87,6 +319,8 @@
+@@ -87,6 +149,8 @@
      ok=false;
      goto cleanup;
    }
@@ -270,7 +116,7 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
     /* Create and initialize the png_struct with the desired error handler
      * functions.  If you want to use the default stderr and longjump method,
      * you can supply NULL for the last three parameters.  We also check that
-@@ -103,7 +337,7 @@
+@@ -103,7 +167,7 @@
     /* Allocate/initialize the image information data.  REQUIRED */
     info_ptr = png_create_info_struct(png_ptr);
     if (info_ptr == NULL) {
@@ -279,7 +125,7 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
       ok=false;
       goto cleanup;
     }
-@@ -113,13 +347,20 @@
+@@ -113,13 +177,20 @@
      */
     if (setjmp(png_jmpbuf(png_ptr))) {
       /* If we get here, we had a problem reading the file */
@@ -288,12 +134,13 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
       ok=false;
       goto cleanup;
     }
- 
+-
++   
     /* set up the output control if you are using standard C streams */
 +   /* PYMOLSERVER */
++   memset(&buf, 0, sizeof(buf));
 +   if(fp == stdout) {		/* PNG stdout support *NJK* */
-+      G->Image->used = 0;
-+      png_set_write_fn(png_ptr, G->Image, PngWriteDataProc, PngFlushDataProc);
++       png_set_write_fn(png_ptr, &buf, PngWriteDataProc, PngFlushDataProc);
 +   } else {
 +   /* PYMOLSERVER */
     png_init_io(png_ptr, fp);
@@ -301,7 +148,7 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
  
     /* Set the image information here.  Width and height are up to 2^31,
      * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also depend on
-@@ -137,6 +378,9 @@
+@@ -137,6 +208,9 @@
       png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
     }
  
@@ -311,7 +158,7 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
  
     png_set_gamma(png_ptr, SettingGet(G,cSetting_png_screen_gamma), 
                   SettingGet(G,cSetting_png_file_gamma));
-@@ -181,50 +425,95 @@
+@@ -181,50 +255,96 @@
     png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
  
   cleanup:
@@ -319,10 +166,12 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +   /* PYMOLSERVER */
 +   if (fp == stdout) {
 +       /* Stdout image patch *NJK */
-+       fprintf(fp, "png image follows: %d\n", G->Image->used);
-+       fwrite(G->Image->data, sizeof(char), G->Image->used, fp);
++       fprintf(fp, "png image follows: %d\n", buf.used);
++       fwrite(buf.bytes, sizeof(char), buf.used, fp);
 +       fflush(fp);
-+       G->Image->used = 0;
++       if (buf.bytes != NULL) {
++	   free(buf.bytes);
++       }
 +   } else {
 +   /* PYMOLSERVER */
     if(fp) {
@@ -376,17 +225,17 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +	    FILE *fp;
 +	    char header[200];
 +	    size_t numBytes, srcBytesPerRow, destBytesPerRow;
-+	    unsigned char *srcRowPtr, *destRowPtr, *buffer;
++	    unsigned char *srcRowPtr, *destRowPtr, *bytes;
 +	    int y;
 +
 +	    numBytes = width * height * 3;
-+	    buffer = Alloc(unsigned char, numBytes);
++	    bytes = Alloc(unsigned char, numBytes);
 +	    sprintf(header, "P6\n%d %d\n255\n", width, height);
-+	    fprintf(stdout, "ppm image follows: %u\n%s", 
++	    fprintf(stdout, "ppm image follows: %ul\n%s", 
 +		numBytes + strlen(header), header);
 +	    srcBytesPerRow = width * 4;
 +	    destBytesPerRow = width * 3;
-+	    destRowPtr = buffer;
++	    destRowPtr = bytes;
 +	    srcRowPtr = data_ptr + srcBytesPerRow * (height-1);
 +	    for (y = 0; y < height; y++) {
 +		unsigned char *dp, *dend, *sp;
@@ -401,10 +250,9 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +		srcRowPtr -= srcBytesPerRow;
 +		destRowPtr += destBytesPerRow;
 +	    }
-+	    fwrite(buffer, 1, numBytes, stdout);
++	    fwrite(bytes, 1, numBytes, stdout);
 +	    fflush(stdout);
-+	    G->Image->used = 0;
-+	    FreeP(buffer);
++	    FreeP(bytes);
 +	} else {
 +       /* PYMOLSERVER */
 +	    FILE *fil=fopen(file_name,"wb");
@@ -438,7 +286,7 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
      }
      return 1;
      break;
-@@ -398,15 +687,7 @@
+@@ -398,15 +518,7 @@
     return(ok);
  #else
     return (false);
@@ -455,35 +303,25 @@ diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 -
 -
 -
+Only in ../pymol/layer0: MyPNG.c-new
 Only in ../pymol/layer0: MyPNG.c.~1~
-diff -u -r ./layer0/PyMOLGlobals.h ../pymol/layer0/PyMOLGlobals.h
+Only in ../pymol/layer0: MyPNG.c.~2~
+diff -r -u '--exclude=.svn' ./layer0/PyMOLGlobals.h ../pymol/layer0/PyMOLGlobals.h
 --- ./layer0/PyMOLGlobals.h	2009-02-17 21:05:42.000000000 -0500
-+++ ../pymol/layer0/PyMOLGlobals.h	2011-10-11 14:11:08.000000000 -0400
-@@ -54,6 +54,11 @@
- typedef struct _CMain CMain;
- typedef struct _CPlugIOManager CPlugIOManager;
- 
-+/* PYMOLSERVER */
-+/* Persistent image capture buffer *NJK* */
-+typedef struct _CImage CImage; 
-+/*PYMOLSERVER*/
-+
- #ifndef _PYMOL_NOPY
- typedef struct _CP_inst CP_inst;
- #endif
-@@ -166,7 +171,10 @@
++++ ../pymol/layer0/PyMOLGlobals.h	2011-10-12 16:35:58.000000000 -0400
+@@ -166,7 +166,9 @@
  
    int DragDirtyFlag; /* do we need an extra callback to handle a mouse drag? */
  
 -
 +  /* PYMOLSERVER */
 +  int CmdPipe[2]; /* Sleep Interruption Patch *NJK* */
-+  CImage *Image;  /* Persistent image capture buffer *NJK* */
 +  /* PYMOLSERVER */
  };
  
  /* if we're running PyMOL as a global singleton (old way / backward
-diff -u -r ./layer1/Ortho.c ../pymol/layer1/Ortho.c
+Only in ../pymol/layer0: PyMOLGlobals.h.~1~
+diff -r -u '--exclude=.svn' ./layer1/Ortho.c ../pymol/layer1/Ortho.c
 --- ./layer1/Ortho.c	2009-03-14 17:05:24.000000000 -0400
 +++ ../pymol/layer1/Ortho.c	2011-10-11 14:11:08.000000000 -0400
 @@ -2066,9 +2066,15 @@
@@ -502,7 +340,7 @@ diff -u -r ./layer1/Ortho.c ../pymol/layer1/Ortho.c
  }
  /*========================================================================*/
  void OrthoPasteIn(PyMOLGlobals *G,char *buffer)
-diff -u -r ./layer1/P.c ../pymol/layer1/P.c
+diff -r -u '--exclude=.svn' ./layer1/P.c ../pymol/layer1/P.c
 --- ./layer1/P.c	2009-03-29 21:41:32.000000000 -0400
 +++ ../pymol/layer1/P.c	2011-10-11 14:11:08.000000000 -0400
 @@ -617,13 +617,26 @@
@@ -533,9 +371,9 @@ diff -u -r ./layer1/P.c ../pymol/layer1/P.c
    PRINTFD(G,FB_Threads)
      " PSleep-DEBUG: nap over.\n"
      ENDFD;
-diff -u -r ./layer1/Scene.c ../pymol/layer1/Scene.c
+diff -r -u '--exclude=.svn' ./layer1/Scene.c ../pymol/layer1/Scene.c
 --- ./layer1/Scene.c	2009-03-15 03:08:45.000000000 -0400
-+++ ../pymol/layer1/Scene.c	2011-10-11 14:11:08.000000000 -0400
++++ ../pymol/layer1/Scene.c	2011-10-12 16:07:13.000000000 -0400
 @@ -2066,6 +2066,8 @@
    SceneImageFinish(G,image);  
    return (image!=NULL);
@@ -545,96 +383,8 @@ diff -u -r ./layer1/Scene.c ../pymol/layer1/Scene.c
  /*========================================================================*/
  void ScenePerspective(PyMOLGlobals *G,int flag)
  {
-@@ -5652,6 +5654,88 @@
-   return(1);
- }
- 
-+/* PYMOLSERVER */
-+
-+/* BMP save image support *NJK* */
-+int 
-+SceneBMP(PyMOLGlobals *G, char *bmp, float dpi, int quiet, int prior_only)
-+{
-+    register CScene *I=G->Scene;
-+    
-+    GLvoid *image = SceneImagePrepare(G,prior_only);
-+    if(image && I->Image) {
-+	int width = I->Image->width;
-+	int height = I->Image->height;
-+	unsigned char *save_image = image;
-+	
-+	if((image==I->Image->data) && I->Image->stereo) {
-+	    width = I->Image->width;
-+	    save_image = Alloc(unsigned char, I->Image->size*2);
-+	    interlace((unsigned int*)save_image,
-+		      (unsigned int*)I->Image->data,width,height);
-+	    width *= 2;
-+	}
-+	if (dpi<0.0F) 
-+	    dpi = SettingGetGlobal_f(G,cSetting_image_dots_per_inch);
-+	if (MyBMPWrite(G, bmp, save_image, width, height, dpi)) {
-+	    if(!quiet) {
-+		PRINTFB(G,FB_Scene,FB_Actions)
-+		    " SceneBMP: wrote %dx%d pixel image to file \"%s\".\n",
-+		    width, I->Image->height, bmp
-+		    ENDFB(G);
-+	    }
-+	} else {
-+	    PRINTFB(G,FB_Scene,FB_Errors)
-+		" SceneBMP-Error: error writing \"%s\"! Please check directory...\n",
-+		bmp
-+		ENDFB(G);
-+	}
-+	if(save_image && (save_image!=image))
-+	    FreeP(save_image);
-+    }
-+    SceneImageFinish(G,image);
-+    return (image != NULL);
-+}
-+
-+/* BMP save image support *NJK* */
-+static int 
-+SceneDeferredBMPImage(DeferredImage *di) 
-+{
-+    PyMOLGlobals *G=di->G;
-+    SceneMakeSizedImage(G,di->width, di->height,di->antialias);
-+    if(di->filename) {
-+	SceneBMP(G,di->filename, di->dpi, di->quiet, false);
-+	FreeP(di->filename);
-+    }
-+    return 1;
-+}
-+
-+/* BMP save image support *NJK* */
-+int 
-+SceneDeferBMPImage(PyMOLGlobals *G,int width, int height, char *filename, 
-+		   int antialias, float dpi, int quiet) 
-+{
-+  DeferredImage *di = Calloc(DeferredImage,1);
-+  if(di) {
-+    DeferredInit(G,&di->deferred);
-+    di->G = G;
-+    di->width = width;
-+    di->height = height;
-+    di->antialias = antialias;
-+    di->deferred.fn = (DeferredFn*)SceneDeferredBMPImage;
-+    di->dpi = dpi;
-+    di->quiet = quiet;
-+    if(filename) {
-+      int stlen = strlen(filename);
-+      di->filename = Alloc(char,stlen+1);
-+      strcpy(di->filename, filename);
-+    }
-+  }
-+  OrthoDefer(G,&di->deferred);
-+  return 1;
-+}
-+/* PYMOLSERVER */
-+
- static int SceneDeferredClick(DeferredMouse *dm)
- {
-   if(!SceneClick(dm->block, dm->button, dm->x, dm->y, dm->mod, dm->when)) {
-diff -u -r ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
+Only in ../pymol/layer1: Scene.c.~1~
+diff -r -u '--exclude=.svn' ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
 --- ./layer2/AtomInfo.c	2009-02-03 03:42:43.000000000 -0500
 +++ ../pymol/layer2/AtomInfo.c	2011-10-11 14:11:08.000000000 -0400
 @@ -30,6 +30,10 @@
@@ -887,55 +637,14 @@ diff -u -r ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
 +}
 +
 +/*PYMOLSERVER*/
-diff -u -r ./layer4/Cmd.c ../pymol/layer4/Cmd.c
+diff -r -u '--exclude=.svn' ./layer4/Cmd.c ../pymol/layer4/Cmd.c
 --- ./layer4/Cmd.c	2009-04-03 21:54:22.000000000 -0400
-+++ ../pymol/layer4/Cmd.c	2011-10-11 14:11:08.000000000 -0400
-@@ -5993,6 +5993,77 @@
++++ ../pymol/layer4/Cmd.c	2011-10-12 16:33:17.000000000 -0400
+@@ -5993,6 +5993,36 @@
    return APIResultCode(result);
  }
  
 +/*PYMOLSERVER*/
-+/* BMP save image support *NJK* */
-+static PyObject *CmdBMP(PyObject *self, PyObject *args) 
-+{
-+  PyMOLGlobals *G = NULL;
-+  char *str1;
-+  int ok = false;
-+  int quiet;
-+  int result = 0;
-+  int width,height,ray;
-+  int prior;
-+  float dpi;
-+  ok = PyArg_ParseTuple(args,"Osiifiii",&self,&str1,&width,&height,&dpi,&ray,&quiet,&prior);
-+  if(ok) {
-+    API_SETUP_PYMOL_GLOBALS;
-+    ok = (G!=NULL);
-+  } else {
-+    API_HANDLE_ERROR;
-+  }
-+  if(ok && (ok=APIEnterNotModal(G))) {
-+    if(prior) {
-+      if(SceneBMP(G,str1,dpi,quiet,prior))
-+        result = 1; /* signal success by returning 1 instead of 0, or -1 for error  */
-+    } else {
-+      ExecutiveDrawNow(G);		 /* TODO STATUS */
-+      if(ray) {
-+        SceneRay(G,width,height,(int)SettingGet(G,cSetting_ray_default_renderer),
-+                 NULL,NULL,0.0F,0.0F,false,NULL,true,-1); 
-+        ok = SceneBMP(G,str1,dpi,quiet,false);
-+      } else if(width||height) {
-+        SceneDeferBMPImage(G,width,height,str1,-1,dpi,quiet);
-+      } else {
-+        ok = SceneBMP(G,str1,dpi,quiet,false);
-+      }
-+    }
-+    APIExit(G);
-+  }
-+  if(!ok)
-+    result = -1;
-+  return APIResultCode(result);
-+}
-+
 +/* Virtual Mouse command *NJK* */
 +static PyObject *CmdVMouse(PyObject *self,    PyObject *args)
 +{
@@ -968,18 +677,7 @@ diff -u -r ./layer4/Cmd.c ../pymol/layer4/Cmd.c
  static PyObject *CmdMPNG(PyObject *self, 	PyObject *args)
  {
    PyMOLGlobals *G = NULL;
-@@ -8354,6 +8425,10 @@
-   {"angle",                 CmdAngle,                METH_VARARGS },
-   {"attach",                CmdAttach,               METH_VARARGS },
-   {"bg_color",              CmdBackgroundColor,      METH_VARARGS },
-+  /*PYMOLSERVER*/
-+  /* BMP save image support *NJK* */
-+  {"bmp",                   CmdBMP,                  METH_VARARGS }, 
-+  /*PYMOLSERVER*/
-   {"bond",                  CmdBond,                 METH_VARARGS },
-   {"busy_draw",             CmdBusyDraw,             METH_VARARGS },
-   {"button",                CmdButton,               METH_VARARGS },
-@@ -8592,6 +8667,10 @@
+@@ -8592,6 +8622,10 @@
    {"unset",                 CmdUnset,                METH_VARARGS },
    {"unset_bond",            CmdUnsetBond,            METH_VARARGS },
    {"update",                CmdUpdate,               METH_VARARGS },
@@ -990,9 +688,10 @@ diff -u -r ./layer4/Cmd.c ../pymol/layer4/Cmd.c
    {"window",                CmdWindow,               METH_VARARGS },
    {"zoom",	                CmdZoom,                 METH_VARARGS },
    {NULL,		              NULL}     /* sentinel */        
-diff -u -r ./layer5/PyMOL.c ../pymol/layer5/PyMOL.c
+Only in ../pymol/layer4: Cmd.c.~1~
+diff -r -u '--exclude=.svn' ./layer5/PyMOL.c ../pymol/layer5/PyMOL.c
 --- ./layer5/PyMOL.c	2009-03-14 19:50:39.000000000 -0400
-+++ ../pymol/layer5/PyMOL.c	2011-10-11 14:11:08.000000000 -0400
++++ ../pymol/layer5/PyMOL.c	2011-10-12 17:07:38.000000000 -0400
 @@ -2878,6 +2878,11 @@
        
        result->G->PyMOL = result; /* store the instance pointer */
@@ -1005,18 +704,8 @@ diff -u -r ./layer5/PyMOL.c ../pymol/layer5/PyMOL.c
        result->BusyFlag = false;
        result->InterruptFlag = false;
        PyMOL_ResetProgress(result);
-@@ -2978,6 +2983,10 @@
-   IsosurfInit(G);
-   TetsurfInit(G);
-   EditorInit(G);
-+  /*PYMOLSERVER*/
-+  /* Persistent image capture buffer *NJK* */
-+  ImageInit(G);		
-+  /*PYMOLSERVER*/
- 
- #ifdef TRACKER_UNIT_TEST
-   TrackerUnitTest(G);
-diff -u -r ./layer5/main.c ../pymol/layer5/main.c
+Only in ../pymol/layer5: PyMOL.c.~1~
+diff -r -u '--exclude=.svn' ./layer5/main.c ../pymol/layer5/main.c
 --- ./layer5/main.c	2009-03-23 20:06:04.000000000 -0400
 +++ ../pymol/layer5/main.c	2011-10-11 14:11:08.000000000 -0400
 @@ -571,6 +571,105 @@
@@ -1125,9 +814,9 @@ diff -u -r ./layer5/main.c ../pymol/layer5/main.c
  static void MainButton(int button,int state,int x,int y)
  {
    PyMOLGlobals *G = SingletonPyMOLGlobals;
-diff -u -r ./modules/pymol/api.py ../pymol/modules/pymol/api.py
+diff -r -u '--exclude=.svn' ./modules/pymol/api.py ../pymol/modules/pymol/api.py
 --- ./modules/pymol/api.py	2009-03-29 21:41:32.000000000 -0400
-+++ ../pymol/modules/pymol/api.py	2011-10-12 15:34:04.000000000 -0400
++++ ../pymol/modules/pymol/api.py	2011-10-12 16:34:05.000000000 -0400
 @@ -14,6 +14,7 @@
        load_traj,          \
        load_raw,           \
@@ -1155,39 +844,7 @@ diff -u -r ./modules/pymol/api.py ../pymol/modules/pymol/api.py
  
  #--------------------------------------------------------------------
  from querying import \
-@@ -131,7 +136,10 @@
- 
- #--------------------------------------------------------------------
- import exporting
-+#PYMOLSERVER
-+# bmp adds BMP save image support *NJK*
- from exporting import \
-+      bmp,                \
-       copy_image,         \
-       cache,              \
-       export_coords,      \
-@@ -141,6 +149,7 @@
-       multisave,          \
-       png,                \
-       save               
-+#PYMOLSERVER
- 
- #--------------------------------------------------------------------
- import editing
-diff -u -r ./modules/pymol/cmd.py ../pymol/modules/pymol/cmd.py
---- ./modules/pymol/cmd.py	2008-07-25 17:43:25.000000000 -0400
-+++ ../pymol/modules/pymol/cmd.py	2011-10-11 14:11:08.000000000 -0400
-@@ -192,6 +192,9 @@
-         _object_update_spawn = internal._object_update_spawn
-         _object_update_thread = internal._object_update_thread
-         _png = internal._png
-+        # PYMOLSERVER
-+        _bmp = internal._bmp
-+        # PYMOLSERVER
-         _quit = internal._quit
-         _ray_anti_spawn = internal._ray_anti_spawn
-         _ray_hash_spawn = internal._ray_hash_spawn
-diff -u -r ./modules/pymol/controlling.py ../pymol/modules/pymol/controlling.py
+diff -r -u '--exclude=.svn' ./modules/pymol/controlling.py ../pymol/modules/pymol/controlling.py
 --- ./modules/pymol/controlling.py	2009-03-11 19:48:18.000000000 -0400
 +++ ../pymol/modules/pymol/controlling.py	2011-10-11 14:11:08.000000000 -0400
 @@ -803,3 +803,15 @@
@@ -1206,67 +863,7 @@ diff -u -r ./modules/pymol/controlling.py ../pymol/modules/pymol/controlling.py
 +        if _self._raising(r,_self): raise pymol.CmdException         
 +        return r
 +#PYMOLSERVER
-diff -u -r ./modules/pymol/exporting.py ../pymol/modules/pymol/exporting.py
---- ./modules/pymol/exporting.py	2009-03-21 17:10:30.000000000 -0400
-+++ ../pymol/modules/pymol/exporting.py	2011-10-11 14:11:08.000000000 -0400
-@@ -343,6 +343,56 @@
-         if _self._raising(r,_self): raise QuietException
-         return r
- 
-+#PYMOLSERVER
-+    def bmp(filename, width=0, height=0, dpi=-1.0, ray=0, quiet=1, prior=0, _self=cmd):
-+        '''
-+DESCRIPTION
-+
-+    "bmp" writes a bmp format image file of the current image to disk.
-+
-+USAGE
-+
-+     bmp filename [, width [, height [, dpi [, ray]]]]
-+
-+ARGUMENTS
-+
-+    filename = string: file path to be written
-+    
-+    width = integer: width in pixels {default: 0 (current)}
-+
-+    height = integer: height in pixels {default: 0 (current)}
-+
-+    dpi = float: dots-per-inch {default -1.0 (unspecified)}
-+
-+    ray = 0 or 1: should ray be run first {default: 0 (no)}
-+
-+EXAMPLES
-+
-+    bmp image.bmp
-+    bmp image.bmp, dpi=300
-+
-+PYMOL API
-+
-+    cmd.bmp(string filename, int width, int height, float dpi,
-+            int ray, int quiet)
-+        '''
-+        r = DEFAULT_ERROR
-+        prior = int(prior)
-+        if prior: 
-+            # fetch the prior image, without doing any work (fast-path / non-GLUT thread-safe)
-+            r = _self._bmp(str(filename),0,0,float(dpi),0,int(quiet),1,_self) 
-+            if r != 1: # no prior image available -- revert to default behavior
-+                if prior < 0: # default is to fall back to actual rendering
-+                    prior = 0
-+        if not prior:
-+            if thread.get_ident() == pymol.glutThread:
-+                r = _self._bmp(str(filename),int(width),int(height),float(dpi),int(ray),int(quiet),0,_self)
-+            else:
-+                r = _self._do("cmd._bmp('%s',%d,%d,%1.6f,%d,%d)"%(filename,width,height,dpi,ray,quiet),_self=_self)
-+        if _self._raising(r,_self): raise QuietException
-+        return r
-+#PYMOLSERVER
-+
-     def export_coords(obj,state,_self=cmd): # experimental
-         r = DEFAULT_ERROR
-         try:
-diff -u -r ./modules/pymol/importing.py ../pymol/modules/pymol/importing.py
+diff -r -u '--exclude=.svn' ./modules/pymol/importing.py ../pymol/modules/pymol/importing.py
 --- ./modules/pymol/importing.py	2009-04-03 21:54:22.000000000 -0400
 +++ ../pymol/modules/pymol/importing.py	2011-10-12 15:34:04.000000000 -0400
 @@ -1391,3 +1391,12 @@
@@ -1282,51 +879,10 @@ diff -u -r ./modules/pymol/importing.py ../pymol/modules/pymol/importing.py
 +        except os.error:
 +            print "can't remove pdb file " + fileName
 +#PYMOLSERVER             
-diff -u -r ./modules/pymol/internal.py ../pymol/modules/pymol/internal.py
---- ./modules/pymol/internal.py	2009-02-09 00:54:00.000000000 -0500
-+++ ../pymol/modules/pymol/internal.py	2011-10-11 14:11:08.000000000 -0400
-@@ -476,6 +476,26 @@
-         _self.unlock(-1,_self)
-     return r
- 
-+# PYMOLSERVER
-+# BMP save image support *NJK*
-+# writing BMP files (thread-unsafe)
-+
-+def _bmp(a,width=0,height=0,dpi=-1.0,ray=0,quiet=1,prior=0,_self=cmd):
-+    # INTERNAL - can only be safely called by GLUT thread (unless prior == 1)
-+    # WARNING: internal routine, subject to change
-+    try:
-+        _self.lock(_self)   
-+        fname = a
-+        if not re.search("\.bmp$",fname):
-+            if a[0:1] != chr(1): # not an encoded file descriptor (integer)
-+                fname = fname +".bmp"
-+        fname = cmd.exp_path(fname)
-+        r = _cmd.bmp(_self._COb,str(fname),int(width),int(height),float(dpi),int(ray),int(quiet),int(prior))
-+    finally:
-+        _self.unlock(-1,_self)
-+    return r
-+#PYMOLSERVER        
-+        
- # quitting (thread-specific)
- 
- def _quit(_self=cmd):
-diff -u -r ./modules/pymol/keywords.py ../pymol/modules/pymol/keywords.py
+diff -r -u '--exclude=.svn' ./modules/pymol/keywords.py ../pymol/modules/pymol/keywords.py
 --- ./modules/pymol/keywords.py	2009-03-20 21:25:13.000000000 -0400
-+++ ../pymol/modules/pymol/keywords.py	2011-10-12 14:23:18.000000000 -0400
-@@ -23,6 +23,10 @@
-         'attach'        : [ self_cmd.attach            , 0 , 0 , ''  , parsing.STRICT ],
-         'backward'      : [ self_cmd.backward          , 0 , 0 , ''  , parsing.STRICT ],
-         'bg_color'      : [ self_cmd.bg_color          , 0 , 0 , ''  , parsing.STRICT ],
-+#PYMOLSERVER
-+# BMP save image support *NJK*
-+        'bmp'           : [ self_cmd.bmp               , 0 , 0 , ''  , parsing.SECURE ], 
-+#PYMOLSERVER
-         'bond'          : [ self_cmd.bond              , 0 , 0 , ''  , parsing.STRICT ],
-         'break'         : [ self_cmd.python_help       , 0 , 0 , ''  , parsing.PYTHON ],   
-         'button'        : [ self_cmd.button            , 0 , 0 , ''  , parsing.STRICT ],
-@@ -128,6 +132,10 @@
++++ ../pymol/modules/pymol/keywords.py	2011-10-12 16:41:56.000000000 -0400
+@@ -128,6 +128,10 @@
          'iterate_state' : [ self_cmd.iterate_state     , 0 , 0 , ''  , parsing.LITERAL2 ], # insecure
          'label'         : [ self_cmd.label             , 0 , 0 , ''  , parsing.LITERAL1 ], # insecure
          'load'          : [ self_cmd.load              , 0 , 0 , ''  , parsing.STRICT ],
@@ -1337,7 +893,7 @@ diff -u -r ./modules/pymol/keywords.py ../pymol/modules/pymol/keywords.py
          'space'         : [ self_cmd.space             , 0 , 0 , ''  , parsing.STRICT ],
          'load_embedded' : [ self_cmd.load_embedded     , 0 , 0 , ''  , parsing.STRICT ],
          'load_png'      : [ self_cmd.load_png          , 0 , 0 , ''  , parsing.STRICT ],
-@@ -260,6 +268,10 @@
+@@ -260,6 +264,10 @@
          'vdw_fit'       : [ self_cmd.vdw_fit           , 0 , 0 , ''  , parsing.STRICT ],   
          'view'          : [ self_cmd.view              , 0 , 0 , ''  , parsing.STRICT ],   
          'viewport'      : [ self_cmd.viewport          , 0 , 0 , ''  , parsing.STRICT ],
@@ -1348,4 +904,3 @@ diff -u -r ./modules/pymol/keywords.py ../pymol/modules/pymol/keywords.py
          'window'        : [ self_cmd.window            , 0 , 0 , ''  , parsing.STRICT ],         
          'while'         : [ self_cmd.python_help       , 0 , 0 , ''  , parsing.PYTHON ],   
          'wizard'        : [ self_cmd.wizard            , 0 , 0 , ''  , parsing.STRICT ],
-Only in ../pymol/modules/pymol: keywords.py.~1~
