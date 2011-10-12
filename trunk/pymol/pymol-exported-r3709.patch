@@ -1,6 +1,6 @@
-diff -ur ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h
---- ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2009-05-18 14:42:38.000000000 -0400
-+++ ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h
+--- ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2009-03-14 16:46:51.000000000 -0400
++++ ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2011-10-11 14:11:08.000000000 -0400
 @@ -74,7 +74,9 @@
      /* Na */ 1.36, 1.18, 2.0, 2.1, 1.8,
      /* S  */ 1.8, 2.27, 1.88, 1.76, 1.37, 2.0,
@@ -12,10 +12,10 @@ diff -ur ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h ../pymol/con
      /* Se */ 1.9, 1.85, 2.02, 2.0, 2.0, 2.0, 
      /* Zr */ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
      /* Pd */ 1.63, 1.72, 1.58, 1.93, 2.17, 2.0, 
-diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
---- ./layer0/MyPNG.c	2009-05-18 14:42:35.000000000 -0400
-+++ ../pymol/layer0/MyPNG.c	2009-06-01 15:00:07.000000000 -0400
-@@ -50,6 +50,231 @@
+diff -u -r ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
+--- ./layer0/MyPNG.c	2009-03-04 00:15:27.000000000 -0500
++++ ../pymol/layer0/MyPNG.c	2011-10-12 15:35:52.000000000 -0400
+@@ -50,6 +50,232 @@
  #include "Setting.h"
  
  
@@ -204,7 +204,7 @@ diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +/* how much data is going to be sent                        */
 +
 +static void
-+user_write_data(png_structp png_ptr, png_bytep buf, png_size_t length)
++PngWriteDataProc(png_structp png_ptr, png_bytep buf, png_size_t length)
 +{
 +    void *write_io_ptr;
 +    struct _CImage *data;
@@ -236,10 +236,11 @@ diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +}
 +
 +static void
-+user_flush_data(png_structp png_ptr)
++PngFlushDataProc(png_structp png_ptr)
 +{
 +    return;
 +}
++
 +#endif /* _PYMOL_LIBPNG */
 +
 +/* PYMOLSERVER */
@@ -247,7 +248,7 @@ diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
  int MyPNGWrite(PyMOLGlobals *G,char *file_name,unsigned char *data_ptr,
                 unsigned int width,unsigned int height,float dpi,
                 int format, int quiet)
-@@ -73,6 +298,12 @@
+@@ -73,6 +299,12 @@
    
    /* open the file, allowing use of an encoded file descriptor, with
       approach adapted from TJO: chr(1) followed by ascii-format integer */
@@ -260,7 +261,7 @@ diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
    if(file_name[0] == 1) {
      if( sscanf(file_name+1, "%d", &fd) == 1) {
        fp = fdopen(fd, "wb");
-@@ -87,6 +318,8 @@
+@@ -87,6 +319,8 @@
      ok=false;
      goto cleanup;
    }
@@ -269,14 +270,30 @@ diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
     /* Create and initialize the png_struct with the desired error handler
      * functions.  If you want to use the default stderr and longjump method,
      * you can supply NULL for the last three parameters.  We also check that
-@@ -119,7 +352,14 @@
+@@ -103,7 +337,7 @@
+    /* Allocate/initialize the image information data.  REQUIRED */
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == NULL) {
+-     png_destroy_write_struct(&png_ptr,  (png_infopp)NULL);
++     png_destroy_write_struct(&png_ptr,  (png_infop *)NULL);
+      ok=false;
+      goto cleanup;
+    }
+@@ -113,13 +347,20 @@
+     */
+    if (setjmp(png_jmpbuf(png_ptr))) {
+      /* If we get here, we had a problem reading the file */
+-     png_destroy_write_struct(&png_ptr,  (png_infopp)NULL);
++     png_destroy_write_struct(&png_ptr,  (png_infop *)NULL);
+      ok=false;
+      goto cleanup;
     }
  
     /* set up the output control if you are using standard C streams */
 +   /* PYMOLSERVER */
 +   if(fp == stdout) {		/* PNG stdout support *NJK* */
 +      G->Image->used = 0;
-+      png_set_write_fn(png_ptr, G->Image, user_write_data, user_flush_data);
++      png_set_write_fn(png_ptr, G->Image, PngWriteDataProc, PngFlushDataProc);
 +   } else {
 +   /* PYMOLSERVER */
     png_init_io(png_ptr, fp);
@@ -284,7 +301,7 @@ diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
  
     /* Set the image information here.  Width and height are up to 2^31,
      * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also depend on
-@@ -137,6 +377,9 @@
+@@ -137,6 +378,9 @@
       png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
     }
  
@@ -294,7 +311,7 @@ diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
  
     png_set_gamma(png_ptr, SettingGet(G,cSetting_png_screen_gamma), 
                   SettingGet(G,cSetting_png_file_gamma));
-@@ -181,11 +424,20 @@
+@@ -181,50 +425,95 @@
     png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
  
   cleanup:
@@ -317,7 +334,111 @@ diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
     mfree(row_pointers);
     /* that's it */
  
-@@ -398,15 +650,7 @@
+    return ok;
+ #else
+-
+    return 0;
+-#endif
++#endif	/*PYMOL_LIBPNG  */
+     }
+     break;
+   case cMyPNG_FormatPPM:
+     {
+-      FILE *fil=fopen(file_name,"wb");
+-      unsigned char *buffer = Alloc(unsigned char,3*width*height);
+-
+-      if(fil && buffer) {
+-        fprintf(fil,"P6\n");
+-        fprintf(fil,"%d %d\n",width, height);
+-        fprintf(fil,"255\n");
+-        {
+-          int a,b;
+-          unsigned char *q = buffer, *p;
+-          p = data_ptr + width * 4 * (height-1);
+-          for(b=0;b<height;b++) {
+-            for(a=0;a<width;a++) {
+-              *(q++) = *(p++);  /* platform-specific ordering? */
+-              *(q++) = *(p++);
+-              *(q++) = *(p++);
+-              p++;
+-            }
+-            p -= width * 8;
+-          }
+-          fwrite(buffer,width,height*3,fil);
+-        }
+-      }
+-      if(fil) {
+-        fclose(fil);
+-      }
+-      FreeP(buffer);
++	/* PYMOLSERVER */
++	if(strcmp(file_name, "-.png") == 0) {	 
++	    FILE *fp;
++	    char header[200];
++	    size_t numBytes, srcBytesPerRow, destBytesPerRow;
++	    unsigned char *srcRowPtr, *destRowPtr, *buffer;
++	    int y;
++
++	    numBytes = width * height * 3;
++	    buffer = Alloc(unsigned char, numBytes);
++	    sprintf(header, "P6\n%d %d\n255\n", width, height);
++	    fprintf(stdout, "ppm image follows: %u\n%s", 
++		numBytes + strlen(header), header);
++	    srcBytesPerRow = width * 4;
++	    destBytesPerRow = width * 3;
++	    destRowPtr = buffer;
++	    srcRowPtr = data_ptr + srcBytesPerRow * (height-1);
++	    for (y = 0; y < height; y++) {
++		unsigned char *dp, *dend, *sp;
++		sp = srcRowPtr;
++
++		for (dp = destRowPtr, dend = dp + destBytesPerRow; dp < dend; 
++		     dp += 3, sp += 4) {
++		    dp[0] = sp[0];  
++		    dp[1] = sp[1];
++		    dp[2] = sp[2];
++		}			
++		srcRowPtr -= srcBytesPerRow;
++		destRowPtr += destBytesPerRow;
++	    }
++	    fwrite(buffer, 1, numBytes, stdout);
++	    fflush(stdout);
++	    G->Image->used = 0;
++	    FreeP(buffer);
++	} else {
++       /* PYMOLSERVER */
++	    FILE *fil=fopen(file_name,"wb");
++	    unsigned char *buffer = Alloc(unsigned char,3*width*height);
++
++	    if(fil && buffer) {
++		fprintf(fil,"P6\n");
++		fprintf(fil,"%d %d\n",width, height);
++		fprintf(fil,"255\n");
++		{
++		    int a,b;
++		    unsigned char *q = buffer, *p;
++		    p = data_ptr + width * 4 * (height-1);
++		    for(b=0;b<height;b++) {
++			for(a=0;a<width;a++) {
++			    *(q++) = *(p++);  /* platform-specific ordering? */
++			    *(q++) = *(p++);
++			    *(q++) = *(p++);
++			    p++;
++			}
++			p -= width * 8;
++		    }
++		    fwrite(buffer,width,height*3,fil);
++		}
++	    }
++	    if(fil) {
++		fclose(fil);
++	    }
++	    FreeP(buffer);
++	}
+     }
+     return 1;
+     break;
+@@ -398,15 +687,7 @@
     return(ok);
  #else
     return (false);
@@ -334,9 +455,10 @@ diff -ur ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 -
 -
 -
-diff -ur ./layer0/PyMOLGlobals.h ../pymol/layer0/PyMOLGlobals.h
---- ./layer0/PyMOLGlobals.h	2009-05-18 14:42:35.000000000 -0400
-+++ ../pymol/layer0/PyMOLGlobals.h	2009-06-01 15:00:07.000000000 -0400
+Only in ../pymol/layer0: MyPNG.c.~1~
+diff -u -r ./layer0/PyMOLGlobals.h ../pymol/layer0/PyMOLGlobals.h
+--- ./layer0/PyMOLGlobals.h	2009-02-17 21:05:42.000000000 -0500
++++ ../pymol/layer0/PyMOLGlobals.h	2011-10-11 14:11:08.000000000 -0400
 @@ -54,6 +54,11 @@
  typedef struct _CMain CMain;
  typedef struct _CPlugIOManager CPlugIOManager;
@@ -361,9 +483,9 @@ diff -ur ./layer0/PyMOLGlobals.h ../pymol/layer0/PyMOLGlobals.h
  };
  
  /* if we're running PyMOL as a global singleton (old way / backward
-diff -ur ./layer1/Ortho.c ../pymol/layer1/Ortho.c
---- ./layer1/Ortho.c	2009-05-18 14:42:37.000000000 -0400
-+++ ../pymol/layer1/Ortho.c	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./layer1/Ortho.c ../pymol/layer1/Ortho.c
+--- ./layer1/Ortho.c	2009-03-14 17:05:24.000000000 -0400
++++ ../pymol/layer1/Ortho.c	2011-10-11 14:11:08.000000000 -0400
 @@ -2066,9 +2066,15 @@
  /*========================================================================*/
  void OrthoCommandIn(PyMOLGlobals *G,char *buffer)
@@ -380,9 +502,9 @@ diff -ur ./layer1/Ortho.c ../pymol/layer1/Ortho.c
  }
  /*========================================================================*/
  void OrthoPasteIn(PyMOLGlobals *G,char *buffer)
-diff -ur ./layer1/P.c ../pymol/layer1/P.c
---- ./layer1/P.c	2009-05-18 14:42:37.000000000 -0400
-+++ ../pymol/layer1/P.c	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./layer1/P.c ../pymol/layer1/P.c
+--- ./layer1/P.c	2009-03-29 21:41:32.000000000 -0400
++++ ../pymol/layer1/P.c	2011-10-11 14:11:08.000000000 -0400
 @@ -617,13 +617,26 @@
  void PSleepUnlocked(PyMOLGlobals *G,int usec)
  { /* can only be called by the glut process */
@@ -411,9 +533,9 @@ diff -ur ./layer1/P.c ../pymol/layer1/P.c
    PRINTFD(G,FB_Threads)
      " PSleep-DEBUG: nap over.\n"
      ENDFD;
-diff -ur ./layer1/Scene.c ../pymol/layer1/Scene.c
---- ./layer1/Scene.c	2009-05-18 14:42:37.000000000 -0400
-+++ ../pymol/layer1/Scene.c	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./layer1/Scene.c ../pymol/layer1/Scene.c
+--- ./layer1/Scene.c	2009-03-15 03:08:45.000000000 -0400
++++ ../pymol/layer1/Scene.c	2011-10-11 14:11:08.000000000 -0400
 @@ -2066,6 +2066,8 @@
    SceneImageFinish(G,image);  
    return (image!=NULL);
@@ -512,9 +634,9 @@ diff -ur ./layer1/Scene.c ../pymol/layer1/Scene.c
  static int SceneDeferredClick(DeferredMouse *dm)
  {
    if(!SceneClick(dm->block, dm->button, dm->x, dm->y, dm->mod, dm->when)) {
-diff -ur ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
---- ./layer2/AtomInfo.c	2009-05-18 14:42:37.000000000 -0400
-+++ ../pymol/layer2/AtomInfo.c	2009-06-02 07:26:58.000000000 -0400
+diff -u -r ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
+--- ./layer2/AtomInfo.c	2009-02-03 03:42:43.000000000 -0500
++++ ../pymol/layer2/AtomInfo.c	2011-10-11 14:11:08.000000000 -0400
 @@ -30,6 +30,10 @@
  #include"OVContext.h"
  #include"PyMOLObject.h"
@@ -765,9 +887,9 @@ diff -ur ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
 +}
 +
 +/*PYMOLSERVER*/
-diff -ur ./layer4/Cmd.c ../pymol/layer4/Cmd.c
---- ./layer4/Cmd.c	2009-05-18 14:42:38.000000000 -0400
-+++ ../pymol/layer4/Cmd.c	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./layer4/Cmd.c ../pymol/layer4/Cmd.c
+--- ./layer4/Cmd.c	2009-04-03 21:54:22.000000000 -0400
++++ ../pymol/layer4/Cmd.c	2011-10-11 14:11:08.000000000 -0400
 @@ -5993,6 +5993,77 @@
    return APIResultCode(result);
  }
@@ -868,9 +990,9 @@ diff -ur ./layer4/Cmd.c ../pymol/layer4/Cmd.c
    {"window",                CmdWindow,               METH_VARARGS },
    {"zoom",	                CmdZoom,                 METH_VARARGS },
    {NULL,		              NULL}     /* sentinel */        
-diff -ur ./layer5/PyMOL.c ../pymol/layer5/PyMOL.c
---- ./layer5/PyMOL.c	2009-05-18 14:42:38.000000000 -0400
-+++ ../pymol/layer5/PyMOL.c	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./layer5/PyMOL.c ../pymol/layer5/PyMOL.c
+--- ./layer5/PyMOL.c	2009-03-14 19:50:39.000000000 -0400
++++ ../pymol/layer5/PyMOL.c	2011-10-11 14:11:08.000000000 -0400
 @@ -2878,6 +2878,11 @@
        
        result->G->PyMOL = result; /* store the instance pointer */
@@ -894,9 +1016,9 @@ diff -ur ./layer5/PyMOL.c ../pymol/layer5/PyMOL.c
  
  #ifdef TRACKER_UNIT_TEST
    TrackerUnitTest(G);
-diff -ur ./layer5/main.c ../pymol/layer5/main.c
---- ./layer5/main.c	2009-05-18 14:42:38.000000000 -0400
-+++ ../pymol/layer5/main.c	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./layer5/main.c ../pymol/layer5/main.c
+--- ./layer5/main.c	2009-03-23 20:06:04.000000000 -0400
++++ ../pymol/layer5/main.c	2011-10-11 14:11:08.000000000 -0400
 @@ -571,6 +571,105 @@
    }
  }
@@ -1003,10 +1125,18 @@ diff -ur ./layer5/main.c ../pymol/layer5/main.c
  static void MainButton(int button,int state,int x,int y)
  {
    PyMOLGlobals *G = SingletonPyMOLGlobals;
-diff -ur ./modules/pymol/api.py ../pymol/modules/pymol/api.py
---- ./modules/pymol/api.py	2009-05-18 14:42:33.000000000 -0400
-+++ ../pymol/modules/pymol/api.py	2009-06-01 15:00:07.000000000 -0400
-@@ -60,6 +60,8 @@
+diff -u -r ./modules/pymol/api.py ../pymol/modules/pymol/api.py
+--- ./modules/pymol/api.py	2009-03-29 21:41:32.000000000 -0400
++++ ../pymol/modules/pymol/api.py	2011-10-12 15:34:04.000000000 -0400
+@@ -14,6 +14,7 @@
+       load_traj,          \
+       load_raw,           \
+       loadable,           \
++      loadandremovepdbfile, \
+       read_mmodstr,       \
+       read_molstr,        \
+       read_sdfstr,        \
+@@ -60,6 +61,8 @@
  
  #--------------------------------------------------------------------
  import controlling
@@ -1015,7 +1145,7 @@ diff -ur ./modules/pymol/api.py ../pymol/modules/pymol/api.py
  from controlling import \
        button,             \
        config_mouse,       \
-@@ -68,7 +70,9 @@
+@@ -68,7 +71,9 @@
        order,              \
        set_key,            \
        unmask,             \
@@ -1025,7 +1155,7 @@ diff -ur ./modules/pymol/api.py ../pymol/modules/pymol/api.py
  
  #--------------------------------------------------------------------
  from querying import \
-@@ -131,7 +135,10 @@
+@@ -131,7 +136,10 @@
  
  #--------------------------------------------------------------------
  import exporting
@@ -1036,7 +1166,7 @@ diff -ur ./modules/pymol/api.py ../pymol/modules/pymol/api.py
        copy_image,         \
        cache,              \
        export_coords,      \
-@@ -141,6 +148,7 @@
+@@ -141,6 +149,7 @@
        multisave,          \
        png,                \
        save               
@@ -1044,9 +1174,9 @@ diff -ur ./modules/pymol/api.py ../pymol/modules/pymol/api.py
  
  #--------------------------------------------------------------------
  import editing
-diff -ur ./modules/pymol/cmd.py ../pymol/modules/pymol/cmd.py
---- ./modules/pymol/cmd.py	2009-05-18 14:42:33.000000000 -0400
-+++ ../pymol/modules/pymol/cmd.py	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./modules/pymol/cmd.py ../pymol/modules/pymol/cmd.py
+--- ./modules/pymol/cmd.py	2008-07-25 17:43:25.000000000 -0400
++++ ../pymol/modules/pymol/cmd.py	2011-10-11 14:11:08.000000000 -0400
 @@ -192,6 +192,9 @@
          _object_update_spawn = internal._object_update_spawn
          _object_update_thread = internal._object_update_thread
@@ -1057,9 +1187,9 @@ diff -ur ./modules/pymol/cmd.py ../pymol/modules/pymol/cmd.py
          _quit = internal._quit
          _ray_anti_spawn = internal._ray_anti_spawn
          _ray_hash_spawn = internal._ray_hash_spawn
-diff -ur ./modules/pymol/controlling.py ../pymol/modules/pymol/controlling.py
---- ./modules/pymol/controlling.py	2009-05-18 14:42:33.000000000 -0400
-+++ ../pymol/modules/pymol/controlling.py	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./modules/pymol/controlling.py ../pymol/modules/pymol/controlling.py
+--- ./modules/pymol/controlling.py	2009-03-11 19:48:18.000000000 -0400
++++ ../pymol/modules/pymol/controlling.py	2011-10-11 14:11:08.000000000 -0400
 @@ -803,3 +803,15 @@
          if _self._raising(r,_self): raise pymol.CmdException         
          return r
@@ -1076,9 +1206,9 @@ diff -ur ./modules/pymol/controlling.py ../pymol/modules/pymol/controlling.py
 +        if _self._raising(r,_self): raise pymol.CmdException         
 +        return r
 +#PYMOLSERVER
-diff -ur ./modules/pymol/exporting.py ../pymol/modules/pymol/exporting.py
---- ./modules/pymol/exporting.py	2009-05-18 14:42:33.000000000 -0400
-+++ ../pymol/modules/pymol/exporting.py	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./modules/pymol/exporting.py ../pymol/modules/pymol/exporting.py
+--- ./modules/pymol/exporting.py	2009-03-21 17:10:30.000000000 -0400
++++ ../pymol/modules/pymol/exporting.py	2011-10-11 14:11:08.000000000 -0400
 @@ -343,6 +343,56 @@
          if _self._raising(r,_self): raise QuietException
          return r
@@ -1136,9 +1266,25 @@ diff -ur ./modules/pymol/exporting.py ../pymol/modules/pymol/exporting.py
      def export_coords(obj,state,_self=cmd): # experimental
          r = DEFAULT_ERROR
          try:
-diff -ur ./modules/pymol/internal.py ../pymol/modules/pymol/internal.py
---- ./modules/pymol/internal.py	2009-05-18 14:42:33.000000000 -0400
-+++ ../pymol/modules/pymol/internal.py	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./modules/pymol/importing.py ../pymol/modules/pymol/importing.py
+--- ./modules/pymol/importing.py	2009-04-03 21:54:22.000000000 -0400
++++ ../pymol/modules/pymol/importing.py	2011-10-12 15:34:04.000000000 -0400
+@@ -1391,3 +1391,12 @@
+             t.start()
+         return r
+         
++#PYMOLSERVER
++    def loadandremovepdbfile(fileName, name, state):
++        cmd.load(fileName, name, state, format="pdb")
++        import os
++        try:
++            os.remove(fileName)
++        except os.error:
++            print "can't remove pdb file " + fileName
++#PYMOLSERVER             
+diff -u -r ./modules/pymol/internal.py ../pymol/modules/pymol/internal.py
+--- ./modules/pymol/internal.py	2009-02-09 00:54:00.000000000 -0500
++++ ../pymol/modules/pymol/internal.py	2011-10-11 14:11:08.000000000 -0400
 @@ -476,6 +476,26 @@
          _self.unlock(-1,_self)
      return r
@@ -1166,9 +1312,9 @@ diff -ur ./modules/pymol/internal.py ../pymol/modules/pymol/internal.py
  # quitting (thread-specific)
  
  def _quit(_self=cmd):
-diff -ur ./modules/pymol/keywords.py ../pymol/modules/pymol/keywords.py
---- ./modules/pymol/keywords.py	2009-05-18 14:42:33.000000000 -0400
-+++ ../pymol/modules/pymol/keywords.py	2009-06-01 15:00:07.000000000 -0400
+diff -u -r ./modules/pymol/keywords.py ../pymol/modules/pymol/keywords.py
+--- ./modules/pymol/keywords.py	2009-03-20 21:25:13.000000000 -0400
++++ ../pymol/modules/pymol/keywords.py	2011-10-12 14:23:18.000000000 -0400
 @@ -23,6 +23,10 @@
          'attach'        : [ self_cmd.attach            , 0 , 0 , ''  , parsing.STRICT ],
          'backward'      : [ self_cmd.backward          , 0 , 0 , ''  , parsing.STRICT ],
@@ -1180,7 +1326,18 @@ diff -ur ./modules/pymol/keywords.py ../pymol/modules/pymol/keywords.py
          'bond'          : [ self_cmd.bond              , 0 , 0 , ''  , parsing.STRICT ],
          'break'         : [ self_cmd.python_help       , 0 , 0 , ''  , parsing.PYTHON ],   
          'button'        : [ self_cmd.button            , 0 , 0 , ''  , parsing.STRICT ],
-@@ -260,6 +264,10 @@
+@@ -128,6 +132,10 @@
+         'iterate_state' : [ self_cmd.iterate_state     , 0 , 0 , ''  , parsing.LITERAL2 ], # insecure
+         'label'         : [ self_cmd.label             , 0 , 0 , ''  , parsing.LITERAL1 ], # insecure
+         'load'          : [ self_cmd.load              , 0 , 0 , ''  , parsing.STRICT ],
++#PYMOLSERVER
++# Virtual mouse support *NJK*
++        'loadandremovepdbfile' : [ self_cmd.loadandremovepdbfile, 0 , 0 , ''  , parsing.STRICT ], 
++#PYMOLSEVER
+         'space'         : [ self_cmd.space             , 0 , 0 , ''  , parsing.STRICT ],
+         'load_embedded' : [ self_cmd.load_embedded     , 0 , 0 , ''  , parsing.STRICT ],
+         'load_png'      : [ self_cmd.load_png          , 0 , 0 , ''  , parsing.STRICT ],
+@@ -260,6 +268,10 @@
          'vdw_fit'       : [ self_cmd.vdw_fit           , 0 , 0 , ''  , parsing.STRICT ],   
          'view'          : [ self_cmd.view              , 0 , 0 , ''  , parsing.STRICT ],   
          'viewport'      : [ self_cmd.viewport          , 0 , 0 , ''  , parsing.STRICT ],
@@ -1191,3 +1348,4 @@ diff -ur ./modules/pymol/keywords.py ../pymol/modules/pymol/keywords.py
          'window'        : [ self_cmd.window            , 0 , 0 , ''  , parsing.STRICT ],         
          'while'         : [ self_cmd.python_help       , 0 , 0 , ''  , parsing.PYTHON ],   
          'wizard'        : [ self_cmd.wizard            , 0 , 0 , ''  , parsing.STRICT ],
+Only in ../pymol/modules/pymol: keywords.py.~1~
