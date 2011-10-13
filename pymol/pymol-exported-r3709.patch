@@ -14,7 +14,7 @@ diff -r -u '--exclude=.svn' ./contrib/uiuc/plugins/molfile_plugin/src/periodic_t
      /* Pd */ 1.63, 1.72, 1.58, 1.93, 2.17, 2.0, 
 diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 --- ./layer0/MyPNG.c	2009-03-04 00:15:27.000000000 -0500
-+++ ../pymol/layer0/MyPNG.c	2011-10-12 17:00:02.000000000 -0400
++++ ../pymol/layer0/MyPNG.c	2011-10-13 11:42:44.000000000 -0400
 @@ -40,7 +40,7 @@
  #  define png_jmpbuf(png_ptr) ((png_ptr)->jmpbuf)
  #endif
@@ -24,7 +24,7 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
  
  #include"os_std.h"
  
-@@ -49,6 +49,61 @@
+@@ -49,6 +49,69 @@
  #include"MemoryDebug.h"
  #include "Setting.h"
  
@@ -40,37 +40,45 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +/* add ability to write PNG/PPM files to standard output    */
 +
 +static void
-+PngWriteDataProc(png_structp png_ptr, png_bytep buf, png_size_t length)
++PngWriteDataProc(png_structp png_ptr, png_bytep buf, png_size_t numBytes)
 +{
 +    void *write_io_ptr;
 +    struct Buffer_ *bufPtr;
-+    int available;
++    size_t avail;
 +    
 +    write_io_ptr = png_get_io_ptr(png_ptr);
 +    bufPtr = write_io_ptr;
-+    available = bufPtr->allocated - bufPtr->used;
++    avail = bufPtr->allocated - bufPtr->used;
 +    
-+    if (length > available) {
-+	unsigned char *newdata;
-+	int needed;
++    if (numBytes > avail) {
++	size_t size, wanted;
++	unsigned char *bytes;
 +
-+	needed = length - available;
-+	if (needed < 32768) {
-+	    needed = 32768;
++	wanted = numBytes + 1;
++	if (bufPtr->allocated == 0) {
++	    bufPtr->allocated = 1<<16;	/* Start with a 64K size. */
 +	}
++	size = bufPtr->allocated; 
++
++	/* 
++	 * Keep doubling the buffer size until we have enough room.
++	 */
++	while (size <= wanted) {
++	    size += size;
++	}    
 +	if (bufPtr->bytes == NULL) {
-+	    newdata = malloc(bufPtr->allocated + needed);
++	    bytes = malloc(size);
 +	} else {
-+	    newdata = realloc(bufPtr->bytes, bufPtr->allocated + needed);
++	    bytes = realloc(bufPtr->bytes, size);
 +	}
-+	if (newdata == NULL) {
++	if (bytes == NULL) {
 +	    return;
 +	}
-+	bufPtr->bytes = newdata;
-+	bufPtr->allocated += needed;
++	bufPtr->bytes = bytes;
++	bufPtr->allocated = size;
 +    }
-+    memcpy((unsigned char *)bufPtr->bytes + bufPtr->used, buf, length);
-+    bufPtr->used += length;
++    memcpy(bufPtr->bytes + bufPtr->used, buf, numBytes);
++    bufPtr->used += numBytes;
 +    return;
 +}
 +
@@ -86,7 +94,7 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
  
  int MyPNGWrite(PyMOLGlobals *G,char *file_name,unsigned char *data_ptr,
                 unsigned int width,unsigned int height,float dpi,
-@@ -58,6 +113,7 @@
+@@ -58,6 +121,7 @@
    case cMyPNG_FormatPNG:
      {
  #ifdef _PYMOL_LIBPNG
@@ -94,7 +102,7 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
    int ok=true;
    FILE *fp = NULL;
    png_structp png_ptr;
-@@ -73,6 +129,12 @@
+@@ -73,6 +137,12 @@
    
    /* open the file, allowing use of an encoded file descriptor, with
       approach adapted from TJO: chr(1) followed by ascii-format integer */
@@ -107,7 +115,7 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
    if(file_name[0] == 1) {
      if( sscanf(file_name+1, "%d", &fd) == 1) {
        fp = fdopen(fd, "wb");
-@@ -87,6 +149,8 @@
+@@ -87,6 +157,8 @@
      ok=false;
      goto cleanup;
    }
@@ -116,7 +124,7 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
     /* Create and initialize the png_struct with the desired error handler
      * functions.  If you want to use the default stderr and longjump method,
      * you can supply NULL for the last three parameters.  We also check that
-@@ -103,7 +167,7 @@
+@@ -103,7 +175,7 @@
     /* Allocate/initialize the image information data.  REQUIRED */
     info_ptr = png_create_info_struct(png_ptr);
     if (info_ptr == NULL) {
@@ -125,7 +133,7 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
       ok=false;
       goto cleanup;
     }
-@@ -113,13 +177,20 @@
+@@ -113,13 +185,20 @@
      */
     if (setjmp(png_jmpbuf(png_ptr))) {
       /* If we get here, we had a problem reading the file */
@@ -148,7 +156,7 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
  
     /* Set the image information here.  Width and height are up to 2^31,
      * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also depend on
-@@ -137,6 +208,9 @@
+@@ -137,6 +216,9 @@
       png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
     }
  
@@ -158,7 +166,7 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
  
     png_set_gamma(png_ptr, SettingGet(G,cSetting_png_screen_gamma), 
                   SettingGet(G,cSetting_png_file_gamma));
-@@ -181,50 +255,96 @@
+@@ -181,50 +263,96 @@
     png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
  
   cleanup:
@@ -286,7 +294,7 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
      }
      return 1;
      break;
-@@ -398,15 +518,7 @@
+@@ -398,15 +526,7 @@
     return(ok);
  #else
     return (false);
@@ -306,71 +314,78 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 Only in ../pymol/layer0: MyPNG.c-new
 Only in ../pymol/layer0: MyPNG.c.~1~
 Only in ../pymol/layer0: MyPNG.c.~2~
+Only in ../pymol/layer0: MyPNG.c.~3~
 diff -r -u '--exclude=.svn' ./layer0/PyMOLGlobals.h ../pymol/layer0/PyMOLGlobals.h
 --- ./layer0/PyMOLGlobals.h	2009-02-17 21:05:42.000000000 -0500
-+++ ../pymol/layer0/PyMOLGlobals.h	2011-10-12 16:35:58.000000000 -0400
-@@ -166,7 +166,9 @@
++++ ../pymol/layer0/PyMOLGlobals.h	2011-10-13 11:29:06.000000000 -0400
+@@ -166,9 +166,12 @@
  
    int DragDirtyFlag; /* do we need an extra callback to handle a mouse drag? */
  
 -
-+  /* PYMOLSERVER */
-+  int CmdPipe[2]; /* Sleep Interruption Patch *NJK* */
-+  /* PYMOLSERVER */
  };
  
++/* PYMOLSERVER */
++extern int gCmdPipe[2];			/* Sleep Interruption Patch *NJK* */
++/* PYMOLSERVER */
++
  /* if we're running PyMOL as a global singleton (old way / backward
+    compatible) then this global variable will contain a pointer to
+    PyMOL global state variables */
 Only in ../pymol/layer0: PyMOLGlobals.h.~1~
+Only in ../pymol/layer0: PyMOLGlobals.h.~2~
 diff -r -u '--exclude=.svn' ./layer1/Ortho.c ../pymol/layer1/Ortho.c
 --- ./layer1/Ortho.c	2009-03-14 17:05:24.000000000 -0400
-+++ ../pymol/layer1/Ortho.c	2011-10-11 14:11:08.000000000 -0400
-@@ -2066,9 +2066,15 @@
- /*========================================================================*/
- void OrthoCommandIn(PyMOLGlobals *G,char *buffer)
- {
-+  /* PYMOLSERVER */
-+  char c = 1;			/* Sleep Interruption Patch *NJK* */
-+  /* PYMOLSERVER */
++++ ../pymol/layer1/Ortho.c	2011-10-13 11:49:41.000000000 -0400
+@@ -105,7 +105,6 @@
+   int WrapClickSide; /* ugly kludge for finding click side in geowall stereo mode */
+ };
+ 
+-
+ void OrthoParseCurrentLine(PyMOLGlobals *G);
+ static void OrthoDrawWizardPrompt(PyMOLGlobals *G);
+ 
+@@ -2069,6 +2068,12 @@
    register COrtho *I=G->Ortho;
    if(I->cmdActiveQueue)
  	QueueStrIn(I->cmdActiveQueue,buffer);
 +  /* PYMOLSERVER */
-+  write(G->CmdPipe[1], &c, 1);	/* Sleep Interruption Patch *NJK* */
++  {
++      char c = 1;			/* Sleep Interruption Patch *NJK* */
++      write(gCmdPipe[1], &c, 1);	
++  }
 +  /* PYMOLSERVER */
  }
  /*========================================================================*/
  void OrthoPasteIn(PyMOLGlobals *G,char *buffer)
+Only in ../pymol/layer1: Ortho.c.~1~
 diff -r -u '--exclude=.svn' ./layer1/P.c ../pymol/layer1/P.c
 --- ./layer1/P.c	2009-03-29 21:41:32.000000000 -0400
-+++ ../pymol/layer1/P.c	2011-10-11 14:11:08.000000000 -0400
-@@ -617,13 +617,26 @@
- void PSleepUnlocked(PyMOLGlobals *G,int usec)
- { /* can only be called by the glut process */
- #ifndef WIN32
-+  /*PYMOLSERVER */
-+  fd_set fds;			/* Sleep Interruption Patch *NJK* */
-+  /*PYMOLSERVER*/
-   struct timeval tv;
-   PRINTFD(G,FB_Threads)
-     " PSleep-DEBUG: napping.\n"
++++ ../pymol/layer1/P.c	2011-10-13 11:34:21.000000000 -0400
+@@ -623,7 +623,21 @@
      ENDFD;
    tv.tv_sec=0;
    tv.tv_usec=usec; 
 -  select(0,NULL,NULL,NULL,&tv);
 +
 +  /* PYMOLSERVER */
-+  /* Sleep Interruption Patch *NJK* */
-+  FD_ZERO(&fds);
-+  FD_SET(SingletonPyMOLGlobals->CmdPipe[0], &fds);
-+  select(SingletonPyMOLGlobals->CmdPipe[0]+1, &fds, NULL, NULL, &tv);
-+  if (FD_ISSET(SingletonPyMOLGlobals->CmdPipe[0],&fds)) {
-+      char c;
-+      read(SingletonPyMOLGlobals->CmdPipe[0], &c, 1);
++  {
++      /* Sleep Interruption Patch *NJK* */
++      fd_set readFds;			
++
++      FD_ZERO(&readFds);
++      FD_SET(gCmdPipe[0], &readFds);
++      select(gCmdPipe[0]+1, &readFds, NULL, NULL, &tv);
++      if (FD_ISSET(gCmdPipe[0], &readFds)) {
++	  char c;
++	  read(gCmdPipe[0], &c, 1);
++      }
 +  }
 +  /*PYMOLSERVER*/
    PRINTFD(G,FB_Threads)
      " PSleep-DEBUG: nap over.\n"
      ENDFD;
+Only in ../pymol/layer1: P.c.~1~
 diff -r -u '--exclude=.svn' ./layer1/Scene.c ../pymol/layer1/Scene.c
 --- ./layer1/Scene.c	2009-03-15 03:08:45.000000000 -0400
 +++ ../pymol/layer1/Scene.c	2011-10-12 16:07:13.000000000 -0400
@@ -691,20 +706,31 @@ diff -r -u '--exclude=.svn' ./layer4/Cmd.c ../pymol/layer4/Cmd.c
 Only in ../pymol/layer4: Cmd.c.~1~
 diff -r -u '--exclude=.svn' ./layer5/PyMOL.c ../pymol/layer5/PyMOL.c
 --- ./layer5/PyMOL.c	2009-03-14 19:50:39.000000000 -0400
-+++ ../pymol/layer5/PyMOL.c	2011-10-12 17:07:38.000000000 -0400
-@@ -2878,6 +2878,11 @@
++++ ../pymol/layer5/PyMOL.c	2011-10-13 11:36:17.000000000 -0400
+@@ -67,6 +67,10 @@
+ PyMOLGlobals *SingletonPyMOLGlobals = NULL;
+ #endif
+ 
++/* PYMOLSERVER */
++int gCmdPipe[2];
++/* PYMOLSERVER */
++
+ /* BEGIN PROPRIETARY CODE SEGMENT (see disclaimer in "os_proprietary.h") */ 
+ #ifndef _PYMOL_NOPY
+ #ifdef _MACPYMOL_XCODE
+@@ -2878,6 +2882,10 @@
        
        result->G->PyMOL = result; /* store the instance pointer */
  
 +      /*PYMOLSERVER*/
-+      /* Sleep Interruption Patch *NJK* */
-+      pipe(result->G->CmdPipe);  
++      pipe(gCmdPipe);			/* Sleep Interruption Patch *NJK* */
 +      /*PYMOLSERVER*/
 +
        result->BusyFlag = false;
        result->InterruptFlag = false;
        PyMOL_ResetProgress(result);
 Only in ../pymol/layer5: PyMOL.c.~1~
+Only in ../pymol/layer5: PyMOL.c.~2~
 diff -r -u '--exclude=.svn' ./layer5/main.c ../pymol/layer5/main.c
 --- ./layer5/main.c	2009-03-23 20:06:04.000000000 -0400
 +++ ../pymol/layer5/main.c	2011-10-11 14:11:08.000000000 -0400
