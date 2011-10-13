@@ -17,6 +17,7 @@ includedir=$prefix/include
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 
+#pymol_version=3970
 pymol_version=3709
 pymol_dir=pymol-exported-r${pymol_version}
 pymol_server_patch=${srcdir}/pymol-exported-r${pymol_version}.patch
