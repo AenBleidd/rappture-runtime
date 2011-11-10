@@ -1,31 +1,52 @@
 
-prefix			= @prefix@
-exec_prefix		= @exec_prefix@
-datadir			= @datadir@
-datarootdir		= @datarootdir@
-bindir			= @bindir@
-libdir			= @libdir@
-includedir		= @includedir@
-mandir			= @mandir@
-srcdir			= @srcdir@
+prefix =	@prefix@
+exec_prefix =	@exec_prefix@
+datadir =	@datadir@
+datarootdir =	@datarootdir@
+bindir =	@bindir@
+libdir =	@libdir@
+includedir =	@includedir@
+mandir =	@mandir@
+srcdir =	@srcdir@
 
-destdir			= $(libdir)/pymol
+destdir =	$(libdir)/pymol
 
-RM			= rm -f
-VPATH			= $(srcdir)
-INSTALL			= @INSTALL@
+VPATH =		$(srcdir)
+RM =		rm -f
+LN_S =		@LN_S@
+MKDIR_P =	@MKDIR_P@
+INSTALL =	@INSTALL@
+PYTHON =	@PYTHON@
+PYTHON_VERSION = @PYTHON_VERSION@
+PYMOL_DIR =	@PYMOL_DIR@
+PYMOL_VERSION = @PYMOL_VERSION@
 
-install_parts		= modules data test scripts examples LICENSE
-PYMOL_DIR		= @PYMOL_DIR@
+python_path =	$(libdir)/python$(PYTHON_VERSION)/site-packages
+install_parts = modules data test scripts examples LICENSE
 
-.PHONY: pymol
+.PHONY: pymol-old pymol
 
-all: pymol
+ifeq ($(PYMOL_VERSION), 3709) 
+    build_target=build_autotools
+    install_target=install_autotools
+    clean_target=clean_autotools
+else 
+    build_target=build_disttools
+    install_target=install_disttools
+    clean_target=clean_disttools
+endif
 
-pymol:
+build =		$(PWD)/install
+
+all: $(build_target)
+install: $(install_target)
+	$(INSTALL) -m 0755 pymol $(bindir)
+
+clean: $(clean_target)
+
+build_autotools:
 	$(MAKE) -C $(PYMOL_DIR) all 
-
-install: 
+install_autotools:
 	$(INSTALL) -d $(destdir)
 	$(MAKE) -C $(PYMOL_DIR) install \
 		pymollibdir=$(destdir) \
@@ -34,9 +55,24 @@ install:
 		sglitelibdir=$(destdir) \
 		pyopengllibdir=$(destdir)
 	tar -C $(PYMOL_DIR) -clf - $(install_parts) | tar -C $(destdir) -xpf -
-
-clean: 
+clean_autotools: 
 	$(MAKE) -C $(PYMOL_DIR) clean
+
+
+build_disttools:
+	$(RM) -rf $(build)
+	$(MKDIR_P) $(build)
+	cd $(PYMOL_DIR); $(PYTHON) setup.py build install \
+		 --prefix=$(build) --exec-prefix=$(build)
+install_disttools:
+	$(MKDIR_P) $(libdir)
+	tar -C $(build)/lib64 -clf - . | tar -C $(libdir) -xpf - 
+	cd $(PYMOL_DIR); PYTHONPATH=$(python_path) $(PYTHON) setup2.py install \
+		 --prefix=$(prefix) --exec-prefix=$(exec_prefix)
+
+clean_disttools: 
+	cd $(PYMOL_DIR); $(PYTHON) setup2.py clean
+	rm $(PYMOL_DIR)/build	
 
 distclean: 
 	$(MAKE) -C $(PYMOL_DIR) distclean

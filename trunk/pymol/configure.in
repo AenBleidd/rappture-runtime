@@ -1,4 +1,5 @@
 AC_INIT(configure.in)
+AC_CONFIG_AUX_DIR(cf)
 AC_PREFIX
 
 #------------------------------------------------------------------------
@@ -16,11 +17,26 @@ includedir=$prefix/include
 
 AC_PROG_INSTALL
 AC_PROG_RANLIB
+AC_PROG_LN_S
+AC_PROG_MKDIR_P
 
-#pymol_version=3970
-pymol_version=3709
-pymol_dir=pymol-exported-r${pymol_version}
-pymol_server_patch=${srcdir}/pymol-exported-r${pymol_version}.patch
+RP_LANG_PYTHON
+AC_SUBST(PYTHON)
+AC_SUBST(PYTHON_CFLAGS)
+AC_SUBST(PYTHON_DISTUTILS)
+AC_SUBST(PYTHON_INCDIR)
+AC_SUBST(PYTHON_INCLUDES)
+AC_SUBST(PYTHON_LDFLAGS)
+AC_SUBST(PYTHON_LIB)
+AC_SUBST(PYTHON_LIBDIR)
+AC_SUBST(PYTHON_SITE_DIR)
+AC_SUBST(PYTHON_SITE_PACKAGES)
+AC_SUBST(PYTHON_VERSION)
+
+PYMOL_VERSION=3970
+#PYMOL_VERSION=3709
+pymol_dir=pymol-exported-r${PYMOL_VERSION}
+pymol_server_patch=${srcdir}/pymol-exported-r${PYMOL_VERSION}.patch
 PYMOL_DIR=${pymol_dir}
 
 if test -f "${pymol_server_patch}" ; then
@@ -34,4 +50,5 @@ else
   AC_ERROR([can't find server patch file ${pymol_server_patch}])
 fi
 AC_SUBST(PYMOL_DIR)
-AC_OUTPUT(Makefile)
+AC_SUBST(PYMOL_VERSION)
+AC_OUTPUT([Makefile pymol])
