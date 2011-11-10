@@ -5,8 +5,8 @@ PYTHON_VERSION=@PYTHON_VERSION@
 libdir=@libdir@
 
 if test ${PYMOL_VERSION} < 3900 ; then
-  init=${libdir}/python${PYTHON_VERSION}/site-packages/pymol/__init__.py
-else
   init=${libdir}/pymol/modules/launch_pymol.py
+else
+  init=${libdir}/python${PYTHON_VERSION}/site-packages/pymol/__init__.py
 fi
 exec $PYTHON ${init} "$@"
