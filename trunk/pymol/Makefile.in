@@ -12,7 +12,7 @@ srcdir =	@srcdir@
 destdir =	$(libdir)/pymol
 
 VPATH =		$(srcdir)
-RM =		rm -f
+RM =		/bin/rm -f
 LN_S =		@LN_S@
 MKDIR_P =	@MKDIR_P@
 INSTALL =	@INSTALL@
@@ -36,7 +36,9 @@ else
     clean_target=clean_disttools
 endif
 
-build =		$(PWD)/install
+.PHONY mybuild pymol 
+
+mybuild =		$(PWD)/mybuild
 
 all: $(build_target)
 install: $(install_target)
@@ -60,18 +62,18 @@ clean_autotools:
 
 
 build_disttools:
-	$(RM) -rf $(build)
-	$(MKDIR_P) $(build)
+	$(RM) -rf $(mybuild)
+	$(MKDIR_P) $(mybuild)
 	cd $(PYMOL_DIR); $(PYTHON) setup.py build install \
-		 --prefix=$(build) --exec-prefix=$(build)
+		 --prefix=$(build) --exec-prefix=$(mybuild)
 install_disttools:
 	$(MKDIR_P) $(libdir)
-	@if test -d "$(build)/lib64" ; then \
+	@if test -d "$(mybuild)/lib64" ; then \
 	  echo "Installing pymol from lib64" ; \
-	  tar -C $(build)/lib64 -clf - . | tar -C $(libdir) -xpf - ; \
-	elif test -d "$(build)/lib" ; then \
+	  tar -C $(mybuild)/lib64 -clf - . | tar -C $(libdir) -xpf - ; \
+	elif test -d "$(mybuild)/lib" ; then \
 	  echo "Installing pymol from lib" ; \
-	  tar -C $(build)/lib -clf - . | tar -C $(libdir) -xpf - ; \
+	  tar -C $(mybuild)/lib -clf - . | tar -C $(libdir) -xpf - ; \
 	else \
 	  echo "Unknown python install directory" ; \
 	  exit 1 ; \
@@ -81,7 +83,8 @@ install_disttools:
 
 clean_disttools: 
 	cd $(PYMOL_DIR); $(PYTHON) setup2.py clean
-	rm $(PYMOL_DIR)/build	
+	$(RM) -r $(PYMOL_DIR)/build	
+	$(RM) -r $(mybuild)
 
 distclean: 
 	$(MAKE) -C $(PYMOL_DIR) distclean
