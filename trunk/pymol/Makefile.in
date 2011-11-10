@@ -24,7 +24,7 @@ PYMOL_VERSION = @PYMOL_VERSION@
 python_path =	$(libdir)/python$(PYTHON_VERSION)/site-packages
 install_parts = modules data test scripts examples LICENSE
 
-.PHONY: pymol-old pymol
+.PHONY: pymol-old pymol mybuild 
 
 ifeq ($(PYMOL_VERSION), 3709) 
     build_target=build_autotools
@@ -35,8 +35,6 @@ else
     install_target=install_disttools
     clean_target=clean_disttools
 endif
-
-.PHONY mybuild pymol 
 
 mybuild =		$(PWD)/mybuild
 
