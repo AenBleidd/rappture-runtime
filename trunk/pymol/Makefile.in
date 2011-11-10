@@ -66,7 +66,16 @@ build_disttools:
 		 --prefix=$(build) --exec-prefix=$(build)
 install_disttools:
 	$(MKDIR_P) $(libdir)
-	tar -C $(build)/lib64 -clf - . | tar -C $(libdir) -xpf - 
+	@if test "$(build)/lib64" ; then \
+	  echo "Installing pymol from lib64" ; \
+	  tar -C $(build)/lib64 -clf - . | tar -C $(libdir) -xpf - ; \
+	elif test "$(build)/lib" ; then \
+	  echo "Installing pymol from lib" ; \
+	  tar -C $(build)/lib -clf - . | tar -C $(libdir) -xpf - ; \
+	else \
+	  echo "Unknown python install directory" ; \
+	  exit 1 ; \
+	fi
 	cd $(PYMOL_DIR); PYTHONPATH=$(python_path) $(PYTHON) setup2.py install \
 		 --prefix=$(prefix) --exec-prefix=$(exec_prefix)
 
