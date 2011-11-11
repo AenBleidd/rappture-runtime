@@ -63,8 +63,8 @@ build_disttools:
 	$(RM) -rf $(mybuild)
 	$(MKDIR_P) $(mybuild)
 	cd $(PYMOL_DIR); $(PYTHON) setup.py build install \
-		 --prefix=$(build) --exec-prefix=$(mybuild)
-install_disttools:
+		 --prefix=$(mybuild) --exec-prefix=$(mybuild)
+install_disttools: 
 	$(MKDIR_P) $(libdir)
 	@if test -d "$(mybuild)/lib64" ; then \
 	  echo "Installing pymol from lib64" ; \
