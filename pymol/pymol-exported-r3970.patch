@@ -1,6 +1,6 @@
 diff -r -u '--exclude=.svn' ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h
 --- ./contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2009-03-14 16:46:51.000000000 -0400
-+++ ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2011-10-13 11:56:21.000000000 -0400
++++ ../pymol/contrib/uiuc/plugins/molfile_plugin/src/periodic_table.h	2011-11-16 15:43:02.000000000 -0500
 @@ -75,6 +75,9 @@
      /* S  */ 1.8, 2.27, 1.88, 1.76, 1.37, 2.0,
      /* Ti */ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
@@ -11,10 +11,9 @@ diff -r -u '--exclude=.svn' ./contrib/uiuc/plugins/molfile_plugin/src/periodic_t
      /* Se */ 1.9, 1.85, 2.02, 2.0, 2.0, 2.0, 
      /* Zr */ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
      /* Pd */ 1.63, 1.72, 1.58, 1.93, 2.17, 2.0, 
-Only in ../pymol/contrib/uiuc/plugins/molfile_plugin/src: periodic_table.h.~1~
 diff -r -u '--exclude=.svn' ./layer0/Makefile.am ../pymol/layer0/Makefile.am
 --- ./layer0/Makefile.am	2011-04-22 18:30:23.000000000 -0400
-+++ ../pymol/layer0/Makefile.am	2011-10-13 12:58:12.000000000 -0400
++++ ../pymol/layer0/Makefile.am	2011-11-16 15:43:03.000000000 -0500
 @@ -57,6 +57,8 @@
  Raw.h  \
  Shader.c \
@@ -24,10 +23,9 @@ diff -r -u '--exclude=.svn' ./layer0/Makefile.am ../pymol/layer0/Makefile.am
  Sphere.c  \
  SphereData.h  \
  Sphere.h  \
-Only in ../pymol/layer0: Makefile.am.~1~
 diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 --- ./layer0/MyPNG.c	2011-07-20 17:19:52.000000000 -0400
-+++ ../pymol/layer0/MyPNG.c	2011-10-13 12:12:08.000000000 -0400
++++ ../pymol/layer0/MyPNG.c	2011-11-16 15:43:03.000000000 -0500
 @@ -46,7 +46,7 @@
  #  define png_jmpbuf(png_ptr) ((png_ptr)->jmpbuf)
  #endif
@@ -37,13 +35,13 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
  
  #include"os_std.h"
  
-@@ -55,6 +55,68 @@
+@@ -55,6 +55,102 @@
  #include"MemoryDebug.h"
  #include "Setting.h"
  
 +/* PYMOLSERVER */
 +#ifdef _PYMOL_LIBPNG
-+struct Buffer_ {
++struct PngWriteBuffer_ {
 +    unsigned char *bytes;
 +    size_t allocated;
 +    size_t used;
@@ -56,7 +54,7 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +PngWriteDataProc(png_structp png_ptr, png_bytep buf, png_size_t numBytes)
 +{
 +    void *write_io_ptr;
-+    struct Buffer_ *bufPtr;
++    struct PngWriteBuffer_ *bufPtr;
 +    size_t avail;
 +    
 +    write_io_ptr = png_get_io_ptr(png_ptr);
@@ -67,7 +65,6 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +	size_t size, wanted;
 +	unsigned char *bytes;
 +
-+	wanted = numBytes + 1;
 +	if (bufPtr->allocated == 0) {
 +	    bufPtr->allocated = 1<<16;	/* Start with a 64K size. */
 +	}
@@ -76,7 +73,8 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +	/* 
 +	 * Keep doubling the buffer size until we have enough room.
 +	 */
-+	while (size <= wanted) {
++	wanted = bufPtr->used + numBytes;
++	while (size < wanted) {
 +	    size += size;
 +	}    
 +	if (bufPtr->bytes == NULL) {
@@ -85,6 +83,7 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +	    bytes = realloc(bufPtr->bytes, size);
 +	}
 +	if (bytes == NULL) {
++	    fprintf(stderr, "png allocation failed\n");
 +	    return;
 +	}
 +	bufPtr->bytes = bytes;
@@ -101,23 +100,72 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +    return;
 +}
 +#endif /* _PYMOL_LIBPNG */
++
++/* 
++ * GetPrintToken --
++ *
++ *	Extract the token from the file name.  The file name isn't a
++ *	real file name but a token to be included with the header of
++ *	the images written back to stdout.  The file name is in
++ *	the form
++ *		-:<id>:<frame>:<rock>.png
++ *
++ *	id	Either a number of a tag signifying the id for the
++ *		print out.  
++ *	frame	Number of the frame.
++ *	rock	Offset of the rock.
++ *
++ *	Replaces the colons with spaces and trims off the .png extension.
++ */
++static void
++GetPrintToken(const char *fileName, char *token)
++{
++    char *sp, *dp;
++
++    /* Convert colons to spaces and stop when we find a period. */
++    for (dp = token, sp = fileName; (*sp != '\0') && (*sp != '.'); sp++, dp++) {
++	if (*sp == ':') {
++	    *dp = ' ';
++	} else {
++	    *dp = *sp;
++	}
++    }
++    *dp = '\0';
++    return token;
++}
 +/* PYMOLSERVER */
 +
  int MyPNGWrite(PyMOLGlobals * G, char *file_name, unsigned char *data_ptr,
                 unsigned int width, unsigned int height, float dpi, int format, int quiet)
  {
-@@ -62,6 +124,9 @@
+@@ -62,34 +158,49 @@
    case cMyPNG_FormatPNG:
      {
  #ifdef _PYMOL_LIBPNG
++      png_struct *png_ptr;
++      png_info *info_ptr;
 +      /* PYMOLSERVER */
-+      struct Buffer_ buf;
++      struct PngWriteBuffer_ buf;
 +      /* PYMOLSERVER */
        int ok = true;
        FILE *fp = NULL;
-       png_structp png_ptr;
-@@ -77,19 +142,26 @@
+-      png_structp png_ptr;
+-      png_infop info_ptr;
+       int bit_depth = 8;
+       int bytes_per_pixel = 4;
+       png_uint_32 k;
+-      png_byte *image = (png_byte *) data_ptr;
+-      png_bytep *row_pointers;
++      png_byte **row_pointers;
+       int fd = 0;
++      char token[200];
  
+-      row_pointers = Alloc(png_bytep, height);
+-
++      png_ptr = NULL;
++      info_ptr = NULL;
++      row_pointers = NULL;
++      memset(&buf, 0, sizeof(buf));
        /* open the file, allowing use of an encoded file descriptor, with
           approach adapted from TJO: chr(1) followed by ascii-format integer */
 -      if(file_name[0] == 1) {
@@ -126,8 +174,11 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 -        }
 +
 +      /* PYMOLSERVER */
-+      if(strcmp(file_name, "-.png") == 0) {	 
-+           fp = stdout;			/* PNG stdout support */
++      if ((file_name[0] == '-') && (file_name[1] == ':')) {
++	  char *p, *s;
++
++	  fp = stdout;			/* PNG stdout support */
++	  GetPrintToken(file_name + 2, token);
        } else {
 -        fp = fopen(file_name, "wb");
 -      }
@@ -155,13 +206,36 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
        }
        /* Create and initialize the png_struct with the desired error handler
         * functions.  If you want to use the default stderr and longjump method,
-@@ -123,7 +195,15 @@
+@@ -97,7 +208,8 @@
+        * the library version is compatible with the one used at compile time,
+        * in case we are using dynamically linked libraries.  REQUIRED.
+        */
+-      png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
++      png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, 
++	NULL);
+ 
+       if(png_ptr == NULL) {
+         ok = false;
+@@ -107,7 +219,6 @@
+       /* Allocate/initialize the image information data.  REQUIRED */
+       info_ptr = png_create_info_struct(png_ptr);
+       if(info_ptr == NULL) {
+-        png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+         ok = false;
+         goto cleanup;
+       }
+@@ -117,24 +228,32 @@
+        */
+       if(setjmp(png_jmpbuf(png_ptr))) {
+         /* If we get here, we had a problem reading the file */
+-        png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+         ok = false;
+         goto cleanup;
        }
  
        /* set up the output control if you are using standard C streams */
 -      png_init_io(png_ptr, fp);
 +      /* PYMOLSERVER */
-+      memset(&buf, 0, sizeof(buf));
 +      if (fp == stdout) {		/* PNG stdout support *NJK* */
 +	  png_set_write_fn(png_ptr, &buf, PngWriteDataProc, PngFlushDataProc);
 +	  png_set_compression_level(png_ptr, 1); /* Z_BEST_SPEED */
@@ -171,17 +245,79 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +      /* PYMOLSERVER */
  
        /* Set the image information here.  Width and height are up to 2^31,
-        * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also depend on
-@@ -185,11 +265,21 @@
-       png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+-       * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also depend on
+-       * the color_type selected. color_type is one of PNG_COLOR_TYPE_GRAY,
+-       * PNG_COLOR_TYPE_GRAY_ALPHA, PNG_COLOR_TYPE_PALETTE, PNG_COLOR_TYPE_RGB,
+-       * or PNG_COLOR_TYPE_RGB_ALPHA.  interlace is either PNG_INTERLACE_NONE or
+-       * PNG_INTERLACE_ADAM7, and the compression_type and filter_type MUST
+-       * currently be PNG_COMPRESSION_TYPE_BASE and PNG_FILTER_TYPE_BASE. REQUIRED
++       * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also depend
++       * on the color_type selected. color_type is one of PNG_COLOR_TYPE_GRAY,
++       * PNG_COLOR_TYPE_GRAY_ALPHA, PNG_COLOR_TYPE_PALETTE,
++       * PNG_COLOR_TYPE_RGB, or PNG_COLOR_TYPE_RGB_ALPHA.  interlace is either
++       * PNG_INTERLACE_NONE or PNG_INTERLACE_ADAM7, and the compression_type
++       * and filter_type MUST currently be PNG_COMPRESSION_TYPE_BASE and
++       * PNG_FILTER_TYPE_BASE. REQUIRED
+        */
+-      png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, PNG_COLOR_TYPE_RGB_ALPHA,
+-                   PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
++      png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, 
++		   PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, 
++		   PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
  
+       if(dpi > 0.0F) {          /* only set resolution if dpi is positive */
+         int dots_per_meter = (int) (dpi * 39.3700787);
+@@ -162,7 +281,7 @@
+         text.compression = PNG_TEXT_COMPRESSION_NONE;
+         text.key = (png_charp) "URL";
+         text.text = (png_charp) "http://www.pymol.org";
+-        text.text_length = 5;
++        text.text_length = strlen(text.text);
+         png_set_text(png_ptr, info_ptr, &text, 1);
+       }
+ 
+@@ -173,62 +292,122 @@
+        * layout, however, so choose what fits your needs best).  You need to
+        * use the first method if you aren't handling interlacing yourself.
+        */
+-      for(k = 0; k < height; k++)
+-        row_pointers[(height - k) - 1] = image + k * width * bytes_per_pixel;
++      {
++	  unsigned char *srcRowPtr;
++	  int k;
+ 
+-      png_write_image(png_ptr, row_pointers);
++	  row_pointers = Alloc(png_bytep, height);
++	  srcRowPtr = data_ptr;
++	  for(k = height - 1; k >= 0; k--) {
++	      row_pointers[k] = srcRowPtr;
++	      srcRowPtr += width * bytes_per_pixel;
++	  }
++	  png_write_image(png_ptr, row_pointers);
++	  FreeP(row_pointers);
++      }
+ 
+       /* It is REQUIRED to call this to finish writing the rest of the file */
+       png_write_end(png_ptr, info_ptr);
+ 
+       /* clean up after the write, and free any memory allocated */
+-      png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+-
      cleanup:
 -      if(fp) {
 -        /* close the file */
 -        fclose(fp);
++      if (info_ptr != NULL) {
++	  png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+       }
+-
+-      mfree(row_pointers);
++      if (png_ptr != NULL) {
++	  png_destroy_write_struct(&png_ptr, (png_info **)NULL);
++      }
 +      /* PYMOLSERVER */
-+      if (fp == stdout) {		/* Stdout image patch *NJK */
-+	  fprintf(fp, "png image follows: %d\n", buf.used);
++      if ((ok) && (fp == stdout)) {		/* Stdout image patch *NJK */
++	  fprintf(fp, "image follows: %d %s\n", buf.used, token);
 +	  fwrite(buf.bytes, sizeof(char), buf.used, fp);
 +	  fflush(fp);
 +	  if (buf.bytes != NULL) {
@@ -192,15 +328,13 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 +	      /* close the file */
 +	      fclose(fp);
 +	  }
-       }
--
++      }
 +      /* PYMOLSERVER */
-       mfree(row_pointers);
        /* that's it */
  
-@@ -197,38 +287,74 @@
+       return ok;
  #else
- 
+-
        return 0;
 -#endif
 +#endif	/* _PYMOL_LIBPNG */
@@ -236,18 +370,21 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
 -      }
 -      FreeP(buffer);
 +	/* PYMOLSERVER */
-+	if(strcmp(file_name, "-.png") == 0) {	 
++        if ((file_name[0] == '-') && (file_name[1] == ':')) {
 +	    FILE *fp;
 +	    char header[200];
++	    char token[200];
++	    char *s, *p;
 +	    size_t numBytes, srcBytesPerRow, destBytesPerRow;
 +	    unsigned char *srcRowPtr, *destRowPtr, *bytes;
 +	    int y;
 +	    
++	    GetPrintToken(file_name + 2, token);
 +	    numBytes = width * height * 3;
 +	    bytes = Alloc(unsigned char, numBytes);
 +	    sprintf(header, "P6\n%d %d\n255\n", width, height);
-+	    fprintf(stdout, "ppm image follows: %ul\n%s", 
-+		    numBytes + strlen(header), header);
++	    fprintf(stdout, "image follows: %lu %s\n%s", 
++		    numBytes + strlen(header), token, header);
 +	    srcBytesPerRow = width * 4;
 +	    destBytesPerRow = width * 3;
 +	    destRowPtr = bytes;
@@ -301,10 +438,9 @@ diff -r -u '--exclude=.svn' ./layer0/MyPNG.c ../pymol/layer0/MyPNG.c
      }
      return 1;
      break;
-Only in ../pymol/layer0: MyPNG.c.~1~
 diff -r -u '--exclude=.svn' ./layer0/PyMOLGlobals.h ../pymol/layer0/PyMOLGlobals.h
 --- ./layer0/PyMOLGlobals.h	2011-04-22 18:30:23.000000000 -0400
-+++ ../pymol/layer0/PyMOLGlobals.h	2011-10-13 12:13:59.000000000 -0400
++++ ../pymol/layer0/PyMOLGlobals.h	2011-11-16 15:43:03.000000000 -0500
 @@ -178,6 +178,9 @@
  #endif
  };
@@ -315,10 +451,9 @@ diff -r -u '--exclude=.svn' ./layer0/PyMOLGlobals.h ../pymol/layer0/PyMOLGlobals
  
  /* if we're running PyMOL as a global singleton (old way / backward
     compatible) then this global variable will contain a pointer to
-Only in ../pymol/layer0: PyMOLGlobals.h.~1~
 diff -r -u '--exclude=.svn' ./layer1/Ortho.c ../pymol/layer1/Ortho.c
 --- ./layer1/Ortho.c	2011-07-20 17:19:52.000000000 -0400
-+++ ../pymol/layer1/Ortho.c	2011-10-13 12:15:01.000000000 -0400
++++ ../pymol/layer1/Ortho.c	2011-11-16 15:43:03.000000000 -0500
 @@ -2373,6 +2373,12 @@
    register COrtho *I = G->Ortho;
    if(I->cmdActiveQueue)
@@ -332,10 +467,9 @@ diff -r -u '--exclude=.svn' ./layer1/Ortho.c ../pymol/layer1/Ortho.c
  }
  
  
-Only in ../pymol/layer1: Ortho.c.~1~
 diff -r -u '--exclude=.svn' ./layer1/P.c ../pymol/layer1/P.c
 --- ./layer1/P.c	2011-07-20 17:19:52.000000000 -0400
-+++ ../pymol/layer1/P.c	2011-10-13 12:15:52.000000000 -0400
++++ ../pymol/layer1/P.c	2011-11-16 15:43:03.000000000 -0500
 @@ -722,7 +722,21 @@
      " PSleep-DEBUG: napping.\n" ENDFD;
    tv.tv_sec = 0;
@@ -359,10 +493,9 @@ diff -r -u '--exclude=.svn' ./layer1/P.c ../pymol/layer1/P.c
    PRINTFD(G, FB_Threads)
      " PSleep-DEBUG: nap over.\n" ENDFD;
  #else
-Only in ../pymol/layer1: P.c.~1~
 diff -r -u '--exclude=.svn' ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
 --- ./layer2/AtomInfo.c	2011-07-20 17:19:52.000000000 -0400
-+++ ../pymol/layer2/AtomInfo.c	2011-10-13 12:21:53.000000000 -0400
++++ ../pymol/layer2/AtomInfo.c	2011-11-16 15:43:04.000000000 -0500
 @@ -32,6 +32,10 @@
  #include"OVContext.h"
  #include"PyMOLObject.h"
@@ -613,10 +746,9 @@ diff -r -u '--exclude=.svn' ./layer2/AtomInfo.c ../pymol/layer2/AtomInfo.c
 +}
 +
 +/*PYMOLSERVER*/
-Only in ../pymol/layer2: AtomInfo.c.~1~
 diff -r -u '--exclude=.svn' ./layer3/Makefile.in ../pymol/layer3/Makefile.in
 --- ./layer3/Makefile.in	2009-07-07 14:59:21.000000000 -0400
-+++ ../pymol/layer3/Makefile.in	2011-10-13 12:57:52.000000000 -0400
++++ ../pymol/layer3/Makefile.in	2011-11-16 15:43:04.000000000 -0500
 @@ -201,7 +201,8 @@
  top_builddir = @top_builddir@
  top_srcdir = @top_srcdir@
@@ -627,10 +759,9 @@ diff -r -u '--exclude=.svn' ./layer3/Makefile.in ../pymol/layer3/Makefile.in
  
  noinst_LTLIBRARIES = liblayer3.la
  liblayer3_la_SOURCES = Editor.c \
-Only in ../pymol/layer3: Makefile.in.~1~
 diff -r -u '--exclude=.svn' ./layer4/Cmd.c ../pymol/layer4/Cmd.c
 --- ./layer4/Cmd.c	2011-07-20 17:19:52.000000000 -0400
-+++ ../pymol/layer4/Cmd.c	2011-10-13 12:24:53.000000000 -0400
++++ ../pymol/layer4/Cmd.c	2011-11-16 15:43:04.000000000 -0500
 @@ -6275,6 +6275,38 @@
    return APIResultCode(result);
  }
@@ -680,10 +811,9 @@ diff -r -u '--exclude=.svn' ./layer4/Cmd.c ../pymol/layer4/Cmd.c
    {"window", CmdWindow, METH_VARARGS},
    {"zoom", CmdZoom, METH_VARARGS},
    {NULL, NULL}                  /* sentinel */
-Only in ../pymol/layer4: Cmd.c.~1~
 diff -r -u '--exclude=.svn' ./layer5/PyMOL.c ../pymol/layer5/PyMOL.c
 --- ./layer5/PyMOL.c	2011-07-20 17:19:52.000000000 -0400
-+++ ../pymol/layer5/PyMOL.c	2011-10-13 12:25:45.000000000 -0400
++++ ../pymol/layer5/PyMOL.c	2011-11-16 15:43:04.000000000 -0500
 @@ -71,6 +71,9 @@
  PyMOLGlobals *SingletonPyMOLGlobals = NULL;
  #endif
@@ -705,10 +835,9 @@ diff -r -u '--exclude=.svn' ./layer5/PyMOL.c ../pymol/layer5/PyMOL.c
        result->BusyFlag = false;
        result->InterruptFlag = false;
        PyMOL_ResetProgress(result);
-Only in ../pymol/layer5: PyMOL.c.~1~
 diff -r -u '--exclude=.svn' ./layer5/main.c ../pymol/layer5/main.c
 --- ./layer5/main.c	2011-07-20 17:19:52.000000000 -0400
-+++ ../pymol/layer5/main.c	2011-10-13 12:27:27.000000000 -0400
++++ ../pymol/layer5/main.c	2011-11-16 15:43:04.000000000 -0500
 @@ -611,6 +611,101 @@
    }
  }
@@ -811,10 +940,9 @@ diff -r -u '--exclude=.svn' ./layer5/main.c ../pymol/layer5/main.c
  
  /*========================================================================*/
  static void MainButton(int button, int state, int x, int y)
-Only in ../pymol/layer5: main.c.~1~
 diff -r -u '--exclude=.svn' ./modules/pymol/api.py ../pymol/modules/pymol/api.py
 --- ./modules/pymol/api.py	2011-04-01 17:22:09.000000000 -0400
-+++ ../pymol/modules/pymol/api.py	2011-10-13 12:28:40.000000000 -0400
++++ ../pymol/modules/pymol/api.py	2011-11-16 15:43:03.000000000 -0500
 @@ -14,6 +14,7 @@
        load_traj,          \
        load_raw,           \
@@ -842,10 +970,9 @@ diff -r -u '--exclude=.svn' ./modules/pymol/api.py ../pymol/modules/pymol/api.py
  
  #--------------------------------------------------------------------
  from querying import \
-Only in ../pymol/modules/pymol: api.py.~1~
 diff -r -u '--exclude=.svn' ./modules/pymol/controlling.py ../pymol/modules/pymol/controlling.py
 --- ./modules/pymol/controlling.py	2011-04-01 17:22:09.000000000 -0400
-+++ ../pymol/modules/pymol/controlling.py	2011-10-13 12:30:16.000000000 -0400
++++ ../pymol/modules/pymol/controlling.py	2011-11-16 15:43:03.000000000 -0500
 @@ -589,6 +589,18 @@
          if _self._raising(r,_self): raise pymol.CmdException                     
          return r
@@ -865,10 +992,9 @@ diff -r -u '--exclude=.svn' ./modules/pymol/controlling.py ../pymol/modules/pymo
  
      def edit_mode(active=1,quiet=1,_self=cmd):
          '''
-Only in ../pymol/modules/pymol: controlling.py.~1~
 diff -r -u '--exclude=.svn' ./modules/pymol/importing.py ../pymol/modules/pymol/importing.py
 --- ./modules/pymol/importing.py	2011-07-26 11:04:45.000000000 -0400
-+++ ../pymol/modules/pymol/importing.py	2011-10-13 12:30:52.000000000 -0400
++++ ../pymol/modules/pymol/importing.py	2011-11-16 15:43:03.000000000 -0500
 @@ -1542,3 +1542,12 @@
              t.start()
          return r
@@ -882,10 +1008,9 @@ diff -r -u '--exclude=.svn' ./modules/pymol/importing.py ../pymol/modules/pymol/
 +        except os.error:
 +            print "can't remove pdb file " + fileName
 +#PYMOLSERVER        
-Only in ../pymol/modules/pymol: importing.py.~1~
 diff -r -u '--exclude=.svn' ./modules/pymol/keywords.py ../pymol/modules/pymol/keywords.py
 --- ./modules/pymol/keywords.py	2011-04-01 17:22:09.000000000 -0400
-+++ ../pymol/modules/pymol/keywords.py	2011-10-13 12:33:07.000000000 -0400
++++ ../pymol/modules/pymol/keywords.py	2011-11-16 15:43:03.000000000 -0500
 @@ -130,6 +130,9 @@
          'iterate_state' : [ self_cmd.iterate_state     , 0 , 0 , ''  , parsing.LITERAL2 ], # insecure
          'label'         : [ self_cmd.label             , 0 , 0 , ''  , parsing.LITERAL1 ], # insecure
@@ -907,4 +1032,3 @@ diff -r -u '--exclude=.svn' ./modules/pymol/keywords.py ../pymol/modules/pymol/k
          'window'        : [ self_cmd.window            , 0 , 0 , ''  , parsing.STRICT ],         
          'while'         : [ self_cmd.python_help       , 0 , 0 , ''  , parsing.PYTHON ],   
          'wizard'        : [ self_cmd.wizard            , 0 , 0 , ''  , parsing.STRICT ],
-Only in ../pymol/modules/pymol: keywords.py.~1~
