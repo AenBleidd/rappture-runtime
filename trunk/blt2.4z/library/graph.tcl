@@ -401,6 +401,9 @@ option add *zoomOutline.xor		yes
 proc blt::MarchingAnts { graph offset } {
     global zoomInfo
 
+    if { ![winfo exists $graph] } {
+	return;				# Graph may no longer exist.
+    }
     if {[incr offset] >= 32765} {
         set offset 0  ;# avoid error "bad distance" at 32767
     }

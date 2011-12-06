@@ -1940,7 +1940,8 @@ DeactivateOp(graphPtr, interp, argc, argv)
 
     for (i = 3; i < argc; i++) {
 	if (NameToElement(graphPtr, argv[i], &elemPtr) != TCL_OK) {
-	    return TCL_ERROR;	/* Can't find named element */
+	    continue;			/* Can't find named element. Be fault
+					 * tolerant here. Don't error out. */
 	}
 	elemPtr->flags &= ~(ELEM_ACTIVE | ACTIVE_PENDING);
 	if (elemPtr->activeIndices != NULL) {
