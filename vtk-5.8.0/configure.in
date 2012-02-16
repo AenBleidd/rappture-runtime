@@ -3,9 +3,28 @@ AC_INIT(Copyright.txt)
 
 AC_PREFIX
 
+AC_CANONICAL_TARGET
+
 #------------------------------------------------------------------------
 # Handle the --prefix=... option
 #------------------------------------------------------------------------
+
+case $target in
+  *-*-darwin*)
+    PLATFORM="macosx"
+    SO_EXT=".dylib"
+    SO_PREFIX="lib"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+  *)
+    PLATFORM="unix" 
+    SO_PREFIX="lib"
+    SO_EXT=".so"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+esac
 
 if test "${prefix}" = "NONE"; then
     prefix=/usr/local
@@ -17,6 +36,8 @@ libdir=$exec_prefix/lib
 includedir=$prefix/include
 PATH=$exec_prefix/bin:$PATH
 
+. $libdir/tclConfig.sh
+
 CMAKE=
 AC_PATH_PROG(CMAKE, cmake)
 if test "x${CMAKE}" = "x" ; then
@@ -24,13 +45,19 @@ if test "x${CMAKE}" = "x" ; then
 fi
 
 $CMAKE $srcdir \
-	-DCMAKE_INSTALL_PREFIX:PATH=$prefix \
-	-DBUILD_SHARED_LIBS:BOOL=ON \
-	-DTCL_TCLSH:FILEPATH=$prefix/bin/tclsh \
-	-DVTK_WRAP_TCL:BOOL=ON \
-	-DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
-	-DTCL_INCLUDE_PATH:PATH=$includedir \
-	-DTCL_LIBRARY:FILEPATH=$libdir/libtcl8.4.so \
-	-DTK_INCLUDE_PATH:PATH=$includedir \
-	-DTK_LIBRARY:FILEPATH=$libdir/libtk8.4.so \
-	-DVTK_USE_HYBRID:BOOL=ON;
+ -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+ -DBUILD_SHARED_LIBS:BOOL=ON \
+ -DTCL_TCLSH:FILEPATH=$prefix/bin/tclsh${TCL_VERSION} \
+ -DVTK_WRAP_TCL:BOOL=ON \
+ -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
+ -DTCL_INCLUDE_PATH:PATH=$includedir \
+ -DTCL_LIBRARY:FILEPATH=$libdir/libtcl${TCL_VERSION}${SO_EXT} \
+ -DTK_INCLUDE_PATH:PATH=$includedir \
+ -DTK_LIBRARY:FILEPATH=$libdir/libtk${TCL_VERSION}${SO_EXT} \
+ -DVTK_USE_HYBRID:BOOL=ON \
+ -DOPENGL_INCLUDE_DIR:PATH=/usr/X11/include \
+ -DOPENGL_gl_LIBRARY:FILEPATH=/usr/X11/lib/libGL${SO_EXT} \
+ -DOPENGL_glu_LIBRARY:FILEPATH=/usr/X11/lib/libGLU${SO_EXT} \
+ -DVTK_USE_X:BOOL=ON \
+ -DVTK_USE_CARBON:BOOL=OFF \
+ -DVTK_USE_COCOA:BOOL=OFF;
