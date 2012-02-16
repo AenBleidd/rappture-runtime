@@ -23,10 +23,11 @@
 #ifndef _TCL
 #include "tcl.h"
 #endif
+#ifdef notdef
 #ifndef _TKPORT
 #include "tkPort.h"
 #endif
-
+#endif
 /*
  * Ensure WORDS_BIGENDIAN is defined correcly:
  * Needs to happen here in addition to configure to work with fat compiles on
