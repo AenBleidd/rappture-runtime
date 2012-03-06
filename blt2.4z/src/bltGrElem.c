@@ -1102,16 +1102,10 @@ DestroyElement(elemPtr)
     Blt_ChainLink *linkPtr;
     Graph *graphPtr = elemPtr->graphPtr;
 
-    Blt_DeleteBindings(graphPtr->bindTable, elemPtr);
-    Blt_LegendRemoveElement(graphPtr->legend, elemPtr);
-
-    Tk_FreeOptions(elemPtr->specsPtr, (char *)elemPtr, graphPtr->display, 0);
-    /*
-     * Call the element's own destructor to release the memory and
-     * resources allocated for it.
-     */
-    (*elemPtr->procsPtr->destroyProc) (graphPtr, elemPtr);
-
+    /* Remove the element for the graph's hash table of elements */
+    if (elemPtr->hashPtr != NULL) {
+	Blt_DeleteHashEntry(&graphPtr->elements.table, elemPtr->hashPtr);
+    }
     /* Remove it also from the element display list */
     for (linkPtr = Blt_ChainFirstLink(graphPtr->elements.displayList);
 	linkPtr != NULL; linkPtr = Blt_ChainNextLink(linkPtr)) {
@@ -1124,10 +1118,14 @@ DestroyElement(elemPtr)
 	    break;
 	}
     }
-    /* Remove the element for the graph's hash table of elements */
-    if (elemPtr->hashPtr != NULL) {
-	Blt_DeleteHashEntry(&graphPtr->elements.table, elemPtr->hashPtr);
-    }
+    Blt_DeleteBindings(graphPtr->bindTable, elemPtr);
+    Blt_LegendRemoveElement(graphPtr->legend, elemPtr);
+    Tk_FreeOptions(elemPtr->specsPtr, (char *)elemPtr, graphPtr->display, 0);
+    /*
+     * Call the element's own destructor to release the memory and
+     * resources allocated for it.
+     */
+    (*elemPtr->procsPtr->destroyProc) (graphPtr, elemPtr);
     if (elemPtr->name != NULL) {
 	Blt_Free(elemPtr->name);
     }
@@ -1159,15 +1157,31 @@ CreateElement(graphPtr, interp, argc, argv, classUid)
     int isNew;
 
     if (argv[3][0] == '-') {
-	Tcl_AppendResult(graphPtr->interp, "name of element \"", argv[3], 
-			 "\" can't start with a '-'", (char *)NULL);
-	return TCL_ERROR;
-    }
-    hPtr = Blt_CreateHashEntry(&graphPtr->elements.table, argv[3], &isNew);
-    if (!isNew) {
-	Tcl_AppendResult(interp, "element \"", argv[3],
-	    "\" already exists in \"", argv[0], "\"", (char *)NULL);
-	return TCL_ERROR;
+	int i;
+
+	for (i = 1; i < INT_MAX; i++) {
+	    char ident[200];
+	    int isNew;
+
+	    /* Generate an element name. */
+	    sprintf_s(ident, 200, "elem%d", i);
+	    hPtr = Blt_CreateHashEntry(&graphPtr->elements.table, ident, 
+		&isNew);
+	    if (isNew) {
+		break;
+	    }
+	}
+	assert(i < INT_MAX);
+    } else {
+	hPtr = Blt_CreateHashEntry(&graphPtr->elements.table, argv[3], 
+				   &isNew);
+	if (!isNew) {
+	    Tcl_AppendResult(interp, "element \"", argv[3], 
+			     "\" already exists in \"", argv[0], 
+			     "\"", (char *)NULL);
+	    return TCL_ERROR;
+	}
+	argv++, argc--;
     }
     if (classUid == bltBarElementUid) {
 	elemPtr = Blt_BarElement(graphPtr, argv[3], classUid);
