@@ -2003,7 +2003,7 @@ DeleteOp(graphPtr, interp, argc, argv)
 	if (NameToElement(graphPtr, argv[i], &elemPtr) != TCL_OK) {
 	    return TCL_ERROR;	/* Can't find named element */
 	}
-	Tcl_EventuallyFree(elemPtr, FreeElement);
+	DestroyElement(elemPtr);
     }
     Blt_EventuallyRedrawGraph(graphPtr);
     return TCL_OK;
