@@ -1752,7 +1752,7 @@ GetTab(nbPtr, string, tabPtrPtr, allowNull)
     } else if ((c == 'a') && (strcmp(string, "active") == 0)) {
 	tabPtr = nbPtr->activePtr;
     } else if ((c == 'c') && (strcmp(string, "current") == 0)) {
-	tabPtr = (Tab *)Blt_GetCurrentItem(nbPtr->bindTable);
+	tabPtr = Blt_GetCurrentItem(nbPtr->bindTable);
     } else if ((c == 's') && (strcmp(string, "select") == 0)) {
 	tabPtr = nbPtr->selectPtr;
     } else if ((c == 'f') && (strcmp(string, "focus") == 0)) {

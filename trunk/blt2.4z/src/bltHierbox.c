@@ -2485,9 +2485,9 @@ GetNode(hboxPtr, string, treePtrPtr)
     } else if ((c == 'c') && (strcmp(string, "current") == 0)) {
 	/* Can't trust picked item, if entries have been added or deleted. */
 	if (!(hboxPtr->flags & HIERBOX_DIRTY)) {
-	    nodePtr = (Tree *) Blt_GetCurrentItem(hboxPtr->bindTable);
+	    nodePtr = Blt_GetCurrentItem(hboxPtr->bindTable);
 	    if (nodePtr == NULL) {
-		nodePtr = (Tree *)Blt_GetCurrentItem(hboxPtr->buttonBindTable);
+		nodePtr = Blt_GetCurrentItem(hboxPtr->buttonBindTable);
 	    }
 	}
     } else if ((c == 'u') && (strcmp(string, "up") == 0)) {
