@@ -1193,7 +1193,7 @@ CreateElement(graphPtr, interp, argc, argv, classUid)
     Blt_SetHashValue(hPtr, elemPtr);
 
     if (Blt_ConfigureWidgetComponent(interp, graphPtr->tkwin, elemPtr->name,
-	    "Element", elemPtr->specsPtr, argc - 4, argv + 4, 
+	    "Element", elemPtr->specsPtr, argc - 3, argv + 3, 
 		(char *)elemPtr, 0) != TCL_OK) {
 	DestroyElement(elemPtr);
 	return TCL_ERROR;
