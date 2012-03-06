@@ -1802,7 +1802,7 @@ GetTabByIndex(setPtr, string, tabPtrPtr, allowNull)
     } else if ((c == 'a') && (strcmp(string, "active") == 0)) {
 	tabPtr = setPtr->activePtr;
     } else if ((c == 'c') && (strcmp(string, "current") == 0)) {
-	tabPtr = (Tab *)Blt_GetCurrentItem(setPtr->bindTable);
+	tabPtr = Blt_GetCurrentItem(setPtr->bindTable);
     } else if ((c == 's') && (strcmp(string, "select") == 0)) {
 	tabPtr = setPtr->selectPtr;
     } else if ((c == 'f') && (strcmp(string, "focus") == 0)) {

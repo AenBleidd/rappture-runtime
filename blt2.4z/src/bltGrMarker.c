@@ -4495,7 +4495,7 @@ GetOp(graphPtr, interp, argc, argv)
     register Marker *markerPtr;
 
     if ((argv[3][0] == 'c') && (strcmp(argv[3], "current") == 0)) {
-	markerPtr = (Marker *)Blt_GetCurrentItem(graphPtr->bindTable);
+	markerPtr = Blt_GetCurrentItem(graphPtr->bindTable);
 	/* Report only on markers. */
 	if (markerPtr == NULL) {
 	    return TCL_OK;

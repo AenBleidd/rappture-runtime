@@ -1824,9 +1824,7 @@ DestroyAxis(axisPtr)
 
     flags = Blt_GraphType(graphPtr);
     Tk_FreeOptions(configSpecs, (char *)axisPtr, graphPtr->display, flags);
-    if (graphPtr->bindTable != NULL) {
-	Blt_DeleteBindings(graphPtr->bindTable, axisPtr);
-    }
+    Blt_DeleteBindings(graphPtr->bindTable, axisPtr);
     if (axisPtr->linkPtr != NULL) {
 	Blt_ChainDeleteLink(axisPtr->chainPtr, axisPtr->linkPtr);
     }
@@ -2469,7 +2467,7 @@ SoftHyphen(const char *dest, const char *src)
 {
     char *p, *q;
 
-    for (p = src, q = dest; *p != '\0'; p++, q++) {
+    for (p = (char *)src, q = (char *)dest; *p != '\0'; p++, q++) {
 	*q = (*p == '-') ? 0xAD : *p;
     }
     *q = '\0';
@@ -3538,9 +3536,9 @@ GetOp(graphPtr, argc, argv)
     char *argv[];
 {
     Tcl_Interp *interp = graphPtr->interp;
-    register Axis *axisPtr;
+    Axis *axisPtr;
 
-    axisPtr = (Axis *)Blt_GetCurrentItem(graphPtr->bindTable);
+    axisPtr = Blt_GetCurrentItem(graphPtr->bindTable);
     /* Report only on axes. */
     if ((axisPtr != NULL) && 
 	((axisPtr->classUid == bltXAxisUid) ||
