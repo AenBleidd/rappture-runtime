@@ -59,7 +59,6 @@ extern Element *Blt_BarElement();
 extern Element *Blt_LineElement();
 
 static Blt_VectorChangedProc VectorChangedProc;
-static Tcl_FreeProc FreeElement;
 
 EXTERN int Blt_VectorExists2 _ANSI_ARGS_((Tcl_Interp *interp, char *vecName));
 
@@ -1212,13 +1211,6 @@ CreateElement(graphPtr, interp, argc, argv, classUid)
     graphPtr->flags |= RESET_AXES;
     Tcl_SetResult(interp, elemPtr->name, TCL_VOLATILE);
     return TCL_OK;
-}
-
-static void
-FreeElement(DestroyData data) 
-{
-    Element *elemPtr = (Element *)data;
-    DestroyElement(elemPtr);
 }
 
 /*
