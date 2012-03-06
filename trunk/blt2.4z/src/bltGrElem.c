@@ -1164,7 +1164,7 @@ CreateElement(graphPtr, interp, argc, argv, classUid)
 	    int isNew;
 
 	    /* Generate an element name. */
-	    sprintf_s(ident, 200, "elem%d", i);
+	    sprintf(ident, "elem%d", i);
 	    hPtr = Blt_CreateHashEntry(&graphPtr->elements.table, ident, 
 		&isNew);
 	    if (isNew) {
