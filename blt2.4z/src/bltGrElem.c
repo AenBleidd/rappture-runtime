@@ -1155,6 +1155,7 @@ CreateElement(graphPtr, interp, argc, argv, classUid)
     Element *elemPtr;
     Blt_HashEntry *hPtr;
     int isNew;
+    const char *name;
 
     if (argv[3][0] == '-') {
 	int i;
@@ -1183,11 +1184,12 @@ CreateElement(graphPtr, interp, argc, argv, classUid)
 	}
 	argv++, argc--;
     }
+    name = Blt_GetHashKey(&graphPtr->elements.table, hPtr);
     if (classUid == bltBarElementUid) {
-	elemPtr = Blt_BarElement(graphPtr, argv[3], classUid);
+	elemPtr = Blt_BarElement(graphPtr, name, classUid);
     } else { 
 	/* Stripcharts are line graphs with some options enabled. */	
-	elemPtr = Blt_LineElement(graphPtr, argv[3], classUid);
+	elemPtr = Blt_LineElement(graphPtr, name, classUid);
     }
     elemPtr->hashPtr = hPtr;
     Blt_SetHashValue(hPtr, elemPtr);
