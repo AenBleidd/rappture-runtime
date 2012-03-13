@@ -2440,16 +2440,16 @@ ArcBallEulerOp(ClientData clientData, Tcl_Interp *interp, int argc, char **argv)
 	q1.z = 0.0;
 	
 	q2.w = cos(phi * 0.5);
-	q2.x = sin(phi * 0.5);
-	q2.y = 0.0;
+	q2.x = 0.0;
+	q2.y = sin(phi * 0.5);
 	q2.z = 0.0;
 	
 	CombineRotations(&q1, &q2, &q3);
 	
 	q1.w = cos(psi * 0.5);
-	q1.x = sin(psi * 0.5);
+	q1.x = 0.0;
 	q1.y = 0.0;
-	q1.z = 0.0;
+	q1.z = sin(psi * 0.5);
 	
 	CombineRotations(&q3, &q1, &abPtr->q);
     } else {
