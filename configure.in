@@ -37,6 +37,7 @@ blt=blt2.4z
 cmake=cmake-2.8.5
 expat=expat-2.0.1
 expect=expect5.45
+glew=glew-1.7.0
 htmlwidget=htmlwidget-3a14
 itcl=itcl3.3
 itk=itk3.3
@@ -59,6 +60,7 @@ default_blt=yes
 default_cmake=no
 default_expat=no
 default_expect=yes
+default_glew=no
 default_htmlwidget=yes
 default_itcl=yes
 default_itk=yes
@@ -85,23 +87,28 @@ fi
 
 AC_ARG_WITH([blt],
   AS_HELP_STRING([--with-blt[=DIR]], 
-    [Build blt2.4z @<:@default=yes@:>@])], 
+    [Build blt @<:@default=yes@:>@])], 
 	[], [with_blt=$default_blt])
 
 AC_ARG_WITH([cmake],
   AS_HELP_STRING([--with-cmake[=DIR]], 
-     [Build cmake-2.6.3 @<:@default=yes@:>@]),
+     [Build cmake @<:@default=yes@:>@]),
         [], [with_cmake=$default_cmake])
 
 AC_ARG_WITH([expat],
   AS_HELP_STRING([--with-expat[=DIR]], 
-    [Build expat-2.0.1 @<:@default=yes@:>@])], 
+    [Build expat @<:@default=yes@:>@])], 
 	[], [with_expat=$default_expat])
 
 AC_ARG_WITH([expect],
   AS_HELP_STRING([--with-expect[=DIR]], 
-    [Build expect-5.44.1.15 @<:@default=yes@:>@])], 
+    [Build expect @<:@default=yes@:>@])], 
 	[], [with_expect=$default_expect])
+
+AC_ARG_WITH([glew],
+  [AS_HELP_STRING([--with-glew[=DIR]], 
+    [Build glew @<:@default=no@:>@])], 
+	[], [with_glew=$default_glew])
 
 AC_ARG_WITH([htmlwidget],
   [AS_HELP_STRING([--with-htmlwidget[=DIR]], 
@@ -110,12 +117,12 @@ AC_ARG_WITH([htmlwidget],
 
 AC_ARG_WITH([itcl],
   [AS_HELP_STRING([--with-itcl[=DIR]], 
-    [Build itcl-3.3 @<:@default=yes@:>@])], 
+    [Build itcl @<:@default=yes@:>@])], 
 	[], [with_itcl=$default_itcl])
 
 AC_ARG_WITH([itk],
   [AS_HELP_STRING([--with-itk[=DIR]], 
-    [Build itk-3.3 @<:@default=yes@:>@])], 
+    [Build itk @<:@default=yes@:>@])], 
 	[], [with_itk=$default_itk])
 
 AC_ARG_WITH([pymol],
@@ -125,17 +132,17 @@ AC_ARG_WITH([pymol],
 
 AC_ARG_WITH([shape],
   [AS_HELP_STRING([--with-shape[=DIR]], 
-    [Build shape-0.4 @<:@default=yes@:>@])], 
+    [Build shape @<:@default=yes@:>@])], 
 	[], [with_shape=$default_shape])
 
 AC_ARG_WITH([tdom],
   [AS_HELP_STRING([--with-tdom[=DIR]], 
-    [Build tDOM-0.8.2 @<:@default=yes@:>@])], 
+    [Build tDOM @<:@default=yes@:>@])], 
 	[], [with_tdom=$default_tdom])
 
 AC_ARG_WITH([tcl],
   [AS_HELP_STRING([--with-tcl[=DIR]], 
-    [Build tcl8.4.11 @<:@default=yes@:>@])], 
+    [Build tcl @<:@default=yes@:>@])], 
 	[], [with_tcl=$default_tcl])
 
 AC_ARG_WITH([tcllib],
@@ -145,12 +152,12 @@ AC_ARG_WITH([tcllib],
 
 AC_ARG_WITH([tk],
   [AS_HELP_STRING([--with-tk[=DIR]], 
-    [Build tk8.4.11 @<:@default=yes@:>@])], 
+    [Build tk @<:@default=yes@:>@])], 
 	[], [with_tk=$default_tk])
 
 AC_ARG_WITH([tkimg],
   [AS_HELP_STRING([--with-tkimg[=DIR]], 
-    [Build tkimg-1.3 @<:@default=yes@:>@])], 
+    [Build tkimg @<:@default=yes@:>@])], 
 	[], [with_tkimg=$default_tkimg])
 
 AC_ARG_WITH([tls],
@@ -165,7 +172,7 @@ AC_ARG_WITH([vtk],
 
 AC_ARG_WITH([zlib],
   [AS_HELP_STRING([--with-zlib[=DIR]], 
-    [Build zlib-1.2.3 @<:@default=no@:>@])], 
+    [Build zlib @<:@default=no@:>@])], 
 	[], [with_zlib=$default_zlib])
 
 AC_ARG_WITH([voronoi],
@@ -184,7 +191,7 @@ AC_ARG_WITH([dx],
 	[], [with_dx=$default_dx])
 
 stage1_targets="expat tcl tk zlib cmake"
-stage2_targets="expect itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
+stage2_targets="expect itcl itk blt shape voronoi glew htmlwidget tdom tcllib tkimg tls"
 stage3_targets="vtk pymol dx"
 
 if test "${with_expat}" = "no" ; then
@@ -270,6 +277,7 @@ AC_SUBST(BLT_DIR)
 AC_SUBST(CMAKE_DIR)
 AC_SUBST(EXPAT_DIR)
 AC_SUBST(EXPECT_DIR)
+AC_SUBST(GLEW_DIR)
 AC_SUBST(HTMLWIDGET_DIR)
 AC_SUBST(ITCL_DIR)
 AC_SUBST(ITK_DIR)
