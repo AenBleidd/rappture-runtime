@@ -1,0 +1,37 @@
+
+prefix			= @prefix@
+exec_prefix		= @exec_prefix@
+datadir			= @datadir@
+datarootdir		= @datarootdir@
+bindir			= @bindir@
+libdir			= @libdir@
+includedir		= @includedir@
+mandir			= @mandir@
+srcdir			= @srcdir@
+
+destdir			= $(libdir)
+
+RM			= rm -f
+VPATH			= $(srcdir)
+INSTALL			= @INSTALL@
+MKDIR_P			= @MKDIR_P@
+GLEW_DIR		= @GLEW_DIR@
+
+.PHONY: glew
+
+all: glew
+
+glew:
+	$(MAKE) -C $(GLEW_DIR) all GLEW_DEST=$(exec_prefix) LIBDIR=$(libdir)
+
+install: 
+	$(MKDIR_P) $(destdir)
+	$(MAKE) -C $(GLEW_DIR) install GLEW_DEST=$(exec_prefix) LIBDIR=$(libdir)
+
+clean: 
+	$(MAKE) -C $(GLEW_DIR) clean
+
+distclean: 
+	$(MAKE) -C $(GLEW_DIR) distclean
+	$(RM) Makefile *~
+
