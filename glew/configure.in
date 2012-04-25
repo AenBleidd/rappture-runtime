@@ -20,18 +20,6 @@ AC_PROG_MKDIR_P
 AC_PREFIX
 AC_CANONICAL_SYSTEM
 
-case $host_os in 
-  *mingw* )
-     makefile="Makefile:Makefile-cyg.in"
-     ;;
-  *Darwin* )
-     makefile="Makefile:Makefile.in"
-     ;;
-  * ) 
-     makefile="Makefile:Makefile.in"
-     ;;
-esac
-
 glew_dir=glew-1.7.0
 GLEW_DIR=${glew_dir}
 
