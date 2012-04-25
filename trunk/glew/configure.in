@@ -1,0 +1,49 @@
+AC_INIT(configure.in)
+AC_PREFIX
+
+#------------------------------------------------------------------------
+# Handle the --prefix=... option
+#------------------------------------------------------------------------
+
+if test "${prefix}" = "NONE"; then
+    prefix=/usr/local
+fi
+if test "${exec_prefix}" = "NONE"; then
+    exec_prefix=$prefix
+fi
+libdir=$exec_prefix/lib
+includedir=$prefix/include
+
+AC_PROG_INSTALL
+AC_PROG_RANLIB
+AC_PROG_MKDIR_P
+AC_PREFIX
+AC_CANONICAL_SYSTEM
+
+case $host_os in 
+  *mingw* )
+     makefile="Makefile:Makefile-cyg.in"
+     ;;
+  *Darwin* )
+     makefile="Makefile:Makefile.in"
+     ;;
+  * ) 
+     makefile="Makefile:Makefile.in"
+     ;;
+esac
+
+glew_dir=glew-1.7.0
+GLEW_DIR=${glew_dir}
+
+# Copy glew from the srcdir and patch it with our patch.
+if test -d "${glew_dir}" ; then
+  rm -rf ${glew_dir}
+fi
+tar -C $srcdir -clf - ${glew_dir} | tar -xpf - 
+(cd ${glew_dir}; ./configure --prefix=${prefix})
+AC_SUBST(GLEW_DIR)
+HOST=$host_os
+TARGET=$target
+AC_SUBST(HOST)
+AC_SUBST(TARGET)
+AC_OUTPUT(Makefile)
