@@ -19,6 +19,7 @@ TK_DIR			= @TK_DIR@
 EXPAT_DIR		= @EXPAT_DIR@
 ZLIB_DIR		= @ZLIB_DIR@
 CMAKE_DIR		= @CMAKE_DIR@
+GLEW_DIR		= @GLEW_DIR@
 
 ifneq ($(ZLIB_DIR),)
    subdirs += $(ZLIB_DIR)
@@ -34,6 +35,9 @@ ifneq ($(TK_DIR),)
 endif
 ifneq ($(CMAKE_DIR),)
    subdirs += $(CMAKE_DIR)
+endif
+ifneq ($(GLEW_DIR),)
+   subdirs += $(GLEW_DIR)
 endif
 
 all: 
