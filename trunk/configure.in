@@ -37,7 +37,6 @@ blt=blt2.4z
 cmake=cmake-2.8.7
 expat=expat-2.0.1
 expect=expect5.45
-glew=glew-1.7.0
 htmlwidget=htmlwidget-3a14
 itcl=itcl3.3
 itk=itk3.3
@@ -61,7 +60,6 @@ default_blt=yes
 default_cmake=no
 default_expat=no
 default_expect=yes
-default_glew=no
 default_htmlwidget=yes
 default_itcl=yes
 default_itk=yes
@@ -106,11 +104,6 @@ AC_ARG_WITH([expect],
   AS_HELP_STRING([--with-expect[=DIR]], 
     [Build expect @<:@default=yes@:>@])], 
 	[], [with_expect=$default_expect])
-
-AC_ARG_WITH([glew],
-  [AS_HELP_STRING([--with-glew[=DIR]], 
-    [Build glew @<:@default=no@:>@])], 
-	[], [with_glew=$default_glew])
 
 AC_ARG_WITH([htmlwidget],
   [AS_HELP_STRING([--with-htmlwidget[=DIR]], 
@@ -179,7 +172,7 @@ AC_ARG_WITH([zlib],
 
 AC_ARG_WITH([glew],
   [AS_HELP_STRING([--with-glew[=DIR]], 
-    [Build zlib @<:@default=no@:>@])], 
+    [Build glew @<:@default=no@:>@])], 
 	[], [with_glew=$default_glew])
 
 AC_ARG_WITH([voronoi],
@@ -284,7 +277,6 @@ AC_SUBST(BLT_DIR)
 AC_SUBST(CMAKE_DIR)
 AC_SUBST(EXPAT_DIR)
 AC_SUBST(EXPECT_DIR)
-AC_SUBST(GLEW_DIR)
 AC_SUBST(HTMLWIDGET_DIR)
 AC_SUBST(ITCL_DIR)
 AC_SUBST(ITK_DIR)

@@ -49,10 +49,10 @@ fi
 mkdir -p $destdir
 
 # stage1: tcl, tk
-# expat, zlib if enabled with --with-xxx
-stage1_flags="--with-cmake --with-expat --with-zlib"
+# cmake, expat, zlib, glew if enabled with --with-xxx
+stage1_flags="--with-cmake --with-expat --with-zlib --with-glew"
 
-# stage2: blt, htmlwidget, itk, shape, tcllib, tdom, tkimg, tls, vornoi
+# stage2: blt, expect, htmlwidget, itcl, itk, shape, tcllib, tdom, tkimg, tls, vornoi
 stage2_flags=""
 
 # stage3: pymol, vtk, dx if enabled
