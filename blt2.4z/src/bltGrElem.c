@@ -59,8 +59,15 @@ extern Element *Blt_BarElement();
 extern Element *Blt_LineElement();
 
 static Blt_VectorChangedProc VectorChangedProc;
+static Tcl_FreeProc FreeElement;
 
 EXTERN int Blt_VectorExists2 _ANSI_ARGS_((Tcl_Interp *interp, char *vecName));
+
+static void
+FreeElement(DestroyData data) 
+{
+    Blt_Free(data);
+}
 
 /*
  * ----------------------------------------------------------------------
@@ -1101,6 +1108,8 @@ DestroyElement(elemPtr)
     Blt_ChainLink *linkPtr;
     Graph *graphPtr = elemPtr->graphPtr;
 
+    elemPtr->deleted = TRUE;		/* Mark element as deleted. */
+
     /* Remove the element for the graph's hash table of elements */
     if (elemPtr->hashPtr != NULL) {
 	Blt_DeleteHashEntry(&graphPtr->elements.table, elemPtr->hashPtr);
@@ -1128,7 +1137,7 @@ DestroyElement(elemPtr)
     if (elemPtr->name != NULL) {
 	Blt_Free(elemPtr->name);
     }
-    Blt_Free(elemPtr);
+    Tcl_EventuallyFree(elemPtr, FreeElement);
 }
 
 /*
@@ -2057,7 +2066,7 @@ GetOp(graphPtr, interp, argc, argv)
     if ((argv[3][0] == 'c') && (strcmp(argv[3], "current") == 0)) {
 	elemPtr = (Element *)Blt_GetCurrentItem(graphPtr->bindTable);
 	/* Report only on elements. */
-	if ((elemPtr != NULL) && 
+	if ((elemPtr != NULL) && (!elemPtr->deleted) && 
 	    ((elemPtr->classUid == bltBarElementUid) ||
 	    (elemPtr->classUid == bltLineElementUid) ||
 	    (elemPtr->classUid == bltStripElementUid))) {

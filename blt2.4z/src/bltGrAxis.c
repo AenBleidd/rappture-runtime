@@ -1822,6 +1822,8 @@ DestroyAxis(axisPtr)
     Graph *graphPtr = axisPtr->graphPtr;
     int flags;
 
+    axisPtr->deleted = TRUE;		/* Mark the axis as deleted. */
+
     flags = Blt_GraphType(graphPtr);
     Tk_FreeOptions(configSpecs, (char *)axisPtr, graphPtr->display, flags);
     Blt_DeleteBindings(graphPtr->bindTable, axisPtr);
@@ -1858,14 +1860,13 @@ DestroyAxis(axisPtr)
     if (axisPtr->tags != NULL) {
 	Blt_Free(axisPtr->tags);
     }
-    Blt_Free(axisPtr);
+    Tcl_EventuallyFree(axisPtr, FreeAxis);
 }
 
 static void
 FreeAxis(DestroyData data) 
 {
-    Axis *axisPtr = (Axis *)data;
-    DestroyAxis(axisPtr);
+    Blt_Free(data);
 }
 
 static double titleRotate[4] =	/* Rotation for each axis title */
@@ -3341,7 +3342,7 @@ ReleaseAxis(axisPtr)
 {
     axisPtr->refCount--;
     if ((axisPtr->deletePending) && (axisPtr->refCount == 0)) {
-	Tcl_EventuallyFree(axisPtr, FreeAxis);
+	DestroyAxis(axisPtr);
     }
 }
 
@@ -3540,7 +3541,7 @@ GetOp(graphPtr, argc, argv)
 
     axisPtr = Blt_GetCurrentItem(graphPtr->bindTable);
     /* Report only on axes. */
-    if ((axisPtr != NULL) && 
+    if ((axisPtr != NULL) && (!axisPtr->deleted) && 
 	((axisPtr->classUid == bltXAxisUid) ||
 	 (axisPtr->classUid == bltYAxisUid) || 
 	 (axisPtr->classUid == NULL))) {
@@ -3969,7 +3970,7 @@ DeleteVirtualOp(graphPtr, argc, argv)
 	}
 	axisPtr->deletePending = TRUE;
 	if (axisPtr->refCount == 0) {
-	    Tcl_EventuallyFree(axisPtr, FreeAxis);
+	    DestroyAxis(axisPtr);
 	}
     }
     return TCL_OK;

@@ -101,15 +101,17 @@ typedef struct {
 } BarPenStyle;
 
 typedef struct {
-    char *name;			/* Identifier to refer the
-				 * element. Used in the "insert",
-				 * "delete", or "show", commands. */
+    char *name;				/* Identifier to refer the
+					 * element. Used in the "insert",
+					 * "delete", or "show", commands. */
+    Blt_Uid classUid;			/* Type of element; either
+					 * bltBarElementUid,
+					 * bltLineElementUid, or *
+					 * bltStripElementUid. */
+    Graph *graphPtr;			/* Graph widget of element*/
+    int deleted;			/* Indicated the object has been
+					 * deleted and should not be used. */
 
-    Blt_Uid classUid;		/* Type of element; either 
-				 * bltBarElementUid, bltLineElementUid, or
-				 * bltStripElementUid. */
-
-    Graph *graphPtr;		/* Graph widget of element*/
     unsigned int flags;		/* Indicates if the entire element is
 				 * active, or if coordinates need to
 				 * be calculated */

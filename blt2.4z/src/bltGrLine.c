@@ -241,13 +241,13 @@ typedef struct {
 } LinePenStyle;
 
 typedef struct {
-    char *name;			/* Identifier used to refer the
-				 * element. Used in the "insert",
-				 * "delete", or "show", operations. */
-
-    Blt_Uid classUid;		/* Type of element */
-
-    Graph *graphPtr;		/* Graph widget of element*/
+    char *name;				/* Identifier used to refer the
+					 * element. Used in the "insert",
+					 * "delete", or "show", operations. */
+    Blt_Uid classUid;			/* Type of element */
+    Graph *graphPtr;			/* Graph widget of element*/
+    int deleted;			/* Indicated the object has been
+					 * deleted and should not be used. */
 
     unsigned int flags;		/* Indicates if the entire element is
 				 * active, or if coordinates need to

@@ -1,3 +1,4 @@
+
 /*
  * bltBind.c --
  *
@@ -270,8 +271,7 @@ PickCurrentItem(bindPtr, eventPtr)
     }
 #endif
     oldItem = bindPtr->currentItem;
-    Tcl_Preserve(oldItem);
-    Tcl_Preserve(newItem);
+
     /*
      * Simulate a LeaveNotify event on the previous current item and
      * an EnterNotify event on the new current item.  Remove the "current"
@@ -340,7 +340,7 @@ PickCurrentItem(bindPtr, eventPtr)
 	    bindPtr->currentItem = savedItem;
 	    bindPtr->currentContext = savedContext;
 	}
-	goto done;
+	return;
     }
     /*
      * Special note:  it's possible that
@@ -359,9 +359,6 @@ PickCurrentItem(bindPtr, eventPtr)
 	event.xcrossing.detail = NotifyAncestor;
 	DoEvent(bindPtr, &event, newItem, newContext);
     }
- done:
-    Tcl_Release(oldItem);
-    Tcl_Release(newItem);
 }
 
 /*
@@ -424,8 +421,10 @@ BindProc(clientData, eventPtr)
 	    bindPtr->state = eventPtr->xbutton.state;
 	    PickCurrentItem(bindPtr, eventPtr);
 	    bindPtr->state ^= mask;
+	    Tcl_Preserve(bindPtr->currentItem);
 	    DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
 		bindPtr->currentContext);
+	    Tcl_Release(bindPtr->currentItem);
 
 	} else {
 
@@ -435,8 +434,10 @@ BindProc(clientData, eventPtr)
 	     * item under the assumption that the button is no longer down.
 	     */
 	    bindPtr->state = eventPtr->xbutton.state;
+	    Tcl_Preserve(bindPtr->currentItem);
 	    DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
 		bindPtr->currentContext);
+	    Tcl_Release(bindPtr->currentItem);
 	    eventPtr->xbutton.state ^= mask;
 	    bindPtr->state = eventPtr->xbutton.state;
 	    PickCurrentItem(bindPtr, eventPtr);
@@ -453,16 +454,20 @@ BindProc(clientData, eventPtr)
     case MotionNotify:
 	bindPtr->state = eventPtr->xmotion.state;
 	PickCurrentItem(bindPtr, eventPtr);
+	Tcl_Preserve(bindPtr->currentItem);
 	DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
 		bindPtr->currentContext);
+	Tcl_Release(bindPtr->currentItem);
 	break;
 
     case KeyPress:
     case KeyRelease:
 	bindPtr->state = eventPtr->xkey.state;
 	PickCurrentItem(bindPtr, eventPtr);
+	Tcl_Preserve(bindPtr->currentItem);
 	DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
 		bindPtr->currentContext);
+	Tcl_Release(bindPtr->currentItem);
 	break;
     }
     Tcl_Release(bindPtr->clientData);

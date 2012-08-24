@@ -129,7 +129,6 @@ typedef struct {
 }  MarkerClass;
 
 
-
 /*
  * -------------------------------------------------------------------
  *
@@ -145,12 +144,11 @@ typedef struct {
  * ------------------------------------------------------------------- 
  */
 struct MarkerStruct {
-    char *name;			/* Identifier for marker in list */
-
-    Blt_Uid classUid;		/* Type of marker. */
-
-    Graph *graphPtr;		/* Graph widget of marker. */
-
+    char *name;				/* Identifier for marker in list */
+    Blt_Uid classUid;			/* Type of marker. */
+    Graph *graphPtr;			/* Graph widget of marker. */
+    int deleted;			/* Indicated the object has been
+					 * deleted and should not be used. */
     unsigned int flags;
 
     char **tags;
@@ -192,9 +190,11 @@ struct MarkerStruct {
  * -------------------------------------------------------------------
  */
 typedef struct {
-    char *name;			/* Identifier for marker */
-    Blt_Uid classUid;		/* Type of marker */
-    Graph *graphPtr;		/* The graph this marker belongs to */
+    char *name;				/* Identifier for marker */
+    Blt_Uid classUid;			/* Type of marker */
+    Graph *graphPtr;			/* The graph this marker belongs to */
+    int deleted;			/* Indicated the object has been
+					 * deleted and should not be used. */
     unsigned int flags;
     char **tags;
     int hidden;			/* If non-zero, don't display the
@@ -333,9 +333,11 @@ static Tk_ConfigSpec textConfigSpecs[] =
  * -------------------------------------------------------------------
  */
 typedef struct {
-    char *name;			/* Identifier for marker */
-    Blt_Uid classUid;		/* Type of marker */
-    Graph *graphPtr;		/* Graph marker belongs to */
+    char *name;				/* Identifier for marker */
+    Blt_Uid classUid;			/* Type of marker */
+    Graph *graphPtr;			/* Graph marker belongs to */
+    int deleted;			/* Indicated the object has been
+					 * deleted and should not be used. */
     unsigned int flags;
     char **tags;
     int hidden;			/* Indicates if the marker is
@@ -432,9 +434,11 @@ static Tk_ConfigSpec windowConfigSpecs[] =
  * -------------------------------------------------------------------
  */
 typedef struct {
-    char *name;			/* Identifier for marker */
-    Blt_Uid classUid;		/* Type of marker */
-    Graph *graphPtr;		/* Graph marker belongs to */
+    char *name;				/* Identifier for marker */
+    Blt_Uid classUid;			/* Type of marker */
+    Graph *graphPtr;			/* Graph marker belongs to */
+    int deleted;			/* Indicated the object has been
+					 * deleted and should not be used. */
     unsigned int flags;
     char **tags;
     int hidden;			/* Indicates if the marker is currently
@@ -567,9 +571,11 @@ static Tk_ConfigSpec bitmapConfigSpecs[] =
  * -------------------------------------------------------------------
  */
 typedef struct {
-    char *name;			/* Identifier for marker */
-    Blt_Uid classUid;		/* Type of marker */
-    Graph *graphPtr;		/* Graph marker belongs to */
+    char *name;				/* Identifier for marker */
+    Blt_Uid classUid;			/* Type of marker */
+    Graph *graphPtr;			/* Graph marker belongs to */
+    int deleted;			/* Indicated the object has been
+					 * deleted and should not be used. */
     unsigned int flags;
     char **tags;
     int hidden;			/* Indicates if the marker is
@@ -662,9 +668,11 @@ static Tk_ConfigSpec imageConfigSpecs[] =
  * -------------------------------------------------------------------
  */
 typedef struct {
-    char *name;			/* Identifier for marker */
-    Blt_Uid classUid;		/* Type is "linemarker" */
-    Graph *graphPtr;		/* Graph marker belongs to */
+    char *name;				/* Identifier for marker */
+    Blt_Uid classUid;			/* Type is "linemarker" */
+    Graph *graphPtr;			/* Graph marker belongs to */
+    int deleted;			/* Indicated the object has been
+					 * deleted and should not be used. */
     unsigned int flags;
     char **tags;
     int hidden;			/* Indicates if the marker is currently
@@ -783,9 +791,11 @@ static Tk_ConfigSpec lineConfigSpecs[] =
  * -------------------------------------------------------------------
  */
 typedef struct {
-    char *name;			/* Identifier for marker */
-    Blt_Uid classUid;		/* Type of marker */
-    Graph *graphPtr;		/* Graph marker belongs to */
+    char *name;				/* Identifier for marker */
+    Blt_Uid classUid;			/* Type of marker */
+    Graph *graphPtr;			/* Graph marker belongs to */
+    int deleted;			/* Indicates the object has been
+					 * deleted and should not be used. */
     unsigned int flags;
     char **tags;
     int hidden;			/* Indicates if the marker is currently
@@ -1045,6 +1055,14 @@ static MarkerClass ovalMarkerClass = {
     OvalMarkerToPostScript,
 };
 #endif
+
+static Tcl_FreeProc FreeMarker;
+
+static void
+FreeMarker(DestroyData data) 
+{
+    Blt_Free(data);
+}
 
 /*
  * ----------------------------------------------------------------------
@@ -1509,6 +1527,8 @@ DestroyMarker(markerPtr)
 {
     Graph *graphPtr = markerPtr->graphPtr;
 
+    markerPtr->deleted = TRUE;		/* Mark as deleted. */
+
     if (markerPtr->drawUnder) {
 	graphPtr->flags |= REDRAW_BACKING_STORE;
     }
@@ -1535,7 +1555,7 @@ DestroyMarker(markerPtr)
     if (markerPtr->tags != NULL) {
 	Blt_Free(markerPtr->tags);
     }
-    Blt_Free(markerPtr);
+    Tcl_EventuallyFree(markerPtr, FreeMarker);
 }
 
 /*
@@ -4497,7 +4517,7 @@ GetOp(graphPtr, interp, argc, argv)
     if ((argv[3][0] == 'c') && (strcmp(argv[3], "current") == 0)) {
 	markerPtr = Blt_GetCurrentItem(graphPtr->bindTable);
 	/* Report only on markers. */
-	if (markerPtr == NULL) {
+	if ((markerPtr == NULL) || (markerPtr->deleted)) {
 	    return TCL_OK;
 	}
 	if ((markerPtr->classUid == bltBitmapMarkerUid) ||
