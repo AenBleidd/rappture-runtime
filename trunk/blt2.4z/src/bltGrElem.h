@@ -200,13 +200,13 @@ typedef struct {
 
 
 struct ElementStruct {
-    char *name;			/* Identifier to refer the element.
-				 * Used in the "insert", "delete", or
-				 * "show", commands. */
-
-    Blt_Uid classUid;		/* Type of element */
-
-    Graph *graphPtr;		/* Graph widget of element*/
+    char *name;				/* Identifier to refer the element.
+					 * Used in the "insert", "delete", or
+					 * "show", commands. */
+    Blt_Uid classUid;			/* Type of element */
+    Graph *graphPtr;			/* Graph widget of element*/
+    int deleted;			/* Indicated the object has been
+					 * deleted and should not be used. */
 
     unsigned int flags;		/* Indicates if the entire element is
 				 * active, or if coordinates need to

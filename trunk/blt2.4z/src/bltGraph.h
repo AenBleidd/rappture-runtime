@@ -538,7 +538,6 @@ struct GraphStruct {
 #define	GET_AXIS_GEOMETRY	(1<<2) /* 0x0004 */
 #define RESET_AXES		(1<<3) /* 0x0008 */
 #define LAYOUT_NEEDED		(1<<4) /* 0x0010 */
-
 #define REDRAW_PENDING		(1<<8) /* 0x0100 */
 #define DRAW_LEGEND		(1<<9) /* 0x0200 */
 #define DRAW_MARGINS		(1<<10)/* 0x0400 */
@@ -546,6 +545,8 @@ struct GraphStruct {
 
 #define GRAPH_FOCUS		(1<<12)/* 0x1000 */
 #define DATA_CHANGED		(1<<13)/* 0x2000 */
+
+#define ITEM_DELETED		(1<<20)
 
 #define	MAP_WORLD		(MAP_ALL|RESET_AXES|GET_AXIS_GEOMETRY)
 #define REDRAW_WORLD		(DRAW_MARGINS | DRAW_LEGEND)

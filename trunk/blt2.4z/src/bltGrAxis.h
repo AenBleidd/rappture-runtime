@@ -98,13 +98,13 @@ typedef struct {
  * ----------------------------------------------------------------------
  */
 typedef struct {
-    char *name;			/* Identifier to refer the element.
-				 * Used in the "insert", "delete", or
-				 * "show", commands. */
-
-    Blt_Uid classUid;		/* Type of axis. */
-
-    Graph *graphPtr;		/* Graph widget of element*/
+    char *name;				/* Identifier to refer the element.
+					 * Used in the "insert", "delete", or
+					 * "show", commands. */
+    Blt_Uid classUid;			/* Type of axis. */
+    Graph *graphPtr;			/* Graph widget of element*/
+    int deleted;			/* Indicated the object has been
+					 * deleted and should not be used. */
 
     unsigned int flags;		/* Set bit field definitions below */
 

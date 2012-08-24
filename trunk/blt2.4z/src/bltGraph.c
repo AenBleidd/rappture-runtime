@@ -528,7 +528,9 @@ Blt_GraphTags(table, object, context, list)
      *		object to.  
      */
     elemPtr = (Element *)object;
-
+    if (elemPtr->deleted) {
+	return;				/* Object has been deleted. */
+    }
     if ((elemPtr->classUid == bltLineElementUid) ||
 	(elemPtr->classUid == bltStripElementUid) ||
 	(elemPtr->classUid == bltBarElementUid)) {

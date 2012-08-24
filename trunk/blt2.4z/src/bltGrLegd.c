@@ -1423,6 +1423,9 @@ GetOp(graphPtr, interp, argc, argv)
     c = argv[3][0];
     if ((c == 'c') && (strcmp(argv[3], "current") == 0)) {
 	elemPtr = Blt_GetCurrentItem(legendPtr->bindTable);
+	if ((elemPtr != NULL) && (elemPtr->deleted)) {
+	    elemPtr = NULL;
+	}
     } else if ((c == '@') &&
        (Blt_GetXY(interp, graphPtr->tkwin, argv[3], &x, &y) == TCL_OK)) { 
 	elemPtr = (Element *)PickLegendEntry(graphPtr, x, y, NULL);
