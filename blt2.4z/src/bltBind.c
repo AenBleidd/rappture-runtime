@@ -386,6 +386,7 @@ BindProc(clientData, eventPtr)
 {
     struct Blt_BindTableStruct *bindPtr = clientData;
     int mask;
+    ClientData item;
 
     Tcl_Preserve(bindPtr->clientData);
 
@@ -421,10 +422,10 @@ BindProc(clientData, eventPtr)
 	    bindPtr->state = eventPtr->xbutton.state;
 	    PickCurrentItem(bindPtr, eventPtr);
 	    bindPtr->state ^= mask;
-	    Tcl_Preserve(bindPtr->currentItem);
-	    DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
-		bindPtr->currentContext);
-	    Tcl_Release(bindPtr->currentItem);
+	    item = bindPtr->currentItem;
+	    Tcl_Preserve(item);
+	    DoEvent(bindPtr, eventPtr, item, bindPtr->currentContext);
+	    Tcl_Release(item);
 
 	} else {
 
@@ -434,10 +435,10 @@ BindProc(clientData, eventPtr)
 	     * item under the assumption that the button is no longer down.
 	     */
 	    bindPtr->state = eventPtr->xbutton.state;
-	    Tcl_Preserve(bindPtr->currentItem);
-	    DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
-		bindPtr->currentContext);
-	    Tcl_Release(bindPtr->currentItem);
+	    item = bindPtr->currentItem;
+	    Tcl_Preserve(item);
+	    DoEvent(bindPtr, eventPtr, item, bindPtr->currentContext);
+	    Tcl_Release(item);
 	    eventPtr->xbutton.state ^= mask;
 	    bindPtr->state = eventPtr->xbutton.state;
 	    PickCurrentItem(bindPtr, eventPtr);
@@ -454,20 +455,20 @@ BindProc(clientData, eventPtr)
     case MotionNotify:
 	bindPtr->state = eventPtr->xmotion.state;
 	PickCurrentItem(bindPtr, eventPtr);
-	Tcl_Preserve(bindPtr->currentItem);
-	DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
-		bindPtr->currentContext);
-	Tcl_Release(bindPtr->currentItem);
+	item = bindPtr->currentItem;
+	Tcl_Preserve(item);
+	DoEvent(bindPtr, eventPtr, item, bindPtr->currentContext);
+	Tcl_Release(item);
 	break;
 
     case KeyPress:
     case KeyRelease:
 	bindPtr->state = eventPtr->xkey.state;
 	PickCurrentItem(bindPtr, eventPtr);
-	Tcl_Preserve(bindPtr->currentItem);
-	DoEvent(bindPtr, eventPtr, bindPtr->currentItem, 
-		bindPtr->currentContext);
-	Tcl_Release(bindPtr->currentItem);
+	item = bindPtr->currentItem;
+	Tcl_Preserve(item);
+	DoEvent(bindPtr, eventPtr, item, bindPtr->currentContext);
+	Tcl_Release(item);
 	break;
     }
     Tcl_Release(bindPtr->clientData);
