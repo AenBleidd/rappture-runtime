@@ -50,10 +50,10 @@ struct Blt_BindTableStruct {
 				 * a tag or the address of an item named by
 				 * id. */
 
-    ClientData currentItem;	/* The item currently containing the mouse
-				 * pointer, or NULL if none. */
-    ClientData currentContext;	/* One word indicating what kind of object
-				 * was picked. */
+    ClientData currentItem;		/* The item currently containing the
+					 * mouse pointer, or NULL if none. */
+    ClientData currentContext;		/* One word indicating what kind of
+					 * object was picked. */
 
     ClientData newItem;		/* The item that is about to become the
 				 * current one, or NULL.  This field is
@@ -61,8 +61,8 @@ struct Blt_BindTableStruct {
 				 * current item pointer that occur during
 				 * Leave processing of the previous current
 				 * tab.  */
-    ClientData newContext;	/* One-word indicating what kind of object 
-				 * was just picked. */
+    ClientData newContext;		/* One-word indicating what kind of
+					 * object was just picked. */
 
     ClientData focusItem;
     ClientData focusContext;
@@ -101,6 +101,9 @@ EXTERN int Blt_ConfigureBindingsFromObj _ANSI_ARGS_((Tcl_Interp *interp,
 
 EXTERN void Blt_PickCurrentItem _ANSI_ARGS_((Blt_BindTable table));
 
+EXTERN void Blt_SetCurrentItem _ANSI_ARGS_((Blt_BindTable table, 
+	ClientData item, ClientData context));
+ 
 EXTERN void Blt_DeleteBindings _ANSI_ARGS_((Blt_BindTable table,
 	ClientData object));
 
@@ -110,10 +113,6 @@ EXTERN void Blt_MoveBindingTable _ANSI_ARGS_((Blt_BindTable table,
 #define Blt_SetFocusItem(bindPtr, object, context) \
 	((bindPtr)->focusItem = (ClientData)(object),\
 	 (bindPtr)->focusContext = (ClientData)(context))
-
-#define Blt_SetCurrentItem(bindPtr, object, context) \
-	((bindPtr)->currentItem = (ClientData)(object),\
-	 (bindPtr)->currentContext = (ClientData)(context))
 
 #define Blt_GetCurrentItem(bindPtr)  ((bindPtr)->currentItem)
 #define Blt_GetCurrentContext(bindPtr)  ((bindPtr)->currentContext)

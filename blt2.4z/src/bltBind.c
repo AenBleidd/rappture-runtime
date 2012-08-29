@@ -58,6 +58,17 @@ static int buttonMasks[] =
 };
 
 
+void 
+Blt_SetCurrentItem(bindPtr, item, context) \
+    struct Blt_BindTableStruct *bindPtr; /* Binding information for widget in
+					  * which event occurred. */
+    ClientData item;			/* Item picked. */
+    ClientData context;			/* Context of item.  */
+{
+    bindPtr->currentItem = item;
+    bindPtr->currentContext = context;
+}
+
 /*
  * How to make drag&drop work?
  *
@@ -110,6 +121,7 @@ DoEvent(bindPtr, eventPtr, item, context)
     if (item == NULL) {
 	return;
     }
+    Tcl_Preserve(item);
     /*
      * Invoke the binding system.
      */
@@ -144,6 +156,7 @@ DoEvent(bindPtr, eventPtr, item, context)
 	}
     }
     Blt_ListDestroy(bindIds);
+    Tcl_Release(item);
 }
 
 /*
@@ -179,6 +192,7 @@ PickCurrentItem(bindPtr, eventPtr)
 {
     int buttonDown;
     ClientData newItem, oldItem;
+    ClientData item;
     ClientData newContext;
 
     /*
@@ -271,7 +285,9 @@ PickCurrentItem(bindPtr, eventPtr)
     }
 #endif
     oldItem = bindPtr->currentItem;
+    bindPtr->newItem = newItem;
 
+    Tcl_Preserve(newItem);
     /*
      * Simulate a LeaveNotify event on the previous current item and
      * an EnterNotify event on the new current item.  Remove the "current"
@@ -294,7 +310,10 @@ PickCurrentItem(bindPtr, eventPtr)
 	event.xcrossing.detail = NotifyAncestor;
 
 	bindPtr->flags |= REPICK_IN_PROGRESS;
-	DoEvent(bindPtr, &event, bindPtr->currentItem, bindPtr->currentContext);
+	item = bindPtr->currentItem;
+	Tcl_Preserve(item);
+	DoEvent(bindPtr, &event, item, bindPtr->currentContext);
+	Tcl_Release(item);
 	bindPtr->flags &= ~REPICK_IN_PROGRESS;
 
 	/*
@@ -303,45 +322,7 @@ PickCurrentItem(bindPtr, eventPtr)
 	 * item was deleted.
 	 */
     }
-    if (((newItem != bindPtr->currentItem) || 
-	 (newContext != bindPtr->currentContext)) && 
-	(buttonDown)) {
-	XEvent event;
 
-	bindPtr->flags |= LEFT_GRABBED_ITEM;
-	event = bindPtr->pickEvent;
-	if ((newItem != bindPtr->newItem) || 
-	    (newContext != bindPtr->newContext)) {
-	    ClientData savedItem;
-	    ClientData savedContext;
-
-	    /*
-	     * Generate <Enter> and <Leave> events for objects during
-	     * button grabs.  This isn't standard. But for example, it
-	     * allows one to provide balloon help on the individual
-	     * entries of the Hierbox widget.
-	     */
-	    savedItem = bindPtr->currentItem;
-	    savedContext = bindPtr->currentContext;
-	    if (bindPtr->newItem != NULL) {
-		event.type = LeaveNotify;
-		event.xcrossing.detail = NotifyVirtual /* Ancestor */ ;
-		bindPtr->currentItem = bindPtr->newItem;
-		DoEvent(bindPtr, &event, bindPtr->newItem, bindPtr->newContext);
-	    }
-	    bindPtr->newItem = newItem;
-	    bindPtr->newContext = newContext;
-	    if (newItem != NULL) {
-		event.type = EnterNotify;
-		event.xcrossing.detail = NotifyVirtual /* Ancestor */ ;
-		bindPtr->currentItem = newItem;
-		DoEvent(bindPtr, &event, newItem, newContext);
-	    }
-	    bindPtr->currentItem = savedItem;
-	    bindPtr->currentContext = savedContext;
-	}
-	return;
-    }
     /*
      * Special note:  it's possible that
      *		bindPtr->newItem == bindPtr->currentItem
@@ -349,16 +330,20 @@ PickCurrentItem(bindPtr, eventPtr)
      */
 
     bindPtr->flags &= ~LEFT_GRABBED_ITEM;
-    bindPtr->currentItem = bindPtr->newItem = newItem;
+    bindPtr->currentItem = bindPtr->newItem;
     bindPtr->currentContext = bindPtr->newContext = newContext;
-    if (bindPtr->currentItem != NULL) {
+    if (bindPtr->newItem != NULL) {
 	XEvent event;
 
 	event = bindPtr->pickEvent;
 	event.type = EnterNotify;
 	event.xcrossing.detail = NotifyAncestor;
-	DoEvent(bindPtr, &event, newItem, newContext);
+	item = bindPtr->newItem;
+	Tcl_Preserve(item);
+	DoEvent(bindPtr, &event, item, newContext);
+	Tcl_Release(item);
     }
+    Tcl_Release(newItem);
 }
 
 /*
