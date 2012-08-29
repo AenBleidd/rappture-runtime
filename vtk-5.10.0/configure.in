@@ -1,8 +1,6 @@
 
 AC_INIT(Copyright.txt)
 
-with_python=no
-
 AC_ARG_WITH([python],
   AS_HELP_STRING([--with-python], 
     [Build python bindings for VTK @<:@default=no@:>@])], 
