@@ -637,6 +637,7 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+with_python
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1249,6 +1250,11 @@ if test -n "$ac_init_help"; then
 
   cat <<\_ACEOF
 
+Optional Packages:
+  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-python           Build python bindings for VTK [default=NO]]
+
 Report bugs to the package provider.
 _ACEOF
 ac_status=$?
@@ -1678,6 +1684,17 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+with_python=NO
+
+
+# Check whether --with-python was given.
+if test "${with_python+set}" = set; then :
+  withval=$with_python; with_python=YES
+else
+  with_python=NO
+fi
+
+
 if test "x$prefix" = xNONE; then
   $as_echo_n "checking for prefix by " >&6
   # Extract the first word of "", so it can be a program name with args.
@@ -1995,7 +2012,7 @@ if test "${PLATFORM}" == "macosx"; then
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DTCL_TCLSH:FILEPATH=$prefix/bin/tclsh${TCL_VERSION} \
    -DVTK_WRAP_TCL:BOOL=ON \
-   -DVTK_WRAP_PYTHON:BOOL=ON \
+   -DVTK_WRAP_PYTHON:BOOL=${with_python} \
    -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
    -DTCL_INCLUDE_PATH:PATH=$includedir \
    -DTCL_LIBRARY:FILEPATH=$libdir/libtcl${TCL_VERSION}${SO_EXT} \
@@ -2015,7 +2032,7 @@ else
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DTCL_TCLSH:FILEPATH=$prefix/bin/tclsh${TCL_VERSION} \
    -DVTK_WRAP_TCL:BOOL=ON \
-   -DVTK_WRAP_PYTHON:BOOL=ON \
+   -DVTK_WRAP_PYTHON:BOOL=${with_python} \
    -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
    -DTCL_INCLUDE_PATH:PATH=$includedir \
    -DTCL_LIBRARY:FILEPATH=$libdir/libtcl${TCL_VERSION}${SO_EXT} \
