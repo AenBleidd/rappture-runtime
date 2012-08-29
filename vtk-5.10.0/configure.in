@@ -1,6 +1,13 @@
 
 AC_INIT(Copyright.txt)
 
+with_python=NO
+
+AC_ARG_WITH([python],
+  AS_HELP_STRING([--with-python], 
+    [Build python bindings for VTK @<:@default=NO@:>@])], 
+	[with_python=YES], [with_python=NO])
+
 AC_PREFIX
 
 AC_CANONICAL_TARGET
@@ -50,7 +57,7 @@ if test "${PLATFORM}" == "macosx"; then
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DTCL_TCLSH:FILEPATH=$prefix/bin/tclsh${TCL_VERSION} \
    -DVTK_WRAP_TCL:BOOL=ON \
-   -DVTK_WRAP_PYTHON:BOOL=ON \
+   -DVTK_WRAP_PYTHON:BOOL=${with_python} \
    -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
    -DTCL_INCLUDE_PATH:PATH=$includedir \
    -DTCL_LIBRARY:FILEPATH=$libdir/libtcl${TCL_VERSION}${SO_EXT} \
@@ -70,7 +77,7 @@ else
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DTCL_TCLSH:FILEPATH=$prefix/bin/tclsh${TCL_VERSION} \
    -DVTK_WRAP_TCL:BOOL=ON \
-   -DVTK_WRAP_PYTHON:BOOL=ON \
+   -DVTK_WRAP_PYTHON:BOOL=${with_python} \
    -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
    -DTCL_INCLUDE_PATH:PATH=$includedir \
    -DTCL_LIBRARY:FILEPATH=$libdir/libtcl${TCL_VERSION}${SO_EXT} \
