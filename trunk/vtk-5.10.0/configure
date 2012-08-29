@@ -1684,8 +1684,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-with_python=no
-
 
 # Check whether --with-python was given.
 if test "${with_python+set}" = set; then :
