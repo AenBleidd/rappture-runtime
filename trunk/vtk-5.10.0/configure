@@ -1253,7 +1253,7 @@ if test -n "$ac_init_help"; then
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-python           Build python bindings for VTK [default=NO]]
+  --with-python           Build python bindings for VTK [default=ON]]
 
 Report bugs to the package provider.
 _ACEOF
@@ -1684,16 +1684,18 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-with_python=NO
+with_python=OFF
 
 
 # Check whether --with-python was given.
 if test "${with_python+set}" = set; then :
-  withval=$with_python; with_python=YES
+  withval=$with_python; with_python=ON
 else
-  with_python=NO
+  with_python=OFF
 fi
 
+
+echo with_python=${with_python}
 
 if test "x$prefix" = xNONE; then
   $as_echo_n "checking for prefix by " >&6
