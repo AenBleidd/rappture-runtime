@@ -5,7 +5,7 @@ with_python=OFF
 
 AC_ARG_WITH([python],
   AS_HELP_STRING([--with-python], 
-    [Build python bindings for VTK @<:@default=ON@:>@])], 
+    [Build python bindings for VTK @<:@default=OFF@:>@])], 
 	[with_python=ON], [with_python=OFF])
 
 echo with_python=${with_python}
