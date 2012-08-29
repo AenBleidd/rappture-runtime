@@ -2197,6 +2197,9 @@ Blt_DrawGraph(graphPtr, drawable, backingStore)
     int backingStore;		/* If non-zero, use backing store for
 				 * plotting area. */
 {
+    if ((graphPtr->vRange <= 1) || (graphPtr->hRange <= 1)) {
+	return;
+    }
     if (backingStore) {
 	/*
 	 * Create another pixmap to save elements if one doesn't
