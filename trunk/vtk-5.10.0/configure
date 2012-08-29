@@ -1253,7 +1253,7 @@ if test -n "$ac_init_help"; then
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-python           Build python bindings for VTK [default=ON]]
+  --with-python           Build python bindings for VTK [default=OFF]]
 
 Report bugs to the package provider.
 _ACEOF
