@@ -332,13 +332,16 @@ typedef struct {
 				 * to update variable and update proc on
 				 * a line-by-line basis. */
 
+    int dontKill;		/* If non-zero, indicates pipeline has been
+				 * detached and should not be automatically 
+				 * signaled/killed when exiting. */
+
     int interval;		/* Interval to poll for the exiting
 				 * processes */
     char *outputEncodingName;	/* Name of decoding scheme to use when
 				 * translating output data. */
     char *errorEncodingName;	/* Name of decoding scheme to use when
 				 * translating output data. */
-
     /* Private */
     Tcl_Interp *interp;		/* Interpreter containing variables */
 
@@ -381,6 +384,8 @@ static Blt_SwitchSpec switchSpecs[] =
          Blt_Offset(BackgroundInfo, outputEncodingName), 0},
     {BLT_SWITCH_STRING, "-decodeerror", 
          Blt_Offset(BackgroundInfo, errorEncodingName), 0},
+    {BLT_SWITCH_BOOLEAN, "-detach", 
+         Blt_Offset(BackgroundInfo, dontKill), 0},
     {BLT_SWITCH_BOOLEAN, "-echo", 
          Blt_Offset(BackgroundInfo, sink2.echo), 0},
     {BLT_SWITCH_STRING, "-error", 
@@ -1467,21 +1472,23 @@ DestroyBackgroundInfo(bgPtr)
     FreeSinkBuffer(&bgPtr->sink2);
     FreeSinkBuffer(&bgPtr->sink1);
     if (bgPtr->procArr != NULL) {
-	register int i;
+	int i;
 
 	for (i = 0; i < bgPtr->nProcs; i++) {
-	    if (bgPtr->signalNum > 0) {
-		kill(bgPtr->procArr[i], bgPtr->signalNum);
-	    }
 #ifdef WIN32
 	    Tcl_DetachPids(1, (Tcl_Pid *)&bgPtr->procArr[i].pid);
 #else
 #if (TCL_MAJOR_VERSION == 7)
 	    Tcl_DetachPids(1, &bgPtr->procArr[i]);
 #else
-	    Tcl_DetachPids(1, (Tcl_Pid *)bgPtr->procArr[i]);
+	    Tcl_DetachPids(1, (Tcl_Pid *)&bgPtr->procArr[i]);
 #endif /* TCL_MAJOR_VERSION == 7 */
 #endif /* WIN32 */
+	}
+	for (i = 0; i < bgPtr->nProcs; i++) {
+	    if ((bgPtr->signalNum > 0) && (!bgPtr->dontKill)) {
+		kill(bgPtr->procArr[i], bgPtr->signalNum);
+	    }
 	}
     }
     FreeBackgroundInfo(bgPtr);
@@ -1836,6 +1843,7 @@ BgexecCmd(clientData, interp, argc, argv)
     /* Try to clean up any detached processes */
     Tcl_ReapDetachedProcs();
 
+ fprintf(stderr, "Processing Switches\n");
     i = Blt_ProcessSwitches(interp, switchSpecs, argc - 2, argv + 2, 
 	(char *)bgPtr, BLT_SWITCH_ARGV_PARTIAL);
     if (i < 0) {
