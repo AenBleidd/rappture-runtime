@@ -526,6 +526,27 @@ MapOp(vPtr, interp, objc, objv)
 }
 
 /*
+ *---------------------------------------------------------------------------
+ *
+ * MaxOp --
+ *
+ *	Returns the maximum value of the vector.
+ *
+ * Results:
+ *	A standard TCL result. 
+ *
+ *---------------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+MaxOp(VectorObject *vPtr, Tcl_Interp *interp, int objc, Tcl_Obj *const *objv)
+{
+    Blt_VectorUpdateRange(vPtr);
+    Tcl_SetDoubleObj(Tcl_GetObjResult(interp), vPtr->max);
+    return TCL_OK;
+}
+
+/*
  * -----------------------------------------------------------------------
  *
  * MergeOp --
@@ -599,6 +620,27 @@ MergeOp(vPtr, interp, objc, objv)
     }
     Blt_Free(vecArr);
     Blt_VectorReset(vPtr, valueArr, nElem, nElem, TCL_DYNAMIC);
+    return TCL_OK;
+}
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ * MinOp --
+ *
+ *	Returns the minimum value of the vector.
+ *
+ * Results:
+ *	A standard TCL result. 
+ *
+ *---------------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+MinOp(VectorObject *vPtr, Tcl_Interp *interp, int objc, Tcl_Obj *const *objv)
+{
+    Blt_VectorUpdateRange(vPtr);
+    Tcl_SetDoubleObj(Tcl_GetObjResult(interp), vPtr->min);
     return TCL_OK;
 }
 
@@ -1964,7 +2006,9 @@ static Blt_OpSpec vectorInstOps[] =
     {"expr", 1, (Blt_Op)InstExprOp, 3, 3, "expression",},
     {"index", 1, (Blt_Op)IndexOp, 3, 4, "index ?value?",},
     {"length", 1, (Blt_Op)LengthOp, 2, 3, "?newSize?",},
-    {"merge", 1, (Blt_Op)MergeOp, 3, 0, "vecName ?vecName...?",},
+    {"max",    2, (Blt_Op)MaxOp, 2, 2, "vecName",},
+    {"merge",  2, (Blt_Op)MergeOp, 3, 0, "vecName ?vecName...?",},
+    {"min",    2, (Blt_Op)MinOp, 2, 2, "vecName",},
     {"normalize", 3, (Blt_Op)NormalizeOp, 2, 3, "?vecName?",},	/*Deprecated*/
     {"notify", 3, (Blt_Op)NotifyOp, 3, 3, "keyword",},
     {"offset", 2, (Blt_Op)OffsetOp, 2, 3, "?offset?",},

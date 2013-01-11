@@ -1843,7 +1843,6 @@ BgexecCmd(clientData, interp, argc, argv)
     /* Try to clean up any detached processes */
     Tcl_ReapDetachedProcs();
 
- fprintf(stderr, "Processing Switches\n");
     i = Blt_ProcessSwitches(interp, switchSpecs, argc - 2, argv + 2, 
 	(char *)bgPtr, BLT_SWITCH_ARGV_PARTIAL);
     if (i < 0) {
