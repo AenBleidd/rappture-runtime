@@ -1,0 +1,13 @@
+vtk_module(vtkFiltersHyperTree
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkFiltersGeneral
+  TEST_DEPENDS
+    vtkFiltersModeling
+    vtkIOXML
+    vtkIOLegacy
+    vtkRenderingOpenGL
+    vtkTestingRendering
+    vtkInteractionStyle
+  )

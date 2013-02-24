@@ -490,6 +490,33 @@ LengthOp(vPtr, interp, objc, objv)
     return TCL_OK;
 }
 
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ * LimitsOp --
+ *
+ *	Returns the minimum and maximum value of the vector.
+ *
+ * Results:
+ *	A standard TCL result. 
+ *
+ *---------------------------------------------------------------------------
+ */
+/*ARGSUSED*/
+static int
+LimitsOp(VectorObject *vPtr, Tcl_Interp *interp, int objc, Tcl_Obj *const *objv)
+{
+    Blt_VectorUpdateRange(vPtr);
+    Tcl_Obj *listObjPtr;
+
+    listObjPtr = Tcl_NewListObj(0, (Tcl_Obj **)NULL);
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(vPtr->min));
+    Tcl_ListObjAppendElement(interp, listObjPtr, Tcl_NewDoubleObj(vPtr->max));
+    Tcl_SetObjResult(interp, listObjPtr);
+    return TCL_OK;
+}
+
 /*
  * -----------------------------------------------------------------------
  *
@@ -1434,37 +1461,29 @@ SeqOp(vPtr, interp, objc, objv)
     int objc;			/* Not used. */
     Tcl_Obj *CONST *objv;
 {
-    register int i;
-    double start, finish, step;
-    int fillVector;
-    int nSteps;
-    char *string;
-
+    int n;
+    double start, stop;
+    
     if (GetDouble(interp, objv[2], &start) != TCL_OK) {
 	return TCL_ERROR;
     }
-    fillVector = FALSE;
-    string = Tcl_GetString(objv[3]);
-    if ((string[0] == 'e') && (strcmp(string, "end") == 0)) {
-	fillVector = TRUE;
-    } else if (GetDouble(interp, objv[3], &finish) != TCL_OK) {
+    if (GetDouble(interp, objv[3], &stop) != TCL_OK) {
 	return TCL_ERROR;
     }
-    step = 1.0;
-    if ((objc > 4) && (GetDouble(interp, objv[4], &step) != TCL_OK)) {
+    n = vPtr->length;
+    if ((objc > 4) && (Tcl_GetIntFromObj(interp, objv[4], &n) != TCL_OK)) {
 	return TCL_ERROR;
     }
-    if (fillVector) {
-	nSteps = vPtr->length;
-    } else {
-	nSteps = (int)((finish - start) / step) + 1;
-    }
-    if (nSteps > 0) {
-	if (Blt_VectorChangeLength(vPtr, nSteps) != TCL_OK) {
+    if (n > 1) {
+	int i;
+	double step;
+
+	if (Blt_VectorChangeLength(vPtr, n) != TCL_OK) {
 	    return TCL_ERROR;
 	}
-	for (i = 0; i < nSteps; i++) {
-	    vPtr->valueArr[i] = start + (step * (double)i);
+	step = (stop - start) / (double)(n - 1);
+	for (i = 0; i < n; i++) { 
+	    vPtr->valueArr[i] = start + (step * i);
 	}
 	if (vPtr->flush) {
 	    Blt_VectorFlushCache(vPtr);
@@ -2005,10 +2024,11 @@ static Blt_OpSpec vectorInstOps[] =
     {"dup", 2, (Blt_Op)DupOp, 3, 0, "vecName",},
     {"expr", 1, (Blt_Op)InstExprOp, 3, 3, "expression",},
     {"index", 1, (Blt_Op)IndexOp, 3, 4, "index ?value?",},
-    {"length", 1, (Blt_Op)LengthOp, 2, 3, "?newSize?",},
-    {"max",    2, (Blt_Op)MaxOp, 2, 2, "vecName",},
+    {"length", 2, (Blt_Op)LengthOp, 2, 3, "?newSize?",},
+    {"limits", 2, (Blt_Op)LimitsOp, 2, 2, "",},
+    {"max",    2, (Blt_Op)MaxOp, 2, 2, "",},
     {"merge",  2, (Blt_Op)MergeOp, 3, 0, "vecName ?vecName...?",},
-    {"min",    2, (Blt_Op)MinOp, 2, 2, "vecName",},
+    {"min",    2, (Blt_Op)MinOp, 2, 2, "",},
     {"normalize", 3, (Blt_Op)NormalizeOp, 2, 3, "?vecName?",},	/*Deprecated*/
     {"notify", 3, (Blt_Op)NotifyOp, 3, 3, "keyword",},
     {"offset", 2, (Blt_Op)OffsetOp, 2, 3, "?offset?",},
