@@ -44,8 +44,20 @@ if test "x${CMAKE}" = "x" ; then
   AC_ERROR([cmake is required for building VTK])
 fi
 
+PATCH_FILE=hubzero_vtk_axis_font.patch
+
+if test -f "${PATCH_FILE}" ; then
+  # Copy vtk from the srcdir and patch it with our hubzero patch.
+  rm -rf .
+  tar -C $srcdir -clf - . | tar -xpf - 
+  # Apply patches to original sources.
+  patch -p0 < ${PATCH_FILE}
+else
+  AC_ERROR([can't find hubzero patch file ${PATCH_FILE}])
+fi
+
 if test "${PLATFORM}" == "macosx"; then 
-  $CMAKE $srcdir \
+  $CMAKE . \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DBUILD_EXAMPLES:BOOL=OFF \
    -DBUILD_SHARED_LIBS:BOOL=ON \
@@ -66,7 +78,7 @@ if test "${PLATFORM}" == "macosx"; then
    -DVTK_USE_CARBON:BOOL=OFF \
    -DVTK_USE_COCOA:BOOL=OFF;
 else 
-  $CMAKE $srcdir \
+  $CMAKE . \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DBUILD_EXAMPLES:BOOL=OFF \
    -DBUILD_SHARED_LIBS:BOOL=ON \
@@ -84,3 +96,6 @@ else
    -DVTK_USE_CARBON:BOOL=OFF \
    -DVTK_USE_COCOA:BOOL=OFF;
 fi
+
+patch -p0 < vtk_axis_font.patch
+
