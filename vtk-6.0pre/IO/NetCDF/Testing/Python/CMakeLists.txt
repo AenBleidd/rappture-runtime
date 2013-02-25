@@ -1,5 +1,0 @@
-add_test_python(NetCDFCF2DBounds.py IO)
-add_test_python(NetCDFCFSetOutputType.py IO)
-add_test_python(NetCDFCFSphericalCoords.py IO)
-add_test_python(NetCDFCFUnstructured.py IO)
-add_test_python(NetCDFReader.py IO)

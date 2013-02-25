@@ -1,9 +1,0 @@
-vtk_module(vtkWrappingPython
-  DEPENDS
-    vtkCommonCore
-    vtksys
-  COMPILE_DEPENDS
-    vtkWrappingTools
-  EXCLUDE_FROM_ALL
-  EXCLUDE_FROM_WRAPPING
-  )
