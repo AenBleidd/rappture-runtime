@@ -69,7 +69,6 @@ if test "${PLATFORM}" == "macosx"; then
    -DTCL_LIBRARY:FILEPATH=$libdir/libtcl${TCL_VERSION}${SO_EXT} \
    -DTK_INCLUDE_PATH:PATH=$includedir \
    -DTK_LIBRARY:FILEPATH=$libdir/libtk${TCL_VERSION}${SO_EXT} \
-   -DVTK_USE_HYBRID:BOOL=ON \
    -DOPENGL_INCLUDE_DIR:PATH=/usr/X11/include \
    -DOPENGL_gl_LIBRARY:FILEPATH=/usr/X11/lib/libGL${SO_EXT} \
    -DOPENGL_glu_LIBRARY:FILEPATH=/usr/X11/lib/libGLU${SO_EXT} \
@@ -91,7 +90,6 @@ else
    -DTK_INCLUDE_PATH:PATH=$includedir \
    -DTK_LIBRARY:FILEPATH=$libdir/libtk${TCL_VERSION}${SO_EXT} \
    -DModule_vtkRenderingTk:BOOL=ON \
-   -DVTK_USE_HYBRID:BOOL=ON \
    -DVTK_USE_X:BOOL=ON \
    -DVTK_USE_CARBON:BOOL=OFF \
    -DVTK_USE_COCOA:BOOL=OFF;
