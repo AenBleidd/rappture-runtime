@@ -44,14 +44,14 @@ if test "x${CMAKE}" = "x" ; then
   AC_ERROR([cmake is required for building VTK])
 fi
 
-PATCH_FILE=hubzero_vtk_axis_font.patch
+PATCH_FILE=${srcdir}/hubzero_vtk_axis_font.patch
 
 if test -f "${PATCH_FILE}" ; then
   # Copy vtk from the srcdir and patch it with our hubzero patch.
-  rm -rf .
+  rm -rf *
   tar -C $srcdir -clf - . | tar -xpf - 
   # Apply patches to original sources.
-  patch -p0 < ${PATCH_FILE}
+  patch -p1 < ${PATCH_FILE}
 else
   AC_ERROR([can't find hubzero patch file ${PATCH_FILE}])
 fi
@@ -94,6 +94,4 @@ else
    -DVTK_USE_CARBON:BOOL=OFF \
    -DVTK_USE_COCOA:BOOL=OFF;
 fi
-
-patch -p0 < vtk_axis_font.patch
 
