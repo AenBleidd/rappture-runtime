@@ -2045,7 +2045,7 @@ $as_echo "$as_me: error: cmake is required for building VTK" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-PATCH_FILE=${srcdir}/hubzero_vtk_axis_font.patch
+PATCH_FILE=${srcdir}/hubzero_vtk_assembly.patch
 
 if test -f "${PATCH_FILE}" ; then
   # Copy vtk from the srcdir and patch it with our hubzero patch.
