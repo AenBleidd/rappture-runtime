@@ -1,0 +1,296 @@
+Index: Rendering/Annotation/vtkCubeAxesActor.cxx
+===================================================================
+--- Rendering/Annotation/vtkCubeAxesActor.cxx	(revision 1655)
++++ Rendering/Annotation/vtkCubeAxesActor.cxx	(working copy)
+@@ -242,6 +242,10 @@
+   this->ZLabelFormat = new char[8];
+   sprintf(this->ZLabelFormat, "%s", "%-#6.3g");
+ 
++  this->XAutoLabelFormat = 1;
++  this->YAutoLabelFormat = 1;
++  this->ZAutoLabelFormat = 1;
++
+   this->CornerOffset = 0.0;
+ 
+   this->Inertia = 1;
+@@ -724,11 +728,11 @@
+ 
+   os << indent << "Bounds: \n";
+   os << indent << "  Xmin,Xmax: (" << this->Bounds[0] << ", "
+-     << this->Bounds[1] << ")\n";
++     << this->Bounds[1] << ")" << endl;
+   os << indent << "  Ymin,Ymax: (" << this->Bounds[2] << ", "
+-     << this->Bounds[3] << ")\n";
++     << this->Bounds[3] << ")" << endl;
+   os << indent << "  Zmin,Zmax: (" << this->Bounds[4] << ", "
+-     << this->Bounds[5] << ")\n";
++     << this->Bounds[5] << ")" << endl;
+ 
+ 
+   os << indent << "XAxisRange: [" << this->XAxisRange[0] << ", "
+@@ -738,7 +742,7 @@
+   os << indent << "ZAxisRange: [" << this->ZAxisRange[0] << ", "
+     << this->ZAxisRange[1] << "] " << endl;
+ 
+-  os << indent << "ScreenSize: (" << this->ScreenSize << ")\n";
++  os << indent << "ScreenSize: (" << this->ScreenSize << ")" << endl;
+ 
+   if (this->Camera)
+     {
+@@ -754,36 +758,36 @@
+ 
+   if (this->FlyMode == VTK_FLY_CLOSEST_TRIAD)
+     {
+-    os << indent << "Fly Mode: CLOSEST_TRIAD\n";
++    os << indent << "Fly Mode: CLOSEST_TRIAD"<< endl;
+     }
+   else if (this->FlyMode == VTK_FLY_FURTHEST_TRIAD)
+     {
+-    os << indent << "Fly Mode: FURTHEST_TRIAD\n";
++    os << indent << "Fly Mode: FURTHEST_TRIAD"<< endl;
+     }
+   else if (this->FlyMode == VTK_FLY_STATIC_TRIAD)
+     {
+-    os << indent << "Fly Mode: STATIC_TRIAD\n";
++    os << indent << "Fly Mode: STATIC_TRIAD"<< endl;
+     }
+   else if (this->FlyMode == VTK_FLY_STATIC_EDGES)
+     {
+-    os << indent << "Fly Mode: STATIC_EDGES\n";
++    os << indent << "Fly Mode: STATIC_EDGES"<< endl;
+     }
+   else
+     {
+-    os << indent << "Fly Mode: OUTER_EDGES\n";
++    os << indent << "Fly Mode: OUTER_EDGES"<< endl;
+     }
+ 
+   os << indent << "EnableDistanceLOD: "
+      << ( this->EnableDistanceLOD ? "On" : "Off" ) << endl;
+-  os << indent << "DistanceLODThreshold: "   << this->DistanceLODThreshold    << "\n";
++  os << indent << "DistanceLODThreshold: "   << this->DistanceLODThreshold << endl;
+ 
+   os << indent << "EnableViewAngleLOD: "
+      << ( this->EnableViewAngleLOD ? "On" : "Off" ) << endl;
+-  os << indent << "ViewAngleLODThreshold: "   << this->ViewAngleLODThreshold    << "\n";
++  os << indent << "ViewAngleLODThreshold: "   << this->ViewAngleLODThreshold << endl;
+ 
+-  os << indent << "X Axis Title: " << this->XTitle << "\n";
+-  os << indent << "Y Axis Title: " << this->YTitle << "\n";
+-  os << indent << "Z Axis Title: " << this->ZTitle << "\n";
++  os << indent << "X Axis Title: " << this->XTitle << endl;
++  os << indent << "Y Axis Title: " << this->YTitle << endl;
++  os << indent << "Z Axis Title: " << this->ZTitle << endl;
+ 
+   os << indent << "X Axis Visibility: "
+      << (this->XAxisVisibility ? "On\n" : "Off\n");
+@@ -792,12 +796,20 @@
+   os << indent << "Z Axis Visibility: "
+      << (this->ZAxisVisibility ? "On\n" : "Off\n");
+ 
+-  os << indent << "X Axis Label Format: " << this->XLabelFormat << "\n";
+-  os << indent << "Y Axis Label Format: " << this->YLabelFormat << "\n";
+-  os << indent << "Z Axis Label Format: " << this->ZLabelFormat << "\n";
+-  os << indent << "Inertia: " << this->Inertia << "\n";
+-  os << indent << "Corner Offset: " << this->CornerOffset << "\n";
++  os << indent << "X Axis Label Format: " << this->XLabelFormat << endl;
++  os << indent << "Y Axis Label Format: " << this->YLabelFormat << endl;
++  os << indent << "Z Axis Label Format: " << this->ZLabelFormat << endl;
+ 
++  os << indent << "XAutoLabelFormat: "
++     << (this->XAutoLabelFormat ? "On" : "Off") << endl;
++  os << indent << "YAutoLabelFormat: "
++     << (this->YAutoLabelFormat ? "On" : "Off") << endl;
++  os << indent << "ZAutoLabelFormat: "
++     << (this->ZAutoLabelFormat ? "On" : "Off") << endl;
++
++  os << indent << "Inertia: " << this->Inertia << endl;
++  os << indent << "Corner Offset: " << this->CornerOffset << endl;
++
+   os << indent << "XAxisTickVisibility: "
+      << (this->XAxisTickVisibility ? "On" : "Off") << endl;
+   os << indent << "YAxisTickVisibility: "
+@@ -859,20 +871,20 @@
+     {
+     os << indent << "OrientedBounds: \n";
+     os << indent << "  Xmin,Xmax: (" << this->OrientedBounds[0] << ", "
+-       << this->OrientedBounds[1] << ")\n";
++       << this->OrientedBounds[1] << ")" << endl;
+     os << indent << "  Ymin,Ymax: (" << this->OrientedBounds[2] << ", "
+-       << this->OrientedBounds[3] << ")\n";
++       << this->OrientedBounds[3] << ")" << endl;
+     os << indent << "  Zmin,Zmax: (" << this->OrientedBounds[4] << ", "
+-       << this->OrientedBounds[5] << ")\n";
++       << this->OrientedBounds[5] << ")" << endl;
+     }
+ 
+   os << indent << "Base: \n";
+   os << indent << "  For X: (" << this->AxisBaseForX[0] << ", "
+-     << this->AxisBaseForX[1] << ", " << this->AxisBaseForX[2] << ") \n";
++     << this->AxisBaseForX[1] << ", " << this->AxisBaseForX[2] << ")" << endl;
+   os << indent << "  For Y: (" << this->AxisBaseForY[0] << ", "
+-     << this->AxisBaseForY[1] << ", " << this->AxisBaseForY[2] << ") \n";
++     << this->AxisBaseForY[1] << ", " << this->AxisBaseForY[2] << ")" << endl;
+   os << indent << "  For Z: (" << this->AxisBaseForZ[0] << ", "
+-     << this->AxisBaseForZ[1] << ", " << this->AxisBaseForZ[2] << ") \n";
++     << this->AxisBaseForZ[1] << ", " << this->AxisBaseForZ[2] << ")" << endl;
+ 
+   os << indent << "UseAxisOrigin: " << this->UseAxisOrigin << endl;
+   if(this->UseAxisOrigin)
+@@ -1236,63 +1248,77 @@
+ // ****************************************************************************
+ void vtkCubeAxesActor::AdjustRange(const double bnds[6])
+ {
+-  double xrange[2], yrange[2], zrange[2];
++  if (this->XAutoLabelFormat)
++    {
++    double xrange[2];
+ 
+-  xrange[0] = (this->XAxisRange[0] == VTK_DOUBLE_MAX ?
+-                                  bnds[0] : this->XAxisRange[0]);
+-  xrange[1] = (this->XAxisRange[1] == VTK_DOUBLE_MAX ?
+-                                  bnds[1] : this->XAxisRange[1]);
+-  yrange[0] = (this->YAxisRange[0] == VTK_DOUBLE_MAX ?
+-                                  bnds[2] : this->YAxisRange[0]);
+-  yrange[1] = (this->YAxisRange[1] == VTK_DOUBLE_MAX ?
+-                                  bnds[3] : this->YAxisRange[1]);
+-  zrange[0] = (this->ZAxisRange[0] == VTK_DOUBLE_MAX ?
+-                                  bnds[4] : this->ZAxisRange[0]);
+-  zrange[1] = (this->ZAxisRange[1] == VTK_DOUBLE_MAX ?
+-                                  bnds[5] : this->ZAxisRange[1]);
++    xrange[0] = (this->XAxisRange[0] == VTK_DOUBLE_MAX ?
++                                    bnds[0] : this->XAxisRange[0]);
++    xrange[1] = (this->XAxisRange[1] == VTK_DOUBLE_MAX ?
++                                    bnds[1] : this->XAxisRange[1]);
++    if (this->LastXPow != 0)
++      {
++      xrange[0] /= pow(10., this->LastXPow);
++      xrange[1] /= pow(10., this->LastXPow);
++      }
+ 
+-  if (this->LastXPow != 0)
+-    {
+-    xrange[0] /= pow(10., this->LastXPow);
+-    xrange[1] /= pow(10., this->LastXPow);
++    int xAxisDigits = this->Digits(xrange[0], xrange[1]);
++    if (xAxisDigits != this->LastXAxisDigits)
++      {
++      char  format[16];
++      sprintf(format, "%%.%df", xAxisDigits);
++      this->SetXLabelFormat(format);
++      this->LastXAxisDigits = xAxisDigits;
++      }
+     }
+-  if (this->LastYPow != 0)
++  if (this->YAutoLabelFormat)
+     {
+-    yrange[0] /= pow(10., this->LastYPow);
+-    yrange[1] /= pow(10., this->LastYPow);
++    double yrange[2];
++
++    yrange[0] = (this->YAxisRange[0] == VTK_DOUBLE_MAX ?
++                                    bnds[2] : this->YAxisRange[0]);
++    yrange[1] = (this->YAxisRange[1] == VTK_DOUBLE_MAX ?
++                                    bnds[3] : this->YAxisRange[1]);
++
++    if (this->LastYPow != 0)
++      {
++      yrange[0] /= pow(10., this->LastYPow);
++      yrange[1] /= pow(10., this->LastYPow);
++      }
++
++    int yAxisDigits = this->Digits(yrange[0], yrange[1]);
++    if (yAxisDigits != this->LastYAxisDigits)
++      {
++      char  format[16];
++      sprintf(format, "%%.%df", yAxisDigits);
++      this->SetYLabelFormat(format);
++      this->LastYAxisDigits = yAxisDigits;
++      }
+     }
+-  if (this->LastZPow != 0)
++  if (this->ZAutoLabelFormat)
+     {
+-    zrange[0] /= pow(10., this->LastZPow);
+-    zrange[1] /= pow(10., this->LastZPow);
+-    }
++    double zrange[2];
+ 
+-  int xAxisDigits = this->Digits(xrange[0], xrange[1]);
+-  if (xAxisDigits != this->LastXAxisDigits)
+-    {
+-    char  format[16];
+-    sprintf(format, "%%.%df", xAxisDigits);
+-    this->SetXLabelFormat(format);
+-    this->LastXAxisDigits = xAxisDigits;
+-    }
++    zrange[0] = (this->ZAxisRange[0] == VTK_DOUBLE_MAX ?
++                                    bnds[4] : this->ZAxisRange[0]);
++    zrange[1] = (this->ZAxisRange[1] == VTK_DOUBLE_MAX ?
++                                    bnds[5] : this->ZAxisRange[1]);
+ 
+-  int yAxisDigits = this->Digits(yrange[0], yrange[1]);
+-  if (yAxisDigits != this->LastYAxisDigits)
+-    {
+-    char  format[16];
+-    sprintf(format, "%%.%df", yAxisDigits);
+-    this->SetYLabelFormat(format);
+-    this->LastYAxisDigits = yAxisDigits;
++    if (this->LastZPow != 0)
++      {
++      zrange[0] /= pow(10., this->LastZPow);
++      zrange[1] /= pow(10., this->LastZPow);
++      }
++ 
++    int zAxisDigits = this->Digits(zrange[0], zrange[1]);
++    if (zAxisDigits != this->LastZAxisDigits)
++      {
++      char  format[16];
++      sprintf(format, "%%.%df", zAxisDigits);
++      this->SetZLabelFormat(format);
++      this->LastZAxisDigits = zAxisDigits;
++      }
+     }
+-
+-  int zAxisDigits = this->Digits(zrange[0], zrange[1]);
+-  if (zAxisDigits != this->LastZAxisDigits)
+-    {
+-    char  format[16];
+-    sprintf(format, "%%.%df", zAxisDigits);
+-    this->SetZLabelFormat(format);
+-    this->LastZAxisDigits = zAxisDigits;
+-    }
+ }
+ 
+ // ****************************************************************************
+Index: Rendering/Annotation/vtkCubeAxesActor.h
+===================================================================
+--- Rendering/Annotation/vtkCubeAxesActor.h	(revision 1655)
++++ Rendering/Annotation/vtkCubeAxesActor.h	(working copy)
+@@ -433,6 +433,16 @@
+   vtkSetMacro(GridLineLocation,int);
+   vtkGetMacro(GridLineLocation,int);
+ 
++  vtkSetMacro(XAutoLabelFormat,int);
++  vtkGetMacro(XAutoLabelFormat,int);
++  vtkBooleanMacro(XAutoLabelFormat,int);
++  vtkSetMacro(YAutoLabelFormat,int);
++  vtkGetMacro(YAutoLabelFormat,int);
++  vtkBooleanMacro(YAutoLabelFormat,int);
++  vtkSetMacro(ZAutoLabelFormat,int);
++  vtkGetMacro(ZAutoLabelFormat,int);
++  vtkBooleanMacro(ZAutoLabelFormat,int);
++
+ protected:
+   vtkCubeAxesActor();
+   ~vtkCubeAxesActor();
+@@ -613,6 +623,9 @@
+   int UserZPow;
+ 
+   bool AutoLabelScaling;
++  int XAutoLabelFormat;
++  int YAutoLabelFormat;
++  int ZAutoLabelFormat;
+ 
+   int LastXAxisDigits;
+   int LastYAxisDigits;
