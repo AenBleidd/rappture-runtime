@@ -20,6 +20,8 @@ HTMLWIDGET_DIR		= @HTMLWIDGET_DIR@
 ITCL_DIR		= @ITCL_DIR@
 ITK_DIR			= @ITK_DIR@
 SHAPE_DIR		= @SHAPE_DIR@
+SQLITE_DIR		= @SQLITE_DIR@
+SQLITETCL_DIR		= @SQLITETCL_DIR@
 TCLLIB_DIR		= @TCLLIB_DIR@
 TDOM_DIR		= @TDOM_DIR@
 TKIMG_DIR		= @TKIMG_DIR@
@@ -43,6 +45,12 @@ ifneq ($(ITK_DIR),)
 endif
 ifneq ($(SHAPE_DIR),)
    subdirs += $(SHAPE_DIR)
+endif
+ifneq ($(SQLITE_DIR),)
+   subdirs += $(SQLITE_DIR)
+endif
+ifneq ($(SQLITETCL_DIR),)
+   subdirs += $(SQLITETCL_DIR)
 endif
 ifneq ($(TCLLIB_DIR),)
    subdirs += $(TCLLIB_DIR)
