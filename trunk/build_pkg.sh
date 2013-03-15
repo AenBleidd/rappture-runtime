@@ -99,7 +99,7 @@ mkdir -p $build_dir
 # Stage1: tcl, tk
 # cmake, expat, zlib, glew if enabled with --with-xxx
 stage1_flags="--with-cmake --with-expat --with-zlib --with-glew ${x_includes} ${x_libraries}"
-# Stage2: blt, expect, htmlwidget, itcl, itk, shape, tcllib, tdom, tkimg, tls, vornoi
+# Stage2: blt, expect, htmlwidget, itcl, itk, shape, sqlite, tcllib, tdom, tkimg, tls, vornoi
 stage2_flags="${x_includes} ${x_libraries}"
 
 # Stage3: vtk, pymol, dx if enabled

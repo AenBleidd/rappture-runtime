@@ -214,6 +214,22 @@ ifeq (@BUILD_TCLLIB@,yes)
 	make -C $(basedir)/tcllib-1.9 install
 endif
 
+#################################################
+sqlite:
+ifeq (@BUILD_SQLITE@,yes)
+	@echo "BUIDING sqlite..."
+	@if test -e $(basedir)/sqlite-3071502/Makefile ; then \
+		make -C $(basedir)/sqlite-3071502 distclean; \
+	fi
+	cd $(basedir)/sqlite-3071502 && ./configure --enable-shared --prefix=$(prefix) --with-tcl=$(libdir) --with-tcllibs=$(libdir) --with-tclincls=$(includedir) --libdir=$(libdir)
+	make -C $(basedir)/sqlite-3071502
+	make -C $(basedir)/sqlite-3071502 install
+        # build the Tcl extension too
+	cd $(basedir)/sqlite-3071502/tea && ./configure --enable-shared --prefix=$(prefix) --with-tcl=$(libdir) --with-tcllibs=$(libdir) --with-tclincls=$(includedir) --libdir=$(libdir)
+	make -C $(basedir)/sqlite-3071502/tea
+	make -C $(basedir)/sqlite-3071502/tea install
+endif
+
 #############################################################################
 # Install vtk 4.4 from binary
 # cd $(basedir)/vtk.bin; make RAPPTURE=$(prefix)

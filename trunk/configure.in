@@ -42,6 +42,8 @@ itcl=itcl3.3
 itk=itk3.3
 pymol=pymol
 shape=shape0.4/unix
+sqlite=sqlite-3071502
+sqlitetcl=sqlite-3071502/tea
 tcl=tcl8.4.19/unix
 tcllib=tcllib-1.12
 tdom=tDOM-0.8.2
@@ -66,6 +68,8 @@ default_itk=yes
 default_matlab=yes
 default_pymol=no
 default_shape=yes
+default_sqlite=yes
+default_sqlitetcl=yes
 default_tcl=yes
 default_tcllib=yes
 default_tdom=yes
@@ -130,6 +134,16 @@ AC_ARG_WITH([shape],
     [Build shape @<:@default=yes@:>@])], 
 	[], [with_shape=$default_shape])
 
+AC_ARG_WITH([sqlite],
+  [AS_HELP_STRING([--with-sqlite[=DIR]], 
+    [Build sqlite @<:@default=yes@:>@])], 
+	[], [with_sqlite=$default_sqlite])
+
+AC_ARG_WITH([sqlitetcl],
+  [AS_HELP_STRING([--with-sqlitetcl[=DIR]], 
+    [Build sqlitetcl @<:@default=yes@:>@])], 
+	[], [with_sqlitetcl=$default_sqlitetcl])
+
 AC_ARG_WITH([tdom],
   [AS_HELP_STRING([--with-tdom[=DIR]], 
     [Build tDOM @<:@default=yes@:>@])], 
@@ -191,7 +205,7 @@ AC_ARG_WITH([dx],
 	[], [with_dx=$default_dx])
 
 stage1_targets="expat glew zlib tcl tk cmake"
-stage2_targets="expect itcl itk blt shape voronoi htmlwidget tdom tcllib tkimg tls"
+stage2_targets="expect itcl itk blt shape sqlite sqlitetcl voronoi htmlwidget tdom tcllib tkimg tls"
 stage3_targets="vtk pymol dx"
 
 if test "${with_expat}" = "no" ; then
@@ -282,6 +296,8 @@ AC_SUBST(ITCL_DIR)
 AC_SUBST(ITK_DIR)
 AC_SUBST(PYMOL_DIR)
 AC_SUBST(SHAPE_DIR)
+AC_SUBST(SQLITE_DIR)
+AC_SUBST(SQLITETCL_DIR)
 AC_SUBST(TCLLIB_DIR)
 AC_SUBST(TCL_DIR)
 AC_SUBST(TDOM_DIR)
