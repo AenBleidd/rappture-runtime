@@ -105,7 +105,7 @@ stage2_flags="${x_includes} ${x_libraries}"
 # Stage3: vtk, pymol, dx if enabled
 stage3_flags="--with-vtk ${x_includes} ${x_libraries}"
 
-rappture_flags="${x_includes} ${x_libraries}"
+rappture_flags="${x_includes} ${x_libraries} --without-ffmpeg"
 
 MAKE=make
 case $host_os in 
