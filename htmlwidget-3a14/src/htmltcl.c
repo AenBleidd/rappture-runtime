@@ -424,6 +424,28 @@ callbackHandler(clientData)
         layoutClock = clock() - layoutClock;
         pTree->cb.flags |= HTML_SCROLL;
 
+        /*
+         * 0 means auto-size.  Since we just ingested more text, the size
+         * is probably different.  Change the size now, if needed.
+         */
+        int w = pTree->options.width;
+        int h = pTree->options.height;
+        if (w == 0 || h == 0) {
+            if (w == 0) {
+                w = pTree->canvas.right - pTree->canvas.left;
+                if (w > WidthOfScreen(Tk_Screen(pTree->tkwin))) {
+                    w = WidthOfScreen(Tk_Screen(pTree->tkwin));
+                }
+            }
+            if (h == 0) {
+                h = pTree->canvas.bottom - pTree->canvas.top;
+                if (h > HeightOfScreen(Tk_Screen(pTree->tkwin))) {
+                    h = HeightOfScreen(Tk_Screen(pTree->tkwin));
+                }
+            }
+            Tk_GeometryRequest(pTree->tkwin, w, h);
+        }
+
         /* Discard any damage info, as the whole viewport will be redrawn */
         pTree->cb.flags &= ~HTML_DAMAGE;
         while (pD) {
@@ -1157,6 +1179,18 @@ BOOLEAN(forcewidth, "forceWidth", "ForceWidth", "0", S_MASK),
         if (init || (mask & GEOMETRY_MASK)) {
             int w = pTree->options.width;
             int h = pTree->options.height;
+            if (w == 0) {
+                w = pTree->canvas.right - pTree->canvas.left;
+                if (w > WidthOfScreen(Tk_Screen(pTree->tkwin))) {
+                    w = WidthOfScreen(Tk_Screen(pTree->tkwin));
+                }
+            }
+            if (h == 0) {
+                h = pTree->canvas.bottom - pTree->canvas.top;
+                if (h > HeightOfScreen(Tk_Screen(pTree->tkwin))) {
+                    h = HeightOfScreen(Tk_Screen(pTree->tkwin));
+                }
+            }
             Tk_GeometryRequest(pTree->tkwin, w, h);
         }
     
