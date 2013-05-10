@@ -42,7 +42,7 @@ itcl=itcl3.3
 itk=itk3.3
 pymol=pymol
 shape=shape0.4/unix
-sqlite=sqlite-3071502
+##sqlite=sqlite-3071502
 sqlitetcl=sqlite-3071502/tea
 tcl=tcl8.4.19/unix
 tcllib=tcllib-1.12
@@ -68,7 +68,7 @@ default_itk=yes
 default_matlab=yes
 default_pymol=no
 default_shape=yes
-default_sqlite=yes
+#default_sqlite=yes
 default_sqlitetcl=yes
 default_tcl=yes
 default_tcllib=yes
@@ -134,10 +134,10 @@ AC_ARG_WITH([shape],
     [Build shape @<:@default=yes@:>@])], 
 	[], [with_shape=$default_shape])
 
-AC_ARG_WITH([sqlite],
-  [AS_HELP_STRING([--with-sqlite[=DIR]], 
-    [Build sqlite @<:@default=yes@:>@])], 
-	[], [with_sqlite=$default_sqlite])
+#AC_ARG_WITH([sqlite],
+#  [AS_HELP_STRING([--with-sqlite[=DIR]], 
+#    [Build sqlite @<:@default=yes@:>@])], 
+#	[], [with_sqlite=$default_sqlite])
 
 AC_ARG_WITH([sqlitetcl],
   [AS_HELP_STRING([--with-sqlitetcl[=DIR]], 
@@ -270,7 +270,7 @@ fi
 if test "${STAGE}" = "stage2"; then
   my_subdirs=$stage2_dirs
   my_makefile="Makefile:stages/Makefile-stage2.in"
-  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir --with-tclinclude=$topsrcdir/$tcl/../generic"
+  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir --with-tclinclude=$topsrcdir/$tcl/../generic --with-system-sqlite"
 fi
 if test "${STAGE}" = "stage3"; then
   my_subdirs=$stage3_dirs
@@ -296,7 +296,7 @@ AC_SUBST(ITCL_DIR)
 AC_SUBST(ITK_DIR)
 AC_SUBST(PYMOL_DIR)
 AC_SUBST(SHAPE_DIR)
-AC_SUBST(SQLITE_DIR)
+#AC_SUBST(SQLITE_DIR)
 AC_SUBST(SQLITETCL_DIR)
 AC_SUBST(TCLLIB_DIR)
 AC_SUBST(TCL_DIR)
