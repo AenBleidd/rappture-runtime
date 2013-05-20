@@ -1,0 +1,97 @@
+
+AC_INIT(Copyright.txt)
+
+AC_PREFIX
+
+AC_CANONICAL_TARGET
+
+#------------------------------------------------------------------------
+# Handle the --prefix=... option
+#------------------------------------------------------------------------
+
+case $target in
+  *-*-darwin*)
+    PLATFORM="macosx"
+    SO_EXT=".dylib"
+    SO_PREFIX="lib"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+  *)
+    PLATFORM="unix" 
+    SO_PREFIX="lib"
+    SO_EXT=".so"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+esac
+
+if test "${prefix}" = "NONE"; then
+    prefix=/usr/local
+fi
+if test "${exec_prefix}" = "NONE"; then
+    exec_prefix=$prefix
+fi
+libdir=$exec_prefix/lib
+includedir=$prefix/include
+PATH=$exec_prefix/bin:$PATH
+
+. $libdir/tclConfig.sh
+
+CMAKE=
+AC_PATH_PROG(CMAKE, cmake)
+if test "x${CMAKE}" = "x" ; then
+  AC_ERROR([cmake is required for building VTK])
+fi
+
+PATCH_FILE=${srcdir}/hubzero_vtk_assembly.patch
+
+if test -f "${PATCH_FILE}" ; then
+  # Copy vtk from the srcdir and patch it with our hubzero patch.
+  rm -rf *
+  tar -C $srcdir -clf - . | tar -xpf - 
+  # Apply patches to original sources.
+  patch -p1 < ${PATCH_FILE}
+else
+  AC_ERROR([can't find hubzero patch file ${PATCH_FILE}])
+fi
+
+if test "${PLATFORM}" == "macosx"; then 
+  $CMAKE . \
+   -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DBUILD_EXAMPLES:BOOL=OFF \
+   -DBUILD_SHARED_LIBS:BOOL=ON \
+   -DBUILD_TESTING:BOOL=OFF \
+   -DTCL_TCLSH:FILEPATH=$prefix/bin/tclsh${TCL_VERSION} \
+   -DVTK_WRAP_TCL:BOOL=ON \
+   -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
+   -DTCL_INCLUDE_PATH:PATH=$includedir \
+   -DTCL_LIBRARY:FILEPATH=$libdir/libtcl${TCL_VERSION}${SO_EXT} \
+   -DTK_INCLUDE_PATH:PATH=$includedir \
+   -DTK_LIBRARY:FILEPATH=$libdir/libtk${TCL_VERSION}${SO_EXT} \
+   -DOPENGL_INCLUDE_DIR:PATH=/usr/X11/include \
+   -DOPENGL_gl_LIBRARY:FILEPATH=/usr/X11/lib/libGL${SO_EXT} \
+   -DOPENGL_glu_LIBRARY:FILEPATH=/usr/X11/lib/libGLU${SO_EXT} \
+   -DModule_vtkRenderingTk:BOOL=ON \
+   -DVTK_USE_X:BOOL=ON \
+   -DVTK_USE_CARBON:BOOL=OFF \
+   -DVTK_USE_COCOA:BOOL=OFF;
+else 
+  $CMAKE . \
+   -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DBUILD_EXAMPLES:BOOL=OFF \
+   -DBUILD_SHARED_LIBS:BOOL=ON \
+   -DBUILD_TESTING:BOOL=OFF \
+   -DTCL_TCLSH:FILEPATH=$prefix/bin/tclsh${TCL_VERSION} \
+   -DVTK_WRAP_TCL:BOOL=ON \
+   -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
+   -DTCL_INCLUDE_PATH:PATH=$includedir \
+   -DTCL_LIBRARY:FILEPATH=$libdir/libtcl${TCL_VERSION}${SO_EXT} \
+   -DTK_INCLUDE_PATH:PATH=$includedir \
+   -DTK_LIBRARY:FILEPATH=$libdir/libtk${TCL_VERSION}${SO_EXT} \
+   -DModule_vtkRenderingTk:BOOL=ON \
+   -DVTK_USE_X:BOOL=ON \
+   -DVTK_USE_CARBON:BOOL=OFF \
+   -DVTK_USE_COCOA:BOOL=OFF;
+fi
+
