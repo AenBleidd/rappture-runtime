@@ -1,7 +1,0 @@
-add_test_python(Disk.py Graphics)
-add_test_python(OSCone.py Graphics)
-add_test_python(TestButtonSource.py Graphics)
-add_test_python(TestRegularPolygonSource.py Graphics)
-add_test_python(coneResolution.py Graphics)
-add_test_python(glyph2D.py Graphics)
-add_test_python1(TestPlatonicSolids.py Baseline/Graphics)
