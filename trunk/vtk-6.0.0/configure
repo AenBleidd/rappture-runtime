@@ -2045,14 +2045,16 @@ $as_echo "$as_me: error: cmake is required for building VTK" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-PATCH_FILE=${srcdir}/hubzero_vtk_assembly.patch
+PATCH_FILE1=${srcdir}/hubzero_vtk_assembly.patch
+PATCH_FILE2=${srcdir}/hubzero_vtk_textactor3d.patch
 
 if test -f "${PATCH_FILE}" ; then
   # Copy vtk from the srcdir and patch it with our hubzero patch.
   rm -rf *
   tar -C $srcdir -clf - . | tar -xpf -
   # Apply patches to original sources.
-  patch -p1 < ${PATCH_FILE}
+  patch -p1 < ${PATCH_FILE1}
+  patch -p0 < ${PATCH_FILE2}
 else
   { { $as_echo "$as_me:$LINENO: error: can't find hubzero patch file ${PATCH_FILE}" >&5
 $as_echo "$as_me: error: can't find hubzero patch file ${PATCH_FILE}" >&2;}
