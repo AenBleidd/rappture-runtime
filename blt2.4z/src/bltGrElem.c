@@ -2077,6 +2077,58 @@ GetOp(graphPtr, interp, argc, argv)
 }
 
 /*
+ *---------------------------------------------------------------------------
+ *
+ * LowerOp --
+ *
+ *	Lowers the named elements to the bottom of the display list.
+ *
+ * Results:
+ *	A standard TCL result. The interpreter result will contain the new
+ *	display list of element names.
+ *
+ *	.g element lower elem ?elem...?
+ *
+ *---------------------------------------------------------------------------
+ */
+static int
+LowerOp(graphPtr, interp, argc, argv)
+    Graph *graphPtr;
+    Tcl_Interp *interp;
+    int argc;
+    char **argv;
+{
+    Blt_Chain *chainPtr;
+    Blt_ChainLink *linkPtr, *nextPtr;
+    int i;
+
+    chainPtr = Blt_ChainCreate();
+    /* Move the links of lowered elements out of the display list into a
+     * temporary list. */
+    for (i = 3; i < argc; i++) {
+	Element *elemPtr;
+
+	if (NameToElement(graphPtr, argv[i], &elemPtr) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+	Blt_ChainUnlinkLink(graphPtr->elements.displayList, 
+			    elemPtr->linkPtr); 
+	Blt_ChainLinkAfter(chainPtr, elemPtr->linkPtr, NULL); 
+    }
+    /* Append the links to end of the display list. */
+    for (linkPtr = Blt_ChainFirstLink(chainPtr); linkPtr != NULL; 
+	 linkPtr = nextPtr) {
+	nextPtr = Blt_ChainNextLink(linkPtr);
+	Blt_ChainUnlinkLink(chainPtr, linkPtr); 
+	Blt_ChainLinkAfter(graphPtr->elements.displayList, linkPtr, NULL); 
+    }	
+    Blt_ChainDestroy(chainPtr);
+    graphPtr->flags |= RESET_WORLD;
+    Blt_EventuallyRedrawGraph(graphPtr);
+    return TCL_OK;
+}
+
+/*
  *----------------------------------------------------------------------
  *
  * NamesOp --
@@ -2117,6 +2169,60 @@ NamesOp(graphPtr, interp, argc, argv)
 	    }
 	}
     }
+    return TCL_OK;
+}
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ * RaiseOp --
+ *
+ *	Reset the element within the display list.
+ *
+ * Results:
+ *	The return value is a standard TCL result. The interpreter result will
+ *	contain the new display list of element names.
+ *
+ *	.g element raise ?elem...?
+ *
+ *---------------------------------------------------------------------------
+ */
+static int
+RaiseOp(graphPtr, interp, argc, argv)
+    Graph *graphPtr;
+    Tcl_Interp *interp;
+    int argc;
+    char **argv;
+{
+    Blt_Chain *chainPtr;
+    Blt_ChainLink *linkPtr, *prevPtr;
+    int i;
+
+    chainPtr = Blt_ChainCreate();
+    /* Move the links of raised elements out of the display list into a
+     * temporary list. */
+    for (i = 3; i < argc; i++) {
+	Element *elemPtr;
+
+	if (NameToElement(graphPtr, argv[i], &elemPtr) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+	/* Take the element out of the display list and add it to the
+	 * temporary list */
+	Blt_ChainUnlinkLink(graphPtr->elements.displayList, 
+			    elemPtr->linkPtr); 
+	Blt_ChainLinkAfter(chainPtr, elemPtr->linkPtr, NULL); 
+    }
+    /* Prepend the links to beginning of the display list in reverse order. */
+    for (linkPtr = Blt_ChainLastLink(chainPtr); linkPtr != NULL; 
+	 linkPtr = prevPtr) {
+	prevPtr = Blt_ChainPrevLink(linkPtr);
+	Blt_ChainUnlinkLink(chainPtr, linkPtr); 
+	Blt_ChainLinkBefore(graphPtr->elements.displayList, linkPtr, NULL); 
+    }	
+    Blt_ChainDestroy(chainPtr);
+    graphPtr->flags |= RESET_WORLD;
+    Blt_EventuallyRedrawGraph(graphPtr);
     return TCL_OK;
 }
 
@@ -2196,7 +2302,7 @@ TypeOp(graphPtr, interp, argc, argv)
     } else {
 	string = "???";	
     }
-    Tcl_SetResult(interp, string, TCL_STATIC);
+    Tcl_SetResult(interp, (char *)string, TCL_STATIC);
     return TCL_OK;
 }
 
@@ -2217,7 +2323,9 @@ static Blt_OpSpec elemOps[] =
     {"delete", 3, (Blt_Op)DeleteOp, 3, 0, "?elemName?...",},
     {"exists", 1, (Blt_Op)ExistsOp, 4, 4, "elemName",},
     {"get", 1, (Blt_Op)GetOp, 4, 4, "name",},
+    {"lower", 1, (Blt_Op)LowerOp, 2, 0, "?elemName?...",},
     {"names", 1, (Blt_Op)NamesOp, 3, 0, "?pattern?...",},
+    {"raise", 1, (Blt_Op)RaiseOp, 2, 0, "?elemName?...",},
     {"show", 1, (Blt_Op)ShowOp, 3, 4, "?elemList?",},
     {"type", 1, (Blt_Op)TypeOp, 4, 4, "elemName",},
 };
