@@ -47,7 +47,7 @@ fi
 PATCH_FILE1=${srcdir}/hubzero_vtk_assembly.patch
 PATCH_FILE2=${srcdir}/hubzero_vtk_textactor3d.patch
 
-if test -f "${PATCH_FILE}" ; then
+if test -f "${PATCH_FILE1}" -a -f "${PATCH_FILE2}"; then
   # Copy vtk from the srcdir and patch it with our hubzero patch.
   rm -rf *
   tar -C $srcdir -clf - . | tar -xpf - 
@@ -55,7 +55,7 @@ if test -f "${PATCH_FILE}" ; then
   patch -p1 < ${PATCH_FILE1}
   patch -p0 < ${PATCH_FILE2}
 else
-  AC_ERROR([can't find hubzero patch file ${PATCH_FILE}])
+  AC_ERROR([can't find hubzero patch files])
 fi
 
 if test "${PLATFORM}" == "macosx"; then 
