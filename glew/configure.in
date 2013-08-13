@@ -20,7 +20,7 @@ AC_PROG_MKDIR_P
 AC_PREFIX
 AC_CANONICAL_SYSTEM
 
-glew_dir=glew-1.7.0
+glew_dir=glew-1.10.0
 GLEW_DIR=${glew_dir}
 
 # Copy glew from the srcdir and patch it with our patch.
