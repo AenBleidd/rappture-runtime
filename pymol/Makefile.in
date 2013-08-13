@@ -62,8 +62,9 @@ clean_autotools:
 build_disttools:
 	$(RM) -rf $(mybuild)
 	$(MKDIR_P) $(mybuild)
-	cd $(PYMOL_DIR); $(PYTHON) setup.py build install \
-		 --prefix=$(mybuild) --exec-prefix=$(mybuild)
+	cd $(PYMOL_DIR); $(PYTHON) setup.py build \
+		build_ext -I$(includedir) -L$(libdir) \
+		install --prefix=$(mybuild) --exec-prefix=$(mybuild)
 install_disttools: 
 	$(MKDIR_P) $(libdir)
 	@if test -d "$(mybuild)/lib64" ; then \
