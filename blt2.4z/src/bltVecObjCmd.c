@@ -1748,6 +1748,7 @@ SortOp(vPtr, interp, objc, objv)
     int uniq;
 
     reverse = FALSE;
+    uniq = FALSE;
     if (objc > 2) {
 	int length;
 
