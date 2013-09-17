@@ -1737,21 +1737,31 @@ GetScreenPoints(graphPtr, linePtr, mapPtr)
     count = 0;			/* Count the valid screen coordinates */
     if (graphPtr->inverted) {
 	for (i = 0; i < n; i++) {
-	    if ((FINITE(x[i])) && (FINITE(y[i]))) {
- 		screenPts[count].x = Blt_HMap(graphPtr, linePtr->axes.y, y[i]);
-		screenPts[count].y = Blt_VMap(graphPtr, linePtr->axes.x, x[i]);
-		indices[count] = i;
-		count++;
-	    }
+	    if ((!FINITE(x[i]))||(!FINITE(y[i]))) {
+		continue;
+	    } else if (linePtr->axes.y->logScale & (y[i] <= 0.0)) {
+		continue;			
+	    } else if (linePtr->axes.x->logScale & (x[i] <= 0.0)) {
+		continue;
+	    } 
+	    screenPts[count].x = Blt_HMap(graphPtr, linePtr->axes.y, y[i]);
+	    screenPts[count].y = Blt_VMap(graphPtr, linePtr->axes.x, x[i]);
+	    indices[count] = i;
+	    count++;
 	}
     } else {
 	for (i = 0; i < n; i++) {
-	    if ((FINITE(x[i])) && (FINITE(y[i]))) {
-		screenPts[count].x = Blt_HMap(graphPtr, linePtr->axes.x, x[i]);
-		screenPts[count].y = Blt_VMap(graphPtr, linePtr->axes.y, y[i]);
-		indices[count] = i;
-		count++;
-	    }
+	    if ((!FINITE(x[i]))||(!FINITE(y[i]))) {
+		continue;
+	    } else if (linePtr->axes.y->logScale & (y[i] <= 0.0)) {
+		continue;			
+	    } else if (linePtr->axes.x->logScale & (x[i] <= 0.0)) {
+		continue;
+	    } 
+	    screenPts[count].x = Blt_HMap(graphPtr, linePtr->axes.x, x[i]);
+	    screenPts[count].y = Blt_VMap(graphPtr, linePtr->axes.y, y[i]);
+	    indices[count] = i;
+	    count++;
 	}
     }
     mapPtr->screenPts = screenPts;
