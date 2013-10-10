@@ -3090,9 +3090,11 @@ ClosestTrace(graphPtr, linePtr, searchPtr, distProc)
     Trace *tracePtr;
     double dist, minDist;
     register Point2D *pointPtr, *endPtr;
+    int found;
     int i;
 
     i = -1;			/* Suppress compiler warning. */
+    found = FALSE;
     minDist = searchPtr->dist;
     for (linkPtr = Blt_ChainFirstLink(linePtr->traces); linkPtr != NULL;
 	linkPtr = Blt_ChainNextLink(linkPtr)) {
@@ -3105,11 +3107,12 @@ ClosestTrace(graphPtr, linePtr, searchPtr, distProc)
 	    if (dist < minDist) {
 		closest = b;
 		i = tracePtr->symbolToData[pointPtr - tracePtr->screenPts];
+		found = TRUE;
 		minDist = dist;
 	    }
 	}
     }
-    if (minDist < searchPtr->dist) {
+    if (found) {
 	searchPtr->dist = minDist;
 	searchPtr->elemPtr = (Element *)linePtr;
 	searchPtr->index = i;
@@ -3145,9 +3148,11 @@ ClosestStrip(graphPtr, linePtr, searchPtr, distProc)
     double dist, minDist;
     int count;
     int i;
-    register Segment2D *s;
+    Segment2D *s;
+    int found;
 
     i = 0;
+    found = FALSE;
     minDist = searchPtr->dist;
     s = linePtr->strips;
     for (count = 0; count < linePtr->nStrips; count++, s++) {
@@ -3156,9 +3161,10 @@ ClosestStrip(graphPtr, linePtr, searchPtr, distProc)
 	    closest = b;
 	    i = linePtr->stripToData[count];
 	    minDist = dist;
+	    found = TRUE;
 	}
     }
-    if (minDist < searchPtr->dist) {
+    if (found) {
 	searchPtr->dist = minDist;
 	searchPtr->elemPtr = (Element *)linePtr;
 	searchPtr->index = i;
@@ -3192,11 +3198,12 @@ ClosestPoint(linePtr, searchPtr)
     double dist, minDist;
     double dx, dy;
     int count, i;
-    register Point2D *pointPtr;
+    Point2D *pointPtr;
+    int found;
 
     minDist = searchPtr->dist;
     i = 0;
-
+    found = FALSE;
     /*
      * Instead of testing each data point in graph coordinates, look at
      * the array of mapped screen coordinates. The advantages are
@@ -3220,9 +3227,10 @@ ClosestPoint(linePtr, searchPtr)
 	if (dist < minDist) {
 	    i = linePtr->symbolToData[count];
 	    minDist = dist;
+	    found = TRUE;
 	}
     }
-    if (minDist < searchPtr->dist) {
+    if (found) {
 	searchPtr->elemPtr = (Element *)linePtr;
 	searchPtr->dist = minDist;
 	searchPtr->index = i;
