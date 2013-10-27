@@ -1,5 +1,5 @@
 
-AC_INIT(Copyright.txt)
+AC_INIT(VTK, 6.0.0)
 
 AC_PREFIX
 
