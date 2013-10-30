@@ -1992,7 +1992,6 @@ if test "${PLATFORM}" == "macosx"; then
   $CMAKE $srcdir \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DLIB_POSTFIX="" \
-   -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
    -DOPENGL_INCLUDE_DIR:PATH=/usr/X11/include \
    -DOPENGL_gl_LIBRARY:FILEPATH=/usr/X11/lib/libGL${SO_EXT} \
    -DOPENGL_glu_LIBRARY:FILEPATH=/usr/X11/lib/libGLU${SO_EXT} \
@@ -2001,7 +2000,6 @@ else
   $CMAKE $srcdir \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DLIB_POSTFIX="" \
-   -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
    -DOSG_USE_QT:BOOL=OFF
 fi
 
