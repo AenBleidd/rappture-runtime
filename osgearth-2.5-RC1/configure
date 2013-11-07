@@ -1990,6 +1990,7 @@ fi
 
 if test "${PLATFORM}" == "macosx"; then
   $CMAKE $srcdir \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DCMAKE_INCLUDE_PATH=$prefix/include \
    -DCMAKE_LIBRARY_PATH=$libdir \
@@ -2001,6 +2002,7 @@ if test "${PLATFORM}" == "macosx"; then
    -DOSGEARTH_USE_QT:BOOL=OFF
 else
   $CMAKE $srcdir \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DCMAKE_INCLUDE_PATH=$prefix/include \
    -DCMAKE_LIBRARY_PATH=$libdir \
