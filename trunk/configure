@@ -690,7 +690,6 @@ with_zlib
 with_glew
 with_voronoi
 with_matlab
-with_dx
 with_x
 '
       ac_precious_vars='build_alias
@@ -1340,7 +1339,6 @@ Optional Packages:
   --with-glew=DIR         Build glew [default=no]
   --with-voronoi=DIR      Build voronoi [default=no]
   --with-matlab=DIR       Build matlab [default=no]
-  --with-dx=DIR           Build opendx [default=no]
   --with-x                use the X Window System
 
 Some influential environment variables:
@@ -3470,7 +3468,7 @@ fi
 
 
 blt=blt2.4z
-cmake=cmake-2.8.7
+cmake=cmake-2.8.12
 expat=expat-2.0.1
 expect=expect5.45
 htmlwidget=htmlwidget-3a14
@@ -3489,7 +3487,6 @@ tls=tls1.6
 voronoi=voronoi
 vtk=vtk-6.0.0
 zlib=zlib
-dx=dx-4.4.4
 glew=glew
 
 # Option default
@@ -3516,7 +3513,6 @@ default_voronoi=yes
 default_vtk=no
 default_zlib=no
 default_glew=no
-default_dx=no
 
 # Check whether --enable-64bit was given.
 if test "${enable_64bit+set}" = set; then :
@@ -3723,18 +3719,9 @@ else
 fi
 
 
-
-# Check whether --with-dx was given.
-if test "${with_dx+set}" = set; then :
-  withval=$with_dx;
-else
-  with_dx=$default_dx
-fi
-
-
 stage1_targets="expat glew zlib tcl tk cmake"
 stage2_targets="expect itcl itk blt shape sqlite sqlitetcl voronoi htmlwidget tdom tcllib tkimg tls"
-stage3_targets="vtk pymol dx"
+stage3_targets="vtk pymol"
 
 if test "${with_expat}" = "no" ; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for XML_ParserCreate in -lexpat" >&5
