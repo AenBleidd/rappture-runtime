@@ -1,0 +1,71 @@
+
+AC_INIT(OSGEarth,0.0.1)
+
+AC_PREFIX
+
+AC_CANONICAL_TARGET
+
+#------------------------------------------------------------------------
+# Handle the --prefix=... option
+#------------------------------------------------------------------------
+
+case $target in
+  *-*-darwin*)
+    PLATFORM="macosx"
+    SO_EXT=".dylib"
+    SO_PREFIX="lib"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+  *)
+    PLATFORM="unix" 
+    SO_PREFIX="lib"
+    SO_EXT=".so"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+esac
+
+if test "${prefix}" = "NONE"; then
+    prefix=/usr/local
+fi
+if test "${exec_prefix}" = "NONE"; then
+    exec_prefix=$prefix
+fi
+libdir=$exec_prefix/lib
+includedir=$prefix/include
+PATH=$exec_prefix/bin:$PATH
+
+CMAKE=
+AC_PATH_PROG(CMAKE, cmake)
+if test "x${CMAKE}" = "x" ; then
+  AC_ERROR([cmake is required for building OSGEarth])
+fi
+
+if test "${PLATFORM}" == "macosx"; then 
+  $CMAKE $srcdir \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
+   -DCMAKE_DEBUG_POSTFIX:STRING="" \
+   -DCMAKE_RELWITHDEBINFO_POSTFIX:STRING="" \
+   -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DCMAKE_INCLUDE_PATH=$prefix/include \
+   -DCMAKE_LIBRARY_PATH=$libdir \
+   -DLIB_POSTFIX:STRING="" \
+   -DOPENGL_INCLUDE_DIR:PATH=/usr/X11/include \
+   -DOPENGL_gl_LIBRARY:FILEPATH=/usr/X11/lib/libGL${SO_EXT} \
+   -DOPENGL_glu_LIBRARY:FILEPATH=/usr/X11/lib/libGLU${SO_EXT} \
+   -DOSG_DIR=$prefix \
+   -DOSGEARTH_USE_QT:BOOL=OFF
+else 
+  $CMAKE $srcdir \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
+   -DCMAKE_DEBUG_POSTFIX:STRING="" \
+   -DCMAKE_RELWITHDEBINFO_POSTFIX:STRING="" \
+   -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DCMAKE_INCLUDE_PATH=$prefix/include \
+   -DCMAKE_LIBRARY_PATH=$libdir \
+   -DLIB_POSTFIX:STRING="" \
+   -DOSG_DIR=$prefix \
+   -DOSGEARTH_USE_QT:BOOL=OFF
+fi
+
