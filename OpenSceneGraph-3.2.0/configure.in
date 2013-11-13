@@ -45,8 +45,10 @@ fi
 if test "${PLATFORM}" == "macosx"; then 
   $CMAKE $srcdir \
    -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
+   -DCMAKE_DEBUG_POSTFIX:STRING="" \
+   -DCMAKE_RELWITHDEBINFO_POSTFIX:STRING="" \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
-   -DLIB_POSTFIX="" \
+   -DLIB_POSTFIX:STRING="" \
    -DOPENGL_INCLUDE_DIR:PATH=/usr/X11/include \
    -DOPENGL_gl_LIBRARY:FILEPATH=/usr/X11/lib/libGL${SO_EXT} \
    -DOPENGL_glu_LIBRARY:FILEPATH=/usr/X11/lib/libGLU${SO_EXT} \
@@ -54,8 +56,10 @@ if test "${PLATFORM}" == "macosx"; then
 else 
   $CMAKE $srcdir \
    -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
+   -DCMAKE_DEBUG_POSTFIX:STRING="" \
+   -DCMAKE_RELWITHDEBINFO_POSTFIX:STRING="" \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
-   -DLIB_POSTFIX="" \
+   -DLIB_POSTFIX:STRING="" \
    -DOSG_USE_QT:BOOL=OFF
 fi
 
