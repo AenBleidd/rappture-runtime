@@ -19,6 +19,7 @@ EXPECT_DIR		= @EXPECT_DIR@
 HTMLWIDGET_DIR		= @HTMLWIDGET_DIR@
 ITCL_DIR		= @ITCL_DIR@
 ITK_DIR			= @ITK_DIR@
+OSG_DIR                 = @OSG_DIR@
 SHAPE_DIR		= @SHAPE_DIR@
 SQLITETCL_DIR		= @SQLITETCL_DIR@
 TCLLIB_DIR		= @TCLLIB_DIR@
@@ -41,6 +42,9 @@ ifneq ($(ITCL_DIR),)
 endif
 ifneq ($(ITK_DIR),)
    subdirs += $(ITK_DIR)
+endif
+ifneq ($(OSG_DIR),)
+   subdirs += $(OSG_DIR)
 endif
 ifneq ($(SHAPE_DIR),)
    subdirs += $(SHAPE_DIR)

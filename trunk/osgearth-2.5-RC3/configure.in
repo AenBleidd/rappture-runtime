@@ -1,5 +1,5 @@
 
-AC_INIT(OSGEarth,0.0.1)
+AC_INIT([OSGEarth], [2.5-RC3])
 
 AC_PREFIX
 
@@ -35,6 +35,7 @@ fi
 libdir=$exec_prefix/lib
 includedir=$prefix/include
 PATH=$exec_prefix/bin:$PATH
+LD_LIBRARY_PATH=$libdir:$LD_LIBRARY_PATH
 
 CMAKE=
 AC_PATH_PROG(CMAKE, cmake)
