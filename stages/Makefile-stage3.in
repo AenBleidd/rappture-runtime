@@ -14,18 +14,18 @@ RM			= rm -f
 VPATH			= $(srcdir)
 INSTALL			= @INSTALL@
 
+OSGEARTH_DIR            = @OSGEARTH_DIR@
 PYMOL_DIR		= @PYMOL_DIR@
-DX_DIR			= @DX_DIR@
 VTK_DIR			= @VTK_DIR@
 
-ifneq ($(VTK_DIR),)
-   subdirs += $(VTK_DIR)
+ifneq ($(OSGEARTH_DIR),)
+   subdirs += $(OSGEARTH_DIR)
 endif
 ifneq ($(PYMOL_DIR),)
    subdirs += $(PYMOL_DIR)
 endif
-ifneq ($(DX_DIR),)
-   subdirs += $(DX_DIR)
+ifneq ($(VTK_DIR),)
+   subdirs += $(VTK_DIR)
 endif
 
 all: 
