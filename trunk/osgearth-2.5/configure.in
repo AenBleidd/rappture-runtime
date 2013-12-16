@@ -36,6 +36,7 @@ libdir=$exec_prefix/lib
 includedir=$prefix/include
 PATH=$exec_prefix/bin:$PATH
 LD_LIBRARY_PATH=$libdir:$LD_LIBRARY_PATH
+export PATH LD_LIBRARY_PATH
 
 CMAKE=
 AC_PATH_PROG(CMAKE, cmake)
