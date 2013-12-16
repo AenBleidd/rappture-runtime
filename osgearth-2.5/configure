@@ -1943,6 +1943,7 @@ libdir=$exec_prefix/lib
 includedir=$prefix/include
 PATH=$exec_prefix/bin:$PATH
 LD_LIBRARY_PATH=$libdir:$LD_LIBRARY_PATH
+export PATH LD_LIBRARY_PATH
 
 CMAKE=
 # Extract the first word of "cmake", so it can be a program name with args.
