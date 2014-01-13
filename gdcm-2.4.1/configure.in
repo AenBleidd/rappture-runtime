@@ -1,0 +1,70 @@
+
+AC_INIT([gdcm], [2.4.1])
+
+AC_PREFIX
+
+AC_CANONICAL_TARGET
+
+#------------------------------------------------------------------------
+# Handle the --prefix=... option
+#------------------------------------------------------------------------
+
+case $target in
+  *-*-darwin*)
+    PLATFORM="macosx"
+    SO_EXT=".dylib"
+    SO_PREFIX="lib"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+  *)
+    PLATFORM="unix" 
+    SO_PREFIX="lib"
+    SO_EXT=".so"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+esac
+
+if test "${prefix}" = "NONE"; then
+    prefix=/usr/local
+fi
+if test "${exec_prefix}" = "NONE"; then
+    exec_prefix=$prefix
+fi
+libdir=$exec_prefix/lib
+includedir=$prefix/include
+PATH=$exec_prefix/bin:$PATH
+
+CMAKE=
+AC_PATH_PROG(CMAKE, cmake)
+if test "x${CMAKE}" = "x" ; then
+  AC_ERROR([cmake is required for building VTK])
+fi
+
+#   -DGDCM_USE_SYSTEM_LJPEG:BOOL=ON \
+#   -DGDCM_USE_SYSTEM_JSON:BOOL=ON \
+#   -DGDCM_USE_SYSTEM_CHARLS:BOOL=ON \
+#   -DGDCM_USE_SYSTEM_EXPAT:BOOL=ON \
+#   -DGDCM_USE_SYSTEM_LIBXML2:BOOL=ON \
+#   -DGDCM_USE_SYSTEM_OPENJPEG:BOOL=ON \
+#   -DGDCM_USE_SYSTEM_OPENSSL:BOOL=ON \
+#   -DGDCM_USE_SYSTEM_POPPLER:BOOL=ON \
+#   -DGDCM_USE_SYSTEM_UUID:BOOL=ON \
+#   -DGDCM_USE_SYSTEM_ZLIB:BOOL=ON \
+
+if test "${PLATFORM}" == "macosx"; then 
+  $CMAKE $srcdir \
+   -DCMAKE_BUILD_TYPE:STRING=Release \
+   -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DGDCM_BUILD_APPLICATIONS:BOOL=ON \
+   -DGDCM_BUILD_SHARED_LIBS:BOOL=ON \
+   ;
+else 
+  $CMAKE $srcdir \
+   -DCMAKE_BUILD_TYPE:STRING=Release \
+   -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DGDCM_BUILD_APPLICATIONS:BOOL=ON \
+   -DGDCM_BUILD_SHARED_LIBS:BOOL=ON \
+   ;
+fi
