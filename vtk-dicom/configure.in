@@ -1,0 +1,65 @@
+
+AC_INIT([vtk-dicom], [0.3.5])
+
+AC_PREFIX
+
+AC_CANONICAL_TARGET
+
+#------------------------------------------------------------------------
+# Handle the --prefix=... option
+#------------------------------------------------------------------------
+
+case $target in
+  *-*-darwin*)
+    PLATFORM="macosx"
+    SO_EXT=".dylib"
+    SO_PREFIX="lib"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+  *)
+    PLATFORM="unix" 
+    SO_PREFIX="lib"
+    SO_EXT=".so"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+esac
+
+if test "${prefix}" = "NONE"; then
+    prefix=/usr/local
+fi
+if test "${exec_prefix}" = "NONE"; then
+    exec_prefix=$prefix
+fi
+libdir=$exec_prefix/lib
+includedir=$prefix/include
+PATH=$exec_prefix/bin:$PATH
+
+. $libdir/tclConfig.sh
+
+CMAKE=
+AC_PATH_PROG(CMAKE, cmake)
+if test "x${CMAKE}" = "x" ; then
+  AC_ERROR([cmake is required for building VTK])
+fi
+
+#-DUSE_GDCM:BOOL=OFF \
+
+if test "${PLATFORM}" == "macosx"; then 
+  $CMAKE $srcdir \
+   -DVTK_DIR:PATH=$libdir/cmake/vtk-6.0 \
+   -DCMAKE_BUILD_TYPE:STRING=Release \
+   -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DBUILD_SHARED_LIBS:BOOL=ON \
+   -DUSE_GDCM:BOOL=ON \
+   ;
+else 
+  $CMAKE $srcdir \
+   -DVTK_DIR:PATH=$libdir/cmake/vtk-6.0 \
+   -DCMAKE_BUILD_TYPE:STRING=Release \
+   -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DBUILD_SHARED_LIBS:BOOL=ON \
+   -DUSE_GDCM:BOOL=ON \
+   ;
+fi
