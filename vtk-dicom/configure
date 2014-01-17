@@ -1987,14 +1987,14 @@ fi
 
 
 if test "x${CMAKE}" = "x" ; then
-  as_fn_error $? "cmake is required for building VTK" "$LINENO" 5
+  as_fn_error $? "cmake is required for building vtk-dicom" "$LINENO" 5
 fi
 
 if test "${PLATFORM}" == "macosx"; then
   $CMAKE $srcdir \
    -DVTK_DIR:PATH=$libdir/cmake/vtk-6.0 \
    -DGDCM_DIR:PATH=$libdir/gdcm-2.4 \
-   -DCMAKE_BUILD_TYPE:STRING=Release \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DUSE_GDCM:BOOL=ON \
@@ -2003,7 +2003,7 @@ else
   $CMAKE $srcdir \
    -DVTK_DIR:PATH=$libdir/cmake/vtk-6.0 \
    -DGDCM_DIR:PATH=$libdir/gdcm-2.4 \
-   -DCMAKE_BUILD_TYPE:STRING=Release \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DUSE_GDCM:BOOL=ON \

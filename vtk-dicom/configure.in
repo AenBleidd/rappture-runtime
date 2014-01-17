@@ -41,14 +41,14 @@ PATH=$exec_prefix/bin:$PATH
 CMAKE=
 AC_PATH_PROG(CMAKE, cmake)
 if test "x${CMAKE}" = "x" ; then
-  AC_ERROR([cmake is required for building VTK])
+  AC_ERROR([cmake is required for building vtk-dicom])
 fi
 
 if test "${PLATFORM}" == "macosx"; then 
   $CMAKE $srcdir \
    -DVTK_DIR:PATH=$libdir/cmake/vtk-6.0 \
    -DGDCM_DIR:PATH=$libdir/gdcm-2.4 \
-   -DCMAKE_BUILD_TYPE:STRING=Release \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DUSE_GDCM:BOOL=ON \
@@ -57,7 +57,7 @@ else
   $CMAKE $srcdir \
    -DVTK_DIR:PATH=$libdir/cmake/vtk-6.0 \
    -DGDCM_DIR:PATH=$libdir/gdcm-2.4 \
-   -DCMAKE_BUILD_TYPE:STRING=Release \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DUSE_GDCM:BOOL=ON \
