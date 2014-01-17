@@ -1,7 +1,7 @@
-2008-11-25: 
-	
- * (Re)fixed cut/paste with menus (menu.tcl).  This is a bug in Tk 
-   distributions that's been there forever.  This fix was lost when I 
+2008-11-25:
+
+ * (Re)fixed cut/paste with menus (menu.tcl).  This is a bug in Tk
+   distributions that's been there forever.  This fix was lost when I
    upgraded to tk8.4.19.
  * Upgraded to latest (r3478) version of pymol from sourceforge.net.
    This was done in the process of upgrading to 64-bit render servers.

@@ -39,21 +39,21 @@ endif
 all: 
 	for i in $(subdirs); do \
 	   $(MAKE) -C $$i all || exit 1 ; \
- 	done
+	done
 
 install: 
 	for i in $(subdirs); do \
 	   $(MAKE) -C $$i install || exit 1 ; \
- 	done
+	done
 
 clean: 
 	for i in $(subdirs); do \
 	   $(MAKE) -C $$i clean || exit 1 ; \
- 	done
+	done
 
 distclean: 
 	for i in $(subdirs); do \
 	   $(MAKE) -C $$i distclean || exit 1 ; \
- 	done
+	done
 
 

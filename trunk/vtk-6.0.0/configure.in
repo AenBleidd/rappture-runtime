@@ -61,6 +61,7 @@ fi
 if test "${PLATFORM}" == "macosx"; then 
   $CMAKE . \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DBUILD_EXAMPLES:BOOL=OFF \
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DBUILD_TESTING:BOOL=OFF \
@@ -82,6 +83,7 @@ if test "${PLATFORM}" == "macosx"; then
 else 
   $CMAKE . \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DBUILD_EXAMPLES:BOOL=OFF \
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DBUILD_TESTING:BOOL=OFF \

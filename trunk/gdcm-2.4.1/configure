@@ -1985,7 +1985,7 @@ fi
 
 
 if test "x${CMAKE}" = "x" ; then
-  as_fn_error $? "cmake is required for building VTK" "$LINENO" 5
+  as_fn_error $? "cmake is required for building gdcm" "$LINENO" 5
 fi
 
 #   -DGDCM_USE_SYSTEM_LJPEG:BOOL=ON \
@@ -2001,14 +2001,14 @@ fi
 
 if test "${PLATFORM}" == "macosx"; then
   $CMAKE $srcdir \
-   -DCMAKE_BUILD_TYPE:STRING=Release \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DGDCM_BUILD_APPLICATIONS:BOOL=ON \
    -DGDCM_BUILD_SHARED_LIBS:BOOL=ON \
    ;
 else
   $CMAKE $srcdir \
-   -DCMAKE_BUILD_TYPE:STRING=Release \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DGDCM_BUILD_APPLICATIONS:BOOL=ON \
    -DGDCM_BUILD_SHARED_LIBS:BOOL=ON \
