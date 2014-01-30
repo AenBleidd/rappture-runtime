@@ -1990,10 +1990,13 @@ if test "x${CMAKE}" = "x" ; then
   as_fn_error $? "cmake is required for building vtk-dicom" "$LINENO" 5
 fi
 
+VTK_VERSION=6.1
+GDCM_VERSION=2.4
+
 if test "${PLATFORM}" == "macosx"; then
   $CMAKE $srcdir \
-   -DVTK_DIR:PATH=$libdir/cmake/vtk-6.0 \
-   -DGDCM_DIR:PATH=$libdir/gdcm-2.4 \
+   -DVTK_DIR:PATH=$libdir/cmake/vtk-${VTK_VERSION} \
+   -DGDCM_DIR:PATH=$libdir/gdcm-${GDCM_VERSION} \
    -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DBUILD_SHARED_LIBS:BOOL=ON \
@@ -2001,8 +2004,8 @@ if test "${PLATFORM}" == "macosx"; then
    ;
 else
   $CMAKE $srcdir \
-   -DVTK_DIR:PATH=$libdir/cmake/vtk-6.0 \
-   -DGDCM_DIR:PATH=$libdir/gdcm-2.4 \
+   -DVTK_DIR:PATH=$libdir/cmake/vtk-${VTK_VERSION} \
+   -DGDCM_DIR:PATH=$libdir/gdcm-${GDCM_VERSION} \
    -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DBUILD_SHARED_LIBS:BOOL=ON \
