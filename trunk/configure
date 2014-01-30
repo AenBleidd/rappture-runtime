@@ -3491,7 +3491,7 @@ tk=tk8.4.19/unix
 tkimg=tkimg1.3
 tls=tls1.6
 voronoi=voronoi
-vtk=vtk-6.0.0
+vtk=vtk-6.1.0
 zlib=zlib
 glew=glew
 
