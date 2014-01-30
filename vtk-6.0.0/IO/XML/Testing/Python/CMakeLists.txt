@@ -1,8 +1,0 @@
-if (VTK_DATA_ROOT)
-  add_test_python1(TestEmptyXML.py)
-  add_test_python(TestXMLImageDataIO.py IO)
-  add_test_python(TestXMLPolyDataIO.py IO)
-  add_test_python(TestXMLRectilinearGridIO.py IO)
-  add_test_python(TestXMLStructuredGridIO.py IO)
-  add_test_python(TestXMLUnstructuredGridIO.py IO)
-endif()

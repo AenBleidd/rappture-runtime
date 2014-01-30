@@ -1,3 +1,0 @@
-add_test_mpi(TestPStructuredGridConnectivity.cxx)
-add_test_mpi(TestPStructuredGridGhostDataGenerator.cxx)
-add_test_mpi(TestPUniformGridGhostDataGenerator.cxx)

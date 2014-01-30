@@ -1,5 +1,0 @@
-add_test_python(RectOutline.py Parallel)
-add_test_python(TestCutMaterial.py Parallel)
-add_test_python(TestExtractCTHPart.py Parallel)
-add_test_python(TestExtrudePiece.py Parallel)
-add_test_python(TestImageStreamer.py Parallel)

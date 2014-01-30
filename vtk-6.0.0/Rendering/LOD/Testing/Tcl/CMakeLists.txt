@@ -1,1 +1,0 @@
-add_test_tcl(TestQuadricLODActor Hybrid)
