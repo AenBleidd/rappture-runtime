@@ -10,7 +10,7 @@ index 8961c26..5d8dd0f 100644
        prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
        double* bounds = prop3D->GetBounds();
        prop3D->PokeMatrix(NULL);
-+      if ( !vtkMath::AreBoundsInitialized(bounds) )
++      if (bounds == NULL || !vtkMath::AreBoundsInitialized(bounds))
 +        continue;
 +      propVisible = 1;
  
