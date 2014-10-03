@@ -1,5 +1,5 @@
 
-AC_INIT([VTK], [6.1.0rc2])
+AC_INIT([VTK], [6.1.0])
 
 AC_PREFIX
 
