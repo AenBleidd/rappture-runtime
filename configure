@@ -3472,7 +3472,7 @@ fi
 
 
 blt=blt2.4z
-cmake=cmake-2.8.12
+cmake=cmake-2.8.12.2
 expat=expat-2.0.1
 expect=expect5.45
 htmlwidget=htmlwidget-3a14
