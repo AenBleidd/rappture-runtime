@@ -1992,14 +1992,16 @@ fi
 
 PATCH_FILE1=${srcdir}/hubzero_vtk_assembly.patch
 PATCH_FILE2=${srcdir}/hubzero_vtk_textactor3d.patch
+PATCH_FILE3=${srcdir}/hubzero_vtk_clipplanes.patch
 
-if test -f "${PATCH_FILE1}" -a -f "${PATCH_FILE2}"; then
+if test -f "${PATCH_FILE1}" -a -f "${PATCH_FILE2}" -a -f "${PATCH_FILE3}"; then
   # Copy vtk from the srcdir and patch it with our hubzero patch.
   rm -rf *
   tar -C $srcdir -clf - . | tar -xpf -
   # Apply patches to original sources.
   patch -p1 < ${PATCH_FILE1}
   patch -p0 < ${PATCH_FILE2}
+  patch -p0 < ${PATCH_FILE3}
 else
   as_fn_error $? "can't find hubzero patch files" "$LINENO" 5
 fi
