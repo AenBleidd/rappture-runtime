@@ -1323,10 +1323,10 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-blt=DIR          Build blt [default=yes]]
+  --with-blt=DIR          Build blt [default=yes]
   --with-cmake=DIR        Build cmake [default=yes]
-  --with-expat=DIR        Build expat [default=yes]]
-  --with-expect=DIR       Build expect [default=yes]]
+  --with-expat=DIR        Build expat [default=yes]
+  --with-expect=DIR       Build expect [default=yes]
   --with-htmlwidget=DIR   Build htmlwidget [default=yes]
   --with-itcl=DIR         Build itcl [default=yes]
   --with-itk=DIR          Build itk [default=yes]
@@ -1341,7 +1341,7 @@ Optional Packages:
   --with-tk=DIR           Build tk [default=yes]
   --with-tkimg=DIR        Build tkimg [default=yes]
   --with-tls=DIR          Build tls [default=yes]
-  --with-vtk=DIR          Build vtk default=yes
+  --with-vtk=DIR          Build vtk [default=no]
   --with-zlib=DIR         Build zlib [default=no]
   --with-glew=DIR         Build glew [default=no]
   --with-voronoi=DIR      Build voronoi [default=no]
