@@ -16,6 +16,7 @@ INSTALL			= @INSTALL@
 
 BLT_DIR			= @BLT_DIR@
 EXPECT_DIR		= @EXPECT_DIR@
+GDCM_DIR		= @GDCM_DIR@
 HTMLWIDGET_DIR		= @HTMLWIDGET_DIR@
 ITCL_DIR		= @ITCL_DIR@
 ITK_DIR			= @ITK_DIR@
@@ -27,12 +28,16 @@ TDOM_DIR		= @TDOM_DIR@
 TKIMG_DIR		= @TKIMG_DIR@
 TLS_DIR			= @TLS_DIR@
 VORONOI_DIR 		= @VORONOI_DIR@
+VTK_DIR			= @VTK_DIR@
 
 ifneq ($(BLT_DIR),)
    subdirs += $(BLT_DIR)
 endif
 ifneq ($(EXPECT_DIR),)
    subdirs += $(EXPECT_DIR)
+endif
+ifneq ($(GDCM_DIR),)
+   subdirs += $(GDCM_DIR)
 endif
 ifneq ($(HTMLWIDGET_DIR),)
    subdirs += $(HTMLWIDGET_DIR)
@@ -66,6 +71,9 @@ ifneq ($(TLS_DIR),)
 endif
 ifneq ($(VORONOI_DIR),)
    subdirs += $(VORONOI_DIR)
+endif
+ifneq ($(VTK_DIR),)
+   subdirs += $(VTK_DIR)
 endif
 
 all: 

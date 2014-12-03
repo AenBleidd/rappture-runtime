@@ -588,6 +588,7 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 subdirs
 ZLIB_DIR
+VTK_DICOM_DIR
 VTK_DIR
 VORONOI_DIR
 TLS_DIR
@@ -605,6 +606,7 @@ ITK_DIR
 ITCL_DIR
 HTMLWIDGET_DIR
 GLEW_DIR
+GDCM_DIR
 EXPECT_DIR
 EXPAT_DIR
 CMAKE_DIR
@@ -673,6 +675,7 @@ with_blt
 with_cmake
 with_expat
 with_expect
+with_gdcm
 with_htmlwidget
 with_itcl
 with_itk
@@ -688,6 +691,7 @@ with_tk
 with_tkimg
 with_tls
 with_vtk
+with_vtk_dicom
 with_zlib
 with_glew
 with_voronoi
@@ -1327,6 +1331,7 @@ Optional Packages:
   --with-cmake=DIR        Build cmake [default=yes]
   --with-expat=DIR        Build expat [default=yes]
   --with-expect=DIR       Build expect [default=yes]
+  --with-gdcm=DIR         Build gdcm [default=no]
   --with-htmlwidget=DIR   Build htmlwidget [default=yes]
   --with-itcl=DIR         Build itcl [default=yes]
   --with-itk=DIR          Build itk [default=yes]
@@ -1342,6 +1347,7 @@ Optional Packages:
   --with-tkimg=DIR        Build tkimg [default=yes]
   --with-tls=DIR          Build tls [default=yes]
   --with-vtk=DIR          Build vtk [default=no]
+  --with-vtk-dicom=DIR    Build vtk-dicom [default=no]
   --with-zlib=DIR         Build zlib [default=no]
   --with-glew=DIR         Build glew [default=no]
   --with-voronoi=DIR      Build voronoi [default=no]
@@ -3475,6 +3481,7 @@ blt=blt2.4z
 cmake=cmake-2.8.12.2
 expat=expat-2.0.1
 expect=expect5.45
+gdcm=gdcm-2.4.1
 htmlwidget=htmlwidget-3a14
 itcl=itcl3.3
 itk=itk3.3
@@ -3492,6 +3499,7 @@ tkimg=tkimg1.3
 tls=tls1.6
 voronoi=voronoi
 vtk=vtk-6.1.0
+vtk_dicom=vtk-dicom
 zlib=zlib
 glew=glew
 
@@ -3501,6 +3509,7 @@ default_blt=yes
 default_cmake=no
 default_expat=no
 default_expect=yes
+default_gdcm=no
 default_htmlwidget=yes
 default_itcl=yes
 default_itk=yes
@@ -3519,6 +3528,7 @@ default_tkimg=yes
 default_tls=yes
 default_voronoi=yes
 default_vtk=no
+default_vtk_dicom=no
 default_zlib=no
 default_glew=no
 
@@ -3566,6 +3576,15 @@ if test "${with_expect+set}" = set; then :
   withval=$with_expect;
 else
   with_expect=$default_expect
+fi
+
+
+
+# Check whether --with-gdcm was given.
+if test "${with_gdcm+set}" = set; then :
+  withval=$with_gdcm;
+else
+  with_gdcm=$default_gdcm
 fi
 
 
@@ -3710,6 +3729,15 @@ fi
 
 
 
+# Check whether --with-vtk-dicom was given.
+if test "${with_vtk_dicom+set}" = set; then :
+  withval=$with_vtk_dicom;
+else
+  with_vtk_dicom=$default_vtk_dicom
+fi
+
+
+
 # Check whether --with-zlib was given.
 if test "${with_zlib+set}" = set; then :
   withval=$with_zlib;
@@ -3746,8 +3774,8 @@ fi
 
 
 stage1_targets="cmake expat glew tcl tk zlib"
-stage2_targets="blt expect htmlwidget itcl itk osg shape sqlite sqlitetcl tcllib tdom tkimg tls voronoi"
-stage3_targets="osgearth pymol vtk"
+stage2_targets="blt expect gdcm htmlwidget itcl itk osg shape sqlite sqlitetcl tcllib tdom tkimg tls voronoi vtk"
+stage3_targets="osgearth pymol vtk_dicom"
 
 if test "${with_expat}" = "no" ; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for XML_ParserCreate in -lexpat" >&5
@@ -4111,7 +4139,9 @@ fi
 
 
 
+
 #AC_SUBST(SQLITE_DIR)
+
 
 
 
