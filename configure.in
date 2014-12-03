@@ -34,6 +34,7 @@ blt=blt2.4z
 cmake=cmake-2.8.12.2
 expat=expat-2.0.1
 expect=expect5.45
+gdcm=gdcm-2.4.1
 htmlwidget=htmlwidget-3a14
 itcl=itcl3.3
 itk=itk3.3
@@ -51,6 +52,7 @@ tkimg=tkimg1.3
 tls=tls1.6
 voronoi=voronoi
 vtk=vtk-6.1.0
+vtk_dicom=vtk-dicom
 zlib=zlib
 glew=glew
 
@@ -60,6 +62,7 @@ default_blt=yes
 default_cmake=no
 default_expat=no
 default_expect=yes
+default_gdcm=no
 default_htmlwidget=yes
 default_itcl=yes
 default_itk=yes
@@ -78,6 +81,7 @@ default_tkimg=yes
 default_tls=yes
 default_voronoi=yes
 default_vtk=no
+default_vtk_dicom=no
 default_zlib=no
 default_glew=no
 
@@ -107,6 +111,11 @@ AC_ARG_WITH([expect],
   [AS_HELP_STRING([--with-expect[=DIR]], 
     [Build expect @<:@default=yes@:>@])], 
 	[], [with_expect=$default_expect])
+
+AC_ARG_WITH([gdcm],
+  [AS_HELP_STRING([--with-gdcm[=DIR]], 
+    [Build gdcm @<:@default=no@:>@])], 
+	[], [with_gdcm=$default_gdcm])
 
 AC_ARG_WITH([htmlwidget],
   [AS_HELP_STRING([--with-htmlwidget[=DIR]], 
@@ -188,6 +197,11 @@ AC_ARG_WITH([vtk],
     [Build vtk @<:@default=no@:>@])], 
 	[], [with_vtk=$default_vtk])
 
+AC_ARG_WITH([vtk-dicom],
+  [AS_HELP_STRING([--with-vtk-dicom[=DIR]], 
+    [Build vtk-dicom @<:@default=no@:>@])], 
+	[], [with_vtk_dicom=$default_vtk_dicom])
+
 AC_ARG_WITH([zlib],
   [AS_HELP_STRING([--with-zlib[=DIR]], 
     [Build zlib @<:@default=no@:>@])], 
@@ -209,8 +223,8 @@ AC_ARG_WITH([matlab],
 	[], [with_matlab=$default_matlab])
 
 stage1_targets="cmake expat glew tcl tk zlib"
-stage2_targets="blt expect htmlwidget itcl itk osg shape sqlite sqlitetcl tcllib tdom tkimg tls voronoi"
-stage3_targets="osgearth pymol vtk"
+stage2_targets="blt expect gdcm htmlwidget itcl itk osg shape sqlite sqlitetcl tcllib tdom tkimg tls voronoi vtk"
+stage3_targets="osgearth pymol vtk_dicom"
 
 if test "${with_expat}" = "no" ; then
   AC_CHECK_LIB(expat, XML_ParserCreate, [with_expat="no"], 
@@ -293,6 +307,7 @@ AC_SUBST(BLT_DIR)
 AC_SUBST(CMAKE_DIR)
 AC_SUBST(EXPAT_DIR)
 AC_SUBST(EXPECT_DIR)
+AC_SUBST(GDCM_DIR)
 AC_SUBST(GLEW_DIR)
 AC_SUBST(HTMLWIDGET_DIR)
 AC_SUBST(ITCL_DIR)
@@ -311,6 +326,7 @@ AC_SUBST(TK_DIR)
 AC_SUBST(TLS_DIR)
 AC_SUBST(VORONOI_DIR)
 AC_SUBST(VTK_DIR)
+AC_SUBST(VTK_DICOM_DIR)
 AC_SUBST(ZLIB_DIR)
 
 if test "x${my_subdirs}" != "x"; then
