@@ -38,8 +38,6 @@ gdcm=gdcm-2.4.1
 htmlwidget=htmlwidget-3a14
 itcl=itcl3.3
 itk=itk3.3
-osg=OpenSceneGraph-3.2.1
-osgearth=osgearth-2.6
 pymol=pymol
 shape=shape0.4/unix
 ##sqlite=sqlite-3071502
@@ -67,8 +65,6 @@ default_htmlwidget=yes
 default_itcl=yes
 default_itk=yes
 default_matlab=yes
-default_osg=no
-default_osgearth=no
 default_pymol=no
 default_shape=yes
 #default_sqlite=yes
@@ -131,16 +127,6 @@ AC_ARG_WITH([itk],
   [AS_HELP_STRING([--with-itk[=DIR]], 
     [Build itk @<:@default=yes@:>@])], 
 	[], [with_itk=$default_itk])
-
-AC_ARG_WITH([osg],
-  [AS_HELP_STRING([--with-osg[=DIR]], 
-     [Build osg @<:@default=no@:>@])], 
-	[], [with_osg=$default_osg])
-
-AC_ARG_WITH([osgearth],
-  [AS_HELP_STRING([--with-osgearth[=DIR]], 
-     [Build osgearth @<:@default=no@:>@])], 
-	[], [with_osgearth=$default_osgearth])
 
 AC_ARG_WITH([pymol],
   [AS_HELP_STRING([--with-pymol[=DIR]], 
@@ -223,8 +209,8 @@ AC_ARG_WITH([matlab],
 	[], [with_matlab=$default_matlab])
 
 stage1_targets="cmake expat glew tcl tk zlib"
-stage2_targets="blt expect gdcm htmlwidget itcl itk osg shape sqlite sqlitetcl tcllib tdom tkimg tls voronoi vtk"
-stage3_targets="osgearth pymol vtk_dicom"
+stage2_targets="blt expect gdcm htmlwidget itcl itk shape sqlite sqlitetcl tcllib tdom tkimg tls voronoi vtk"
+stage3_targets="pymol vtk_dicom"
 
 if test "${with_expat}" = "no" ; then
   AC_CHECK_LIB(expat, XML_ParserCreate, [with_expat="no"], 
@@ -312,8 +298,6 @@ AC_SUBST(GLEW_DIR)
 AC_SUBST(HTMLWIDGET_DIR)
 AC_SUBST(ITCL_DIR)
 AC_SUBST(ITK_DIR)
-AC_SUBST(OSG_DIR)
-AC_SUBST(OSGEARTH_DIR)
 AC_SUBST(PYMOL_DIR)
 AC_SUBST(SHAPE_DIR)
 #AC_SUBST(SQLITE_DIR)
