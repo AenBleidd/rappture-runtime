@@ -44,7 +44,7 @@ if test "x${CMAKE}" = "x" ; then
   AC_ERROR([cmake is required for building vtk-dicom])
 fi
 
-VTK_VERSION=6.1
+VTK_VERSION=6.2
 GDCM_VERSION=2.4
 
 if test "${PLATFORM}" == "macosx"; then 
