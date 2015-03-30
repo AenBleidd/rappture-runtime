@@ -1990,7 +1990,7 @@ if test "x${CMAKE}" = "x" ; then
   as_fn_error $? "cmake is required for building vtk-dicom" "$LINENO" 5
 fi
 
-VTK_VERSION=6.1
+VTK_VERSION=6.2
 GDCM_VERSION=2.4
 
 if test "${PLATFORM}" == "macosx"; then
