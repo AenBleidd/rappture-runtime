@@ -48,16 +48,21 @@ if test "${PLATFORM}" == "macosx"; then
   $CMAKE $srcdir \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
+   -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
    -DBUILD_EXAMPLES:BOOL=OFF \
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DBUILD_TESTING:BOOL=OFF \
-   -DVTK_WRAP_TCL:BOOL=OFF \
-   -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
+   -DVTK_WRAP_TCL:BOOL=ON \
+   -DTCL_TCLSH:FILEPATH=$prefix/bin/tclsh${TCL_VERSION} \
+   -DTCL_INCLUDE_PATH:PATH=$includedir \
+   -DTCL_LIBRARY:FILEPATH=$libdir/libtcl${TCL_VERSION}${SO_EXT} \
+   -DTK_INCLUDE_PATH:PATH=$includedir \
+   -DTK_LIBRARY:FILEPATH=$libdir/libtk${TCL_VERSION}${SO_EXT} \
    -DOPENGL_INCLUDE_DIR:PATH=/usr/X11/include \
    -DOPENGL_gl_LIBRARY:FILEPATH=/usr/X11/lib/libGL${SO_EXT} \
    -DOPENGL_glu_LIBRARY:FILEPATH=/usr/X11/lib/libGLU${SO_EXT} \
    -DModule_vtkRenderingFreeTypeFontConfig:BOOL=ON \
-   -DModule_vtkRenderingTk:BOOL=OFF \
+   -DModule_vtkRenderingTk:BOOL=ON \
    -DVTK_USE_X:BOOL=ON \
    -DVTK_USE_CARBON:BOOL=OFF \
    -DVTK_USE_COCOA:BOOL=OFF;
@@ -65,13 +70,18 @@ else
   $CMAKE $srcdir \
    -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
    -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
+   -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
    -DBUILD_EXAMPLES:BOOL=OFF \
    -DBUILD_SHARED_LIBS:BOOL=ON \
    -DBUILD_TESTING:BOOL=OFF \
-   -DVTK_WRAP_TCL:BOOL=OFF \
-   -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
+   -DVTK_WRAP_TCL:BOOL=ON \
+   -DTCL_TCLSH:FILEPATH=$prefix/bin/tclsh${TCL_VERSION} \
+   -DTCL_INCLUDE_PATH:PATH=$includedir \
+   -DTCL_LIBRARY:FILEPATH=$libdir/libtcl${TCL_VERSION}${SO_EXT} \
+   -DTK_INCLUDE_PATH:PATH=$includedir \
+   -DTK_LIBRARY:FILEPATH=$libdir/libtk${TCL_VERSION}${SO_EXT} \
    -DModule_vtkRenderingFreeTypeFontConfig:BOOL=ON \
-   -DModule_vtkRenderingTk:BOOL=OFF \
+   -DModule_vtkRenderingTk:BOOL=ON \
    -DVTK_USE_X:BOOL=ON \
    -DVTK_USE_CARBON:BOOL=OFF \
    -DVTK_USE_COCOA:BOOL=OFF;
