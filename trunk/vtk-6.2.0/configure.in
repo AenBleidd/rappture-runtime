@@ -1,0 +1,78 @@
+
+AC_INIT([VTK], [6.2.0])
+
+AC_PREFIX
+
+AC_CANONICAL_TARGET
+
+#------------------------------------------------------------------------
+# Handle the --prefix=... option
+#------------------------------------------------------------------------
+
+case $target in
+  *-*-darwin*)
+    PLATFORM="macosx"
+    SO_EXT=".dylib"
+    SO_PREFIX="lib"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+  *)
+    PLATFORM="unix" 
+    SO_PREFIX="lib"
+    SO_EXT=".so"
+    IMPLIB_SUFFIX=""
+    IMPLIB_EXT=""
+    ;;
+esac
+
+if test "${prefix}" = "NONE"; then
+    prefix=/usr/local
+fi
+if test "${exec_prefix}" = "NONE"; then
+    exec_prefix=$prefix
+fi
+libdir=$exec_prefix/lib
+includedir=$prefix/include
+PATH=$exec_prefix/bin:$PATH
+
+. $libdir/tclConfig.sh
+
+CMAKE=
+AC_PATH_PROG(CMAKE, cmake)
+if test "x${CMAKE}" = "x" ; then
+  AC_ERROR([cmake is required for building VTK])
+fi
+
+if test "${PLATFORM}" == "macosx"; then 
+  $CMAKE $srcdir \
+   -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
+   -DBUILD_EXAMPLES:BOOL=OFF \
+   -DBUILD_SHARED_LIBS:BOOL=ON \
+   -DBUILD_TESTING:BOOL=OFF \
+   -DVTK_WRAP_TCL:BOOL=OFF \
+   -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
+   -DOPENGL_INCLUDE_DIR:PATH=/usr/X11/include \
+   -DOPENGL_gl_LIBRARY:FILEPATH=/usr/X11/lib/libGL${SO_EXT} \
+   -DOPENGL_glu_LIBRARY:FILEPATH=/usr/X11/lib/libGLU${SO_EXT} \
+   -DModule_vtkRenderingFreeTypeFontConfig:BOOL=ON \
+   -DModule_vtkRenderingTk:BOOL=OFF \
+   -DVTK_USE_X:BOOL=ON \
+   -DVTK_USE_CARBON:BOOL=OFF \
+   -DVTK_USE_COCOA:BOOL=OFF;
+else 
+  $CMAKE $srcdir \
+   -DCMAKE_INSTALL_PREFIX:PATH=$prefix \
+   -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
+   -DBUILD_EXAMPLES:BOOL=OFF \
+   -DBUILD_SHARED_LIBS:BOOL=ON \
+   -DBUILD_TESTING:BOOL=OFF \
+   -DVTK_WRAP_TCL:BOOL=OFF \
+   -DCMAKE_BACKWARDS_COMPATIBILITY=2.2 \
+   -DModule_vtkRenderingFreeTypeFontConfig:BOOL=ON \
+   -DModule_vtkRenderingTk:BOOL=OFF \
+   -DVTK_USE_X:BOOL=ON \
+   -DVTK_USE_CARBON:BOOL=OFF \
+   -DVTK_USE_COCOA:BOOL=OFF;
+fi
