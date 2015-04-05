@@ -272,12 +272,12 @@ fi
 if test "${STAGE}" = "stage2"; then
   my_subdirs=$stage2_dirs
   my_makefile="Makefile:stages/Makefile-stage2.in"
-  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir --with-tclinclude=$topsrcdir/$tcl/../generic --with-system-sqlite"
+  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir --with-tclinclude=$topsrcdir/$tcl/../generic --with-system-sqlite"
 fi
 if test "${STAGE}" = "stage3"; then
   my_subdirs=$stage3_dirs
   my_makefile="Makefile:stages/Makefile-stage3.in"
-  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
+  ac_configure_args="$ac_configure_args --enable-shared --disable-threads --with-tclincls=$includedir --with-tkincls=$includedir --with-ssl-dir=/usr --with-tk=$libdir --with-tcl=$libdir --with-tcllibs=$libdir --with-tklibs=$libdir --with-tclconf=$libdir --with-tkconf=$libdir"
 fi
 
 AC_PATH_X
