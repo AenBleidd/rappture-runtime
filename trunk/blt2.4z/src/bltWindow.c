@@ -33,6 +33,10 @@
 #include <X11/Xproto.h>
 #endif
 
+#if defined(HAVE_LIBXRANDR) && defined(HAVE_X11_EXTENSIONS_RANDR_H) && defined(HAVE_X11_EXTENSIONS_XRANDR_H) 
+#define HAVE_RANDR 1
+#endif
+
 typedef struct TkIdStackStruct TkIdStack;
 typedef struct TkErrorHandlerStruct TkErrorHandler;
 typedef struct TkSelectionInfoStruct TkSelectionInfo;
@@ -1877,4 +1881,4 @@ void
 Blt_InitXRandrConfig(Tcl_Interp *interp) 
 {
 }
-#endif	/* HAVE_XRANDR */
+#endif	/* HAVE_RANDR */
