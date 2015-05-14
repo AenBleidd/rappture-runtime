@@ -78,6 +78,9 @@
 /* Define to 1 if you have the `socket' library (-lsocket). */
 #undef HAVE_LIBSOCKET
 
+/* Define if you have Xrandr library */
+#undef HAVE_LIBXRANDR
+
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
 
@@ -140,6 +143,9 @@
 
 /* Define to 1 if you have the <X11/extensions/randr.h> header file. */
 #undef HAVE_X11_EXTENSIONS_RANDR_H
+
+/* Define to 1 if you have the <X11/extensions/Xrandr.h> header file. */
+#undef HAVE_X11_EXTENSIONS_XRANDR_H
 
 /* Define to 1 if you have the `XExtendedMaxRequestSize' function. */
 #undef HAVE_XEXTENDEDMAXREQUESTSIZE
