@@ -820,6 +820,10 @@ struct TkWindowStruct {
     TkWindowPrivate *privatePtr;
 };
 
+#define Tk_RootWindow(tkwin)    \
+        RootWindow(Tk_Display(tkwin),Tk_ScreenNumber(tkwin))
+
+
 #ifdef WIN32
 /*
  *----------------------------------------------------------------------

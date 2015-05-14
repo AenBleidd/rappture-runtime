@@ -1031,6 +1031,7 @@ fi
 
 # XRANDR header
 if test "${blt_with_xrandr_include_dir}" != "no" ; then
+  AC_CHECK_HEADERS(X11/extensions/Xrandr.h)
   AC_CHECK_HEADERS(X11/extensions/randr.h, 
 	[XRANDR_INC_SPEC="${CPPFLAGS}"], 
 	[XRANDR_INC_SPEC=""])
@@ -1038,6 +1039,10 @@ fi
 AC_CHECK_LIB(Xrandr, XRRGetScreenInfo, 
 	[XRANDR_LIB_SPEC="-lXrandr"], 
 	[XRANDR_LIB_SPEC=""])
+
+if test "${XRANDR_LIB_SPEC}x" != "x" ; then
+    AC_DEFINE([HAVE_LIBXRANDR], 1, [Define if you have Xrandr library])
+fi
 
 #--------------------------------------------------------------------
 #
