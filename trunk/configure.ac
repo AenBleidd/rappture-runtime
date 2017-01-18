@@ -1,4 +1,4 @@
-AC_INIT([rappture-runtime],[1.5])
+AC_INIT([rappture-runtime],[1.9])
 AC_CONFIG_SRCDIR([README])
 
 AC_PREFIX
