@@ -599,7 +599,6 @@ TCL_DIR
 TCLLIB_DIR
 SQLITETCL_DIR
 SHAPE_DIR
-PYMOL_DIR
 ITK_DIR
 ITCL_DIR
 HTMLWIDGET_DIR
@@ -677,7 +676,6 @@ with_gdcm
 with_htmlwidget
 with_itcl
 with_itk
-with_pymol
 with_shape
 with_sqlitetcl
 with_tdom
@@ -1331,7 +1329,6 @@ Optional Packages:
   --with-htmlwidget=DIR   Build htmlwidget [default=yes]
   --with-itcl=DIR         Build itcl [default=yes]
   --with-itk=DIR          Build itk [default=yes]
-  --with-pymol=DIR        Build pymol [default=no]
   --with-shape=DIR        Build shape [default=yes]
   --with-sqlitetcl=DIR    Build sqlitetcl [default=yes]
   --with-tdom=DIR         Build tDOM [default=yes]
@@ -3479,7 +3476,6 @@ gdcm=gdcm-2.4.1
 htmlwidget=htmlwidget-3a14
 itcl=itcl3.3
 itk=itk3.3
-pymol=pymol
 shape=shape0.4/unix
 ##sqlite=sqlite-3071502
 sqlitetcl=sqlite-3071502/tea
@@ -3506,7 +3502,6 @@ default_htmlwidget=yes
 default_itcl=yes
 default_itk=yes
 default_matlab=yes
-default_pymol=no
 default_shape=yes
 #default_sqlite=yes
 default_sqlitetcl=yes
@@ -3602,15 +3597,6 @@ if test "${with_itk+set}" = set; then :
   withval=$with_itk;
 else
   with_itk=$default_itk
-fi
-
-
-
-# Check whether --with-pymol was given.
-if test "${with_pymol+set}" = set; then :
-  withval=$with_pymol;
-else
-  with_pymol=$default_pymol
 fi
 
 
@@ -3747,7 +3733,7 @@ fi
 
 stage1_targets="cmake expat glew tcl tk zlib"
 stage2_targets="blt expect gdcm htmlwidget itcl itk shape sqlite sqlitetcl tcllib tdom tkimg tls voronoi vtk"
-stage3_targets="pymol vtk_dicom"
+stage3_targets="vtk_dicom"
 
 if test "${with_expat}" = "no" ; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for XML_ParserCreate in -lexpat" >&5
@@ -4093,12 +4079,11 @@ fi
 
 
 if test "${x_includes}" = "NONE" ; then
-   as_fn_error $? "can't find X11 headers, required by tk, blt, htmlwidget, pymol, shape, tkimg" "$LINENO" 5
+   as_fn_error $? "can't find X11 headers, required by tk, blt, htmlwidget, shape, tkimg" "$LINENO" 5
 fi
 if test "${x_libraries}" = "NONE" ; then
-   as_fn_error $? "can't find X11 libraries, required by tk, blt, htmlwidget, pymol, shape, tkimg" "$LINENO" 5
+   as_fn_error $? "can't find X11 libraries, required by tk, blt, htmlwidget, shape, tkimg" "$LINENO" 5
 fi
-
 
 
 

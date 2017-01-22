@@ -38,7 +38,6 @@ gdcm=gdcm-2.4.1
 htmlwidget=htmlwidget-3a14
 itcl=itcl3.3
 itk=itk3.3
-pymol=pymol
 shape=shape0.4/unix
 ##sqlite=sqlite-3071502
 sqlitetcl=sqlite-3071502/tea
@@ -65,7 +64,6 @@ default_htmlwidget=yes
 default_itcl=yes
 default_itk=yes
 default_matlab=yes
-default_pymol=no
 default_shape=yes
 #default_sqlite=yes
 default_sqlitetcl=yes
@@ -127,11 +125,6 @@ AC_ARG_WITH([itk],
   [AS_HELP_STRING([--with-itk[=DIR]], 
     [Build itk @<:@default=yes@:>@])], 
 	[], [with_itk=$default_itk])
-
-AC_ARG_WITH([pymol],
-  [AS_HELP_STRING([--with-pymol[=DIR]], 
-     [Build pymol @<:@default=no@:>@])], 
-	[], [with_pymol=$default_pymol])
 
 AC_ARG_WITH([shape],
   [AS_HELP_STRING([--with-shape[=DIR]], 
@@ -210,7 +203,7 @@ AC_ARG_WITH([matlab],
 
 stage1_targets="cmake expat glew tcl tk zlib"
 stage2_targets="blt expect gdcm htmlwidget itcl itk shape sqlite sqlitetcl tcllib tdom tkimg tls voronoi vtk"
-stage3_targets="pymol vtk_dicom"
+stage3_targets="vtk_dicom"
 
 if test "${with_expat}" = "no" ; then
   AC_CHECK_LIB(expat, XML_ParserCreate, [with_expat="no"], 
@@ -283,10 +276,10 @@ fi
 AC_PATH_X
 
 if test "${x_includes}" = "NONE" ; then
-   AC_ERROR([can't find X11 headers, required by tk, blt, htmlwidget, pymol, shape, tkimg])
+   AC_ERROR([can't find X11 headers, required by tk, blt, htmlwidget, shape, tkimg])
 fi
 if test "${x_libraries}" = "NONE" ; then
-   AC_ERROR([can't find X11 libraries, required by tk, blt, htmlwidget, pymol, shape, tkimg])
+   AC_ERROR([can't find X11 libraries, required by tk, blt, htmlwidget, shape, tkimg])
 fi
 
 AC_SUBST(BLT_DIR)
@@ -298,7 +291,6 @@ AC_SUBST(GLEW_DIR)
 AC_SUBST(HTMLWIDGET_DIR)
 AC_SUBST(ITCL_DIR)
 AC_SUBST(ITK_DIR)
-AC_SUBST(PYMOL_DIR)
 AC_SUBST(SHAPE_DIR)
 #AC_SUBST(SQLITE_DIR)
 AC_SUBST(SQLITETCL_DIR)
