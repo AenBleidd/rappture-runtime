@@ -14,12 +14,8 @@ RM			= rm -f
 VPATH			= $(srcdir)
 INSTALL			= @INSTALL@
 
-PYMOL_DIR		= @PYMOL_DIR@
 VTK_DICOM_DIR		= @VTK_DICOM_DIR@
 
-ifneq ($(PYMOL_DIR),)
-   subdirs += $(PYMOL_DIR)
-endif
 ifneq ($(VTK_DICOM_DIR),)
    subdirs += $(VTK_DICOM_DIR)
 endif
