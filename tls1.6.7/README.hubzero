@@ -1,0 +1,12 @@
+Source code downloaded from https://sourceforge.net/projects/tls/
+
+       tls1.6.7-src.tar.gz
+
+Patch downloaded from https://sourceforge.net/p/tls/bugs/56/ 
+
+       0001-Always-declare-init_mx-and-initialized.patch
+
+Also changed the default -tls1 to off.
+
+       tls.c:768
+              int tls1 = 0;
