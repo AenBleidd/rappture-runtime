@@ -1,0 +1,35 @@
+From e557033ec8d65a8528aa9ac44d0ec506eded0201 Mon Sep 17 00:00:00 2001
+From: Jeremy Sowden <jeremy.sowden@openbet.com>
+Date: Thu, 16 Apr 2015 12:22:19 +0100
+Subject: [PATCH] Always declare init_mx and initialized.
+
+---
+ tls.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/tls.c b/tls.c
+index ed79977..7a41195 100644
+--- a/tls.c
++++ b/tls.c
+@@ -138,6 +138,9 @@ int channelTypeVersion;
+  * Thread-Safe TLS Code
+  */
+ 
++static Tcl_Mutex init_mx;
++static int initialized;
++
+ #ifdef TCL_THREADS
+ #define OPENSSL_THREAD_DEFINES
+ #include <openssl/opensslconf.h>
+@@ -151,8 +154,6 @@ int channelTypeVersion;
+  */
+ 
+ static Tcl_Mutex locks[CRYPTO_NUM_LOCKS];
+-static Tcl_Mutex init_mx;
+-static int initialized;
+ 
+ static void          CryptoThreadLockCallback (int mode, int n, const char *file, int line);
+ static unsigned long CryptoThreadIdCallback   (void);
+-- 
+2.1.4
+
